@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "itemcustomizer",
+  "version": "${version}",
+
+  "name": "Item Customizer",
+  "description": "",
+  "authors": [],
+  "contact": {},
+
+  "license": "Apache-2.0",
+  "icon": "assets/itemcustomizer/icon.png",
+
+  "environment": "server",
+  "entrypoints": {
+    "main": ["com.github.breadbyte.itemcustomizer.Itemcustomizer"]
+  },
+
+
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}

@@ -1,0 +1,38 @@
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Java
+*.class
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+
+# Minecraft server files
+run/
+!run/config/
+!run/resources/
+!run/mods/
+!run/saves/
+
+# Misc
+*.tmp
+*.bak
+*.swp
+
+# JARs
+libs/*.jar
+
