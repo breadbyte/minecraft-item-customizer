@@ -1,6 +1,5 @@
-package com.github.breadbyte.itemcustomizer;
+package com.github.breadbyte.itemcustomizer.main;
 
-import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.ClickEvent;

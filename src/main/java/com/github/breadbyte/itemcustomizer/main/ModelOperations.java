@@ -1,4 +1,4 @@
-package com.github.breadbyte.itemcustomizer;
+package com.github.breadbyte.itemcustomizer.main;
 
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.component.DataComponentTypes;
@@ -7,9 +7,8 @@ import net.minecraft.item.equipment.EquipmentAssetKeys;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
 
-import static com.github.breadbyte.itemcustomizer.Helper.*;
+import static com.github.breadbyte.itemcustomizer.main.Helper.*;
 
 public class ModelOperations {
     public static int applyModel(CommandContext<ServerCommandSource> context) {

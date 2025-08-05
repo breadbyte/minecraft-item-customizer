@@ -11,9 +11,17 @@
   "license": "Apache-2.0",
   "icon": "assets/itemcustomizer/icon.png",
 
-  "environment": "server",
+  "environment": "*",
   "entrypoints": {
-    "main": ["com.github.breadbyte.itemcustomizer.Itemcustomizer"]
+    "main": [
+      "com.github.breadbyte.itemcustomizer.main.ItemCustomizer"
+    ],
+    "client": [
+        "com.github.breadbyte.itemcustomizer.client.ItemCustomizerClient"
+    ],
+    "server": [
+        "com.github.breadbyte.itemcustomizer.server.ItemCustomizerServer"
+    ]
   },
 
 

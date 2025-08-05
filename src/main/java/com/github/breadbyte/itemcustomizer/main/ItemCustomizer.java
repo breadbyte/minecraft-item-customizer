@@ -1,4 +1,4 @@
-package com.github.breadbyte.itemcustomizer;
+package com.github.breadbyte.itemcustomizer.main;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
 import net.fabricmc.api.ModInitializer;
@@ -6,15 +6,12 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.command.CommandManager;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.HoverEvent;
-import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Itemcustomizer implements ModInitializer {
+public class ItemCustomizer implements ModInitializer {
 
     // Setup Fabric Logger
     public static final String MOD_ID = "itemcustomizer";

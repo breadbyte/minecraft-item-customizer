@@ -1,21 +1,12 @@
-package com.github.breadbyte.itemcustomizer;
+package com.github.breadbyte.itemcustomizer.main;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.stream.JsonReader;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.serialization.JsonOps;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.EntityNbtDataSource;
-import net.minecraft.text.NbtDataSource;
 import net.minecraft.text.Text;
-import net.minecraft.text.TextCodecs;
 
-import java.util.Optional;
-
-import static com.github.breadbyte.itemcustomizer.Helper.*;
+import static com.github.breadbyte.itemcustomizer.main.Helper.*;
 
 public class RenameOperations {
     public static int renameItem(CommandContext<ServerCommandSource> context) {

@@ -1,4 +1,4 @@
-package com.github.breadbyte.itemcustomizer;
+package com.github.breadbyte.itemcustomizer.main;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -9,13 +9,11 @@ import net.luckperms.api.LuckPermsProvider;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.LoreComponent;
 import net.minecraft.item.ItemStack;
-import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextCodecs;
 import net.minecraft.util.Identifier;
@@ -60,7 +58,7 @@ public class Helper {
             }
         } catch (InterruptedException | ExecutionException e) {
             context.getSource().sendFeedback(() -> Text.literal("An error occurred while checking permissions. Check the console for more information."), false);
-            Itemcustomizer.LOGGER.error("An error occurred while checking permissions.", e);
+            ItemCustomizer.LOGGER.error("An error occurred while checking permissions.", e);
         }
 
         var playerItem = player.getMainHandStack();
