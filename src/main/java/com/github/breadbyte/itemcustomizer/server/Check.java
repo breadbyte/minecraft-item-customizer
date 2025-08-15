@@ -2,9 +2,8 @@ package com.github.breadbyte.itemcustomizer.server;
 
 import com.github.breadbyte.itemcustomizer.main.ItemCustomizer;
 import com.mojang.brigadier.context.CommandContext;
+import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.loader.api.FabricLoader;
-import net.luckperms.api.LuckPerms;
-import net.luckperms.api.LuckPermsProvider;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.command.ServerCommandSource;
@@ -40,20 +39,12 @@ public class Check {
      * @return True if the player has the permission, false otherwise.
      */
     static boolean HasPermissionFor(PlayerEntity player, Check.Permission permission) {
-        //Luckperms doesn't exist on the client side, so we can skip the permission check
 
         if (!FabricLoader.getInstance().isModLoaded("luckperms")) {
             return player.isCreative();
         }
 
-        try {
-            LuckPerms api = LuckPermsProvider.get();
-            var user = api.getUserManager().loadUser(player.getUuid());
-            return user.get().getCachedData().getPermissionData().checkPermission(permission.getPermission()).asBoolean();
-        } catch (InterruptedException | ExecutionException e) {
-            ItemCustomizer.LOGGER.error("An error occurred while checking permissions.", e);
-            return false;
-        }
+        return Permissions.check(player, permission.getPermission());
     }
 
     static Optional<ServerPlayerEntity> TryReturnValidState(CommandContext<ServerCommandSource> context, String PermissionName) {
@@ -64,17 +55,8 @@ public class Check {
 
         var player = context.getSource().getPlayer();
 
-        LuckPerms api = LuckPermsProvider.get();
-        var user = api.getUserManager().loadUser(context.getSource().getPlayer().getUuid());
-        try {
-            var perm = user.get().getCachedData().getPermissionData().checkPermission(PermissionName).asBoolean();
-            if (!perm) {
-                Helper.SendMessageNo(player, "You do not have permission to use this command!");
-                return Optional.empty();
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            context.getSource().sendFeedback(() -> literal("An error occurred while checking permissions. Check the console for more information."), false);
-            ItemCustomizer.LOGGER.error("An error occurred while checking permissions.", e);
+        if (!Permissions.check(player, PermissionName)) {
+            Helper.SendMessageNo(player, "You do not have permission to use this command!");
         }
 
         var playerItem = player.getMainHandStack();

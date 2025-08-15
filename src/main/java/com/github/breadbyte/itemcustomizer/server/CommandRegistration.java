@@ -2,8 +2,10 @@ package com.github.breadbyte.itemcustomizer.server;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
 //import me.lucko.fabric.api.permissions.v0.Permissions;
+import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.server.command.CommandManager;
+import net.minecraft.server.command.ServerCommandSource;
 
 public class CommandRegistration {
 
@@ -28,7 +30,9 @@ public class CommandRegistration {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             dispatcher.register(
                     CommandManager.literal("model")
-                            //.requires(Permissions.require(Check.Permission.CUSTOMIZE.getPermission()))
+                            .requires(Permissions.require(Check.Permission.CUSTOMIZE.getPermission())
+                                    .or(scs -> scs.getPlayer().isCreative())
+                                    .or(scs -> scs.hasPermissionLevel(1)))
                             .then(CommandManager.literal("apply")
                                     .then(CommandManager.argument("namespace", StringArgumentType.word())
                                             .then(CommandManager.argument("path", StringArgumentType.greedyString())
@@ -41,7 +45,9 @@ public class CommandRegistration {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             dispatcher.register(
                     CommandManager.literal("rename")
-                            //.requires(Permissions.require(Check.Permission.RENAME.getPermission()))
+                            .requires(Permissions.require(Check.Permission.RENAME.getPermission())
+                                    .or(scs -> scs.getPlayer().isCreative())
+                                    .or(scs -> scs.hasPermissionLevel(1)))
                             .then(CommandManager.argument("name", StringArgumentType.greedyString())
                                     .executes(RenameOperations::renameItem))
                             .then(CommandManager.literal("reset")
@@ -54,7 +60,9 @@ public class CommandRegistration {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             dispatcher.register(
                     CommandManager.literal("lore")
-                            //.requires(Permissions.require(Check.Permission.LORE.getPermission()))
+                            .requires(Permissions.require(Check.Permission.LORE.getPermission())
+                                    .or(scs -> scs.getPlayer().isCreative())
+                                    .or(scs -> scs.hasPermissionLevel(1)))
                             .then(CommandManager.argument("text", StringArgumentType.greedyString())
                                     .executes(LoreOperations::addLore))
                             .then(CommandManager.literal("reset")

@@ -19,16 +19,16 @@ public class CommandRegistration {
             );
         });*/
 
-        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
-            dispatcher.register(
-                    CommandManager.literal("model")
-                            .then(CommandManager.literal("apply")
-                                    .then(CommandManager.argument("namespace", StringArgumentType.word())
-                                            .then(CommandManager.argument("path", StringArgumentType.greedyString())
-                                                    .executes(ModelOperations::applyModel))))
-                            .then(CommandManager.literal("reset")
-                                    .executes(ModelOperations::revertModel))
-            );
-        });
+//        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
+//            dispatcher.register(
+//                    CommandManager.literal("model")
+//                            .then(CommandManager.literal("apply")
+//                                    .then(CommandManager.argument("namespace", StringArgumentType.word())
+//                                            .then(CommandManager.argument("path", StringArgumentType.greedyString())
+//                                                    .executes(ModelOperations::applyModel))))
+//                            .then(CommandManager.literal("reset")
+//                                    .executes(ModelOperations::revertModel))
+//            );
+//        });
     }
 }
