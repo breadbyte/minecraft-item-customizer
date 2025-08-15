@@ -63,6 +63,43 @@ public class ModelOperations {
         return 1;
     }
 
+    public static int applyModelWithDyedColor(CommandContext<ServerCommandSource> context) {
+        var paramNamespace = String.valueOf(context.getArgument("namespace", String.class));
+        var paramPath = String.valueOf(context.getArgument("path", String.class));
+        var paramDyeColor = context.getArgument("color", Integer.class);
+
+        var playerContainer = Check.TryReturnValidState(context, Check.Permission.CUSTOMIZE.getPermission());
+        if (playerContainer.isEmpty())
+            return 0;
+
+        var player = playerContainer.get();
+        var playerItem = player.getMainHandStack();
+
+        // Set the item model
+        playerItem.set(DataComponentTypes.ITEM_MODEL, Helper.String2Identifier(paramNamespace, paramPath));
+
+        // Set the dyed color
+        playerItem.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(paramDyeColor, false));
+
+        // If this item is equippable, change the model for the equippable as well.
+        if (playerItem.getComponents().contains(DataComponentTypes.EQUIPPABLE)) {
+            // Get the first equippable component
+            var equippable = playerItem.getComponents().get(DataComponentTypes.EQUIPPABLE);
+
+            // Clone the equippable, except the assetId, since we are changing the model.
+            assert equippable != null;
+
+            var eqAsset = java.util.Optional.ofNullable(RegistryKey.of(EquipmentAssetKeys.REGISTRY_KEY, Helper.String2Identifier(paramNamespace, paramPath)));
+            var newEquippable = new EquippableComponent(equippable.slot(), equippable.equipSound(), eqAsset, equippable.cameraOverlay(), equippable.allowedEntities(), equippable.dispensable(), equippable.swappable(), equippable.damageOnHurt());
+
+            playerItem.set(DataComponentTypes.EQUIPPABLE, newEquippable);
+        }
+
+        Helper.SendMessage(player, "Model " + context.getArgument("path", String.class) + " with color applied!", SoundEvents.BLOCK_ANVIL_USE);
+        Helper.ApplyCost(player, 1);
+        return 1;
+    }
+
     public static int revertModel(CommandContext<ServerCommandSource> context) {
         var playerContainer = Check.TryReturnValidState(context, Check.Permission.CUSTOMIZE.getPermission());
         if (playerContainer.isEmpty())
