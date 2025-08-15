@@ -1,5 +1,7 @@
-package com.github.breadbyte.itemcustomizer.server;
+package com.github.breadbyte.itemcustomizer.server.operations;
 
+import com.github.breadbyte.itemcustomizer.server.Check;
+import com.github.breadbyte.itemcustomizer.server.Helper;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.server.command.ServerCommandSource;
@@ -7,14 +9,14 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 
 import static com.github.breadbyte.itemcustomizer.server.Helper.JsonString2Text;
-import static com.github.breadbyte.itemcustomizer.server.ModelOperations.performChecks;
 
 public class RenameOperations {
     public static int renameItem(CommandContext<ServerCommandSource> context) {
-        var player = performChecks(context, Check.Permission.RENAME.getPermission());
-        if (player == null) {
+        var playerContainer = Check.TryReturnValidState(context, Check.Permission.CUSTOMIZE.getPermission());
+        if (playerContainer.isEmpty())
             return 0;
-        }
+
+        var player = playerContainer.get();
         var playerItem = player.getMainHandStack();
 
         // Convert NBT text to string and apply the name to the item
@@ -32,13 +34,14 @@ public class RenameOperations {
     }
 
     public static int resetName(CommandContext<ServerCommandSource> context) {
-        var player = performChecks(context, Check.Permission.RENAME.getPermission());
-        if (player == null) {
+        var playerContainer = Check.TryReturnValidState(context, Check.Permission.CUSTOMIZE.getPermission());
+        if (playerContainer.isEmpty())
             return 0;
-        }
+
+        var player = playerContainer.get();
+        var playerItem = player.getMainHandStack();
 
         // Very straightforward, just remove the component
-        var playerItem = player.getMainHandStack();
 
         // Get the default item name for the item to compare
         var defaultItem = playerItem.getItem().getDefaultStack().getComponents().get(DataComponentTypes.ITEM_NAME);

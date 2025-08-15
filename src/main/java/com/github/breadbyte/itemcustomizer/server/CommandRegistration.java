@@ -1,11 +1,14 @@
 package com.github.breadbyte.itemcustomizer.server;
 
+import com.github.breadbyte.itemcustomizer.server.operations.HelpOperations;
+import com.github.breadbyte.itemcustomizer.server.operations.LoreOperations;
+import com.github.breadbyte.itemcustomizer.server.operations.ModelOperations;
+import com.github.breadbyte.itemcustomizer.server.operations.RenameOperations;
 import com.mojang.brigadier.arguments.StringArgumentType;
 //import me.lucko.fabric.api.permissions.v0.Permissions;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
 
 public class CommandRegistration {
 

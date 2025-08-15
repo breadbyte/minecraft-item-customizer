@@ -8,6 +8,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundEvents;
 
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -31,23 +32,7 @@ public class Check {
         }
     }
 
-    /**
-     * Checks if the player has the required permission for the operation.
-     *
-     * @param player     The player to check permissions for.
-     * @param permission The permission to check.
-     * @return True if the player has the permission, false otherwise.
-     */
-    static boolean HasPermissionFor(PlayerEntity player, Check.Permission permission) {
-
-        if (!FabricLoader.getInstance().isModLoaded("luckperms")) {
-            return player.isCreative();
-        }
-
-        return Permissions.check(player, permission.getPermission());
-    }
-
-    static Optional<ServerPlayerEntity> TryReturnValidState(CommandContext<ServerCommandSource> context, String PermissionName) {
+    public static Optional<ServerPlayerEntity> TryReturnValidState(CommandContext<ServerCommandSource> context, String PermissionName) {
         if (context.getSource().getPlayer() == null) {
             context.getSource().sendFeedback(() -> literal("Command can only be called by a player."), false);
             return Optional.empty();
@@ -55,14 +40,25 @@ public class Check {
 
         var player = context.getSource().getPlayer();
 
+        // Check for permission (Redundant since we check it in the command registration, but better safe than sorry)
         if (!Permissions.check(player, PermissionName)) {
             Helper.SendMessageNo(player, "You do not have permission to use this command!");
         }
 
+        // Check if the player has something in their hand
         var playerItem = player.getMainHandStack();
         if (playerItem == ItemStack.EMPTY) {
-            player.sendMessage(of("You are not holding an item!"), true);
+            Helper.SendMessageNo(player,"You are not holding an item!");
             return Optional.empty();
+        }
+
+        // Check if the player has more than one experience level
+        // (skips this check if the player is in creative mode)
+        if (!player.isCreative()) {
+            if (player.experienceLevel < 1) {
+                Helper.SendMessageNo(player, "This command requires at least 1 experience level!");
+                return Optional.empty();
+            }
         }
 
         return Optional.of(player);

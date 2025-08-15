@@ -1,5 +1,7 @@
-package com.github.breadbyte.itemcustomizer.server;
+package com.github.breadbyte.itemcustomizer.server.operations;
 
+import com.github.breadbyte.itemcustomizer.server.Check;
+import com.github.breadbyte.itemcustomizer.server.Helper;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.EquippableComponent;
@@ -17,23 +19,21 @@ public class ModelOperations {
         var paramNamespace = String.valueOf(context.getArgument("namespace", String.class));
         var paramPath = String.valueOf(context.getArgument("path", String.class));
 
-        var player = performChecks(context, Check.Permission.CUSTOMIZE.getPermission());
-        if (player == null) {
+        var playerContainer = Check.TryReturnValidState(context, Check.Permission.CUSTOMIZE.getPermission());
+        if (playerContainer.isEmpty())
             return 0;
-        }
+
+        var player = playerContainer.get();
         var playerItem = player.getMainHandStack();
 
-        if (!player.isInCreativeMode()) {
-            if (player.experienceLevel < 1) {
-                SendMessage(player, "This command requires at least 1 experience level!", SoundEvents.ENTITY_VILLAGER_NO);
-                return 0;
-            }
-        }
-
+        // Get the components for the currently held item
         var itemComps = playerItem.getComponents();
-        itemComps.get(DataComponentTypes.ITEM_MODEL);
+
+        // Set it to the new model
         playerItem.set(DataComponentTypes.ITEM_MODEL, Helper.String2Identifier(paramNamespace, paramPath));
 
+        // If this item is equippable, change the model for the equippable as well.
+        // TODO: Should we add a flag if the item has a custom equippable model?
         if (itemComps.contains(DataComponentTypes.EQUIPPABLE)) {
             // Get the first equippable component
             var equippable = itemComps.get(DataComponentTypes.EQUIPPABLE);
@@ -47,21 +47,18 @@ public class ModelOperations {
             playerItem.set(DataComponentTypes.EQUIPPABLE, newEquippable);
         }
 
-        SendMessage(player, "Model " + context.getArgument("path", String.class) + " applied!", SoundEvents.BLOCK_ANVIL_USE);
+        Helper.SendMessage(player, "Model " + context.getArgument("path", String.class) + " applied!", SoundEvents.BLOCK_ANVIL_USE);
         Helper.ApplyCost(player, 1);
 
         return 1;
     }
 
-    public static ServerPlayerEntity performChecks(CommandContext<ServerCommandSource> context, String permission) {
-        return Check.TryReturnValidState(context, permission).get();
-    }
-
     public static int revertModel(CommandContext<ServerCommandSource> context) {
-        var player = performChecks(context, Check.Permission.CUSTOMIZE.getPermission());
-        if (player == null) {
+        var playerContainer = Check.TryReturnValidState(context, Check.Permission.CUSTOMIZE.getPermission());
+        if (playerContainer.isEmpty())
             return 0;
-        }
+
+        var player = playerContainer.get();
 
         // Get the current item in the player's hand
         var playerItem = player.getMainHandStack();
@@ -79,7 +76,7 @@ public class ModelOperations {
         if (playerItem.getComponents().get(DataComponentTypes.ITEM_MODEL) == defaultItemModel ||
                 playerItem.getComponents().get(DataComponentTypes.ITEM_MODEL) == null) {
 
-            SendMessage(player, "This item is already using the default model!", SoundEvents.ENTITY_VILLAGER_NO);
+            Helper.SendMessage(player, "This item is already using the default model!", SoundEvents.ENTITY_VILLAGER_NO);
             return 0;
         }
 
@@ -94,7 +91,7 @@ public class ModelOperations {
             playerItem.set(DataComponentTypes.EQUIPPABLE, defaultEquippable);
         }
 
-        SendMessage(player, "Model reset to default!", SoundEvents.ENTITY_ENDERMAN_TELEPORT);
+        Helper.SendMessage(player, "Model reset to default!", SoundEvents.ENTITY_ENDERMAN_TELEPORT);
         return 1;
     }
 }
