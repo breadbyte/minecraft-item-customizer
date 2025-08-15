@@ -49,18 +49,12 @@ public class Helper {
 //    }
 
     public static String ToSomewhatValidJson(String input) {
-        // Check if we're a plain string. If we are, escape it.
-        if (input.charAt(0) != '[' && input.charAt(input.length() - 1) != ']') {
-            // Escape the string
-            String escapedString = '"' + input + '"';
+        // Return the input as-is if it is already valid JSON
+        if (IsValidJson(input))
+            return input;
 
-            // Escape backslashes
-            escapedString = escapedString.replace("\\", "\\\\");
-            return escapedString;
-        }
-
-        // Return otherwise
-        return input;
+        // Treat as plain string: wrap and escape backslashes
+        return "\"" + input.replace("\\", "\\\\") + "\"";
     }
 
     public static Text JsonString2Text(String input) {
@@ -71,6 +65,24 @@ public class Helper {
                 .getOrThrow()
                 .getFirst();
     }
+
+    public static boolean IsValidJson(String input) {
+        // Accept either a JSON array or object boundary (fail-fast if neither)
+        // technically "valid" json
+        boolean hasValidBrackets =
+                (input.charAt(0) == '[' && input.charAt(input.length() - 1) == ']') ||
+                (input.charAt(0) == '{' && input.charAt(input.length() - 1) == '}');
+
+        if (!hasValidBrackets) return false;
+
+        try {
+            new Gson().fromJson(input, JsonElement.class);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
 
     public static Identifier String2Identifier(String namespace, String path) {
         return Identifier.of(namespace, path);
