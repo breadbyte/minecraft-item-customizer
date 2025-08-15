@@ -4,6 +4,7 @@ import com.github.breadbyte.itemcustomizer.server.operations.HelpOperations;
 import com.github.breadbyte.itemcustomizer.server.operations.LoreOperations;
 import com.github.breadbyte.itemcustomizer.server.operations.ModelOperations;
 import com.github.breadbyte.itemcustomizer.server.operations.RenameOperations;
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 //import me.lucko.fabric.api.permissions.v0.Permissions;
@@ -23,7 +24,9 @@ public class CommandRegistration {
                             .then(CommandManager.literal("apply")
                                     .then(CommandManager.argument("namespace", StringArgumentType.word())
                                             .then(CommandManager.argument("path", StringArgumentType.word()).executes(ModelOperations::applyModel)
-                                                .then(CommandManager.argument("color", IntegerArgumentType.integer()).executes(ModelOperations::applyModelWithDyedColor))
+                                                    .then(CommandManager.argument("change_equippable_texture", BoolArgumentType.bool()).executes(ModelOperations::applyModel))
+                                                .then(CommandManager.argument("color", IntegerArgumentType.integer()).executes(ModelOperations::applyModel)
+                                                    .then(CommandManager.argument("change_equippable_texture", BoolArgumentType.bool()).executes(ModelOperations::applyModel)))
                                     ))
                             )
                             .then(CommandManager.literal("glint")

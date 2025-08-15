@@ -9,7 +9,6 @@ import net.minecraft.component.type.EquippableComponent;
 import net.minecraft.item.equipment.EquipmentAssetKeys;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvents;
 
 import static com.github.breadbyte.itemcustomizer.server.Helper.SendMessage;
@@ -28,6 +27,16 @@ public class ModelOperations {
     public static int applyModel(CommandContext<ServerCommandSource> context) {
         var paramNamespace = String.valueOf(context.getArgument("namespace", String.class));
         var paramPath = String.valueOf(context.getArgument("path", String.class));
+        Integer paramDyeColor;
+        Boolean changeEquippableTexture;
+
+        // Check if these parameters exist, if not, set them to default values
+        try { paramDyeColor = context.getArgument("color", Integer.class); } catch (Exception e) {
+            paramDyeColor = Integer.MAX_VALUE; }
+        try { changeEquippableTexture = context.getArgument("change_equippable_texture", Boolean.class); } catch (Exception e) {
+            changeEquippableTexture = false;
+        }
+
 
         var playerContainer = Check.TryReturnValidState(context, Check.Permission.CUSTOMIZE.getPermission());
         if (playerContainer.isEmpty())
@@ -42,19 +51,25 @@ public class ModelOperations {
         // Set it to the new model
         playerItem.set(DataComponentTypes.ITEM_MODEL, Helper.String2Identifier(paramNamespace, paramPath));
 
-        // If this item is equippable, change the model for the equippable as well.
-        // TODO: Should we add a flag if the item has a custom equippable model?
-        if (itemComps.contains(DataComponentTypes.EQUIPPABLE)) {
-            // Get the first equippable component
-            var equippable = itemComps.get(DataComponentTypes.EQUIPPABLE);
+        if (paramDyeColor != Integer.MAX_VALUE) {
+            // Set the dyed color if provided
+            playerItem.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(paramDyeColor, false));
+        }
 
-            // Clone the equippable, except the assetId, since we are changing the model.
-            assert equippable != null;
+        if (changeEquippableTexture) {
+            // If this item is equippable, change the model for the equippable as well.
+            if (itemComps.contains(DataComponentTypes.EQUIPPABLE)) {
+                // Get the first equippable component
+                var equippable = itemComps.get(DataComponentTypes.EQUIPPABLE);
 
-            var eqAsset = java.util.Optional.ofNullable(RegistryKey.of(EquipmentAssetKeys.REGISTRY_KEY, Helper.String2Identifier(paramNamespace, paramPath)));
-            var newEquippable = new EquippableComponent(equippable.slot(), equippable.equipSound(), eqAsset, equippable.cameraOverlay(), equippable.allowedEntities(), equippable.dispensable(), equippable.swappable(), equippable.damageOnHurt());
+                // Clone the equippable, except the assetId, since we are changing the model.
+                assert equippable != null;
 
-            playerItem.set(DataComponentTypes.EQUIPPABLE, newEquippable);
+                var eqAsset = java.util.Optional.ofNullable(RegistryKey.of(EquipmentAssetKeys.REGISTRY_KEY, Helper.String2Identifier(paramNamespace, paramPath)));
+                var newEquippable = new EquippableComponent(equippable.slot(), equippable.equipSound(), eqAsset, equippable.cameraOverlay(), equippable.allowedEntities(), equippable.dispensable(), equippable.swappable(), equippable.damageOnHurt());
+
+                playerItem.set(DataComponentTypes.EQUIPPABLE, newEquippable);
+            }
         }
 
         Helper.SendMessage(player, "Model " + context.getArgument("path", String.class) + " applied!", SoundEvents.BLOCK_ANVIL_USE);
