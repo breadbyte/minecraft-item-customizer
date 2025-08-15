@@ -130,7 +130,7 @@ public class ModelOperations {
         var playerItem = player.getMainHandStack();
 
         // Remove the shine component
-        playerItem.remove(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE);
+        playerItem.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, false);
 
         Helper.SendMessage(player, "Glint removed!", SoundEvents.BLOCK_ANVIL_USE);
         return 1;
