@@ -4,6 +4,7 @@ import com.github.breadbyte.itemcustomizer.server.Check;
 import com.github.breadbyte.itemcustomizer.server.Helper;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.component.type.EquippableComponent;
 import net.minecraft.item.equipment.EquipmentAssetKeys;
 import net.minecraft.registry.RegistryKey;
@@ -14,6 +15,15 @@ import net.minecraft.sound.SoundEvents;
 import static com.github.breadbyte.itemcustomizer.server.Helper.SendMessage;
 
 public class ModelOperations {
+
+    public static int fullModelReset(CommandContext<ServerCommandSource> context) {
+        revertModel(context);
+        revertDyedColor(context);
+        removeGlint(context);
+
+        SendMessage(context.getSource().getPlayer(), "Model reset to default!", SoundEvents.ENTITY_ENDERMAN_TELEPORT);
+        return 1;
+    }
 
     public static int applyModel(CommandContext<ServerCommandSource> context) {
         var paramNamespace = String.valueOf(context.getArgument("namespace", String.class));
@@ -125,4 +135,54 @@ public class ModelOperations {
         Helper.SendMessage(player, "Glint removed!", SoundEvents.BLOCK_ANVIL_USE);
         return 1;
     }
+
+    public static int applyDyedColor(CommandContext<ServerCommandSource> context) {
+        var paramDyeColor = context.getArgument("color", Integer.class);
+
+        var playerContainer = Check.TryReturnValidState(context, Check.Permission.CUSTOMIZE.getPermission());
+        if (playerContainer.isEmpty())
+            return 0;
+
+        var player = playerContainer.get();
+        var playerItem = player.getMainHandStack();
+
+        // Set it to the new model
+        playerItem.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(paramDyeColor, false));
+
+
+        Helper.SendMessage(player, "Color applied!", SoundEvents.BLOCK_ANVIL_USE);
+        Helper.ApplyCost(player, 1);
+        return 1;
+    }
+
+    public static int revertDyedColor(CommandContext<ServerCommandSource> context) {
+        var playerContainer = Check.TryReturnValidState(context, Check.Permission.CUSTOMIZE.getPermission());
+        if (playerContainer.isEmpty())
+            return 0;
+
+        var player = playerContainer.get();
+        var playerItem = player.getMainHandStack();
+
+        // Get the default dyed color for the item
+        var defaultDyedColor = playerItem.getItem().getDefaultStack().getComponents().get(DataComponentTypes.DYED_COLOR);
+
+        // Check if the item is currently using the default dyed color.
+        // If it is, do nothing, since we're already using the default dyed color.
+        if (playerItem.getComponents().get(DataComponentTypes.DYED_COLOR) == defaultDyedColor ||
+                playerItem.getComponents().get(DataComponentTypes.DYED_COLOR) == null) {
+
+            Helper.SendMessage(player, "This item is already using the default color!", SoundEvents.ENTITY_VILLAGER_NO);
+            return 0;
+        }
+
+        // Remove the current dyed color component otherwise.
+        playerItem.remove(DataComponentTypes.DYED_COLOR);
+
+        // Set the item dyed color to the default dyed color.
+        playerItem.set(DataComponentTypes.DYED_COLOR, defaultDyedColor);
+
+        Helper.SendMessage(player, "Color reset to default!", SoundEvents.ENTITY_ENDERMAN_TELEPORT);
+        return 1;
+    }
+
 }

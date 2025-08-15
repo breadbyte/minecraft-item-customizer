@@ -4,6 +4,7 @@ import com.github.breadbyte.itemcustomizer.server.operations.HelpOperations;
 import com.github.breadbyte.itemcustomizer.server.operations.LoreOperations;
 import com.github.breadbyte.itemcustomizer.server.operations.ModelOperations;
 import com.github.breadbyte.itemcustomizer.server.operations.RenameOperations;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 //import me.lucko.fabric.api.permissions.v0.Permissions;
 import me.lucko.fabric.api.permissions.v0.Permissions;
@@ -30,8 +31,14 @@ public class CommandRegistration {
                                     .then(CommandManager.literal("remove")
                                             .executes(ModelOperations::removeGlint))
                             )
+                            .then(CommandManager.literal("dye")
+                                    .then(CommandManager.argument("color", IntegerArgumentType.integer())
+                                            .executes(ModelOperations::applyDyedColor))
+                                    .then(CommandManager.literal("remove")
+                                            .executes(ModelOperations::revertDyedColor))
+                            )
                             .then(CommandManager.literal("reset")
-                                    .executes(ModelOperations::revertModel))
+                                    .executes(ModelOperations::fullModelReset))
             );
         });
 
