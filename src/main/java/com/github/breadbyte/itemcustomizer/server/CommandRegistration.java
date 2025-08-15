@@ -13,23 +13,6 @@ import net.minecraft.server.command.CommandManager;
 public class CommandRegistration {
 
     public static void RegisterCommands() {
-        // TODO: shiny item (item shine)
-        // TODO: item rarity (item name color)
-        // Register commands
-
-        // This registers the following commands:
-        //
-        // model apply <namespace> <path> - Applies a model to the item in the player's hand.
-        // Usage:
-        // /model apply minecraft stone - Applies the minecraft:stone model to the item in the player's hand.
-        //
-        // model reset - Resets the model of the item in the player's hand, and gives them 1 experience level in return.
-        // Usage:
-        // /model reset
-        //
-        // model reset force - Resets the model of the item in the player's hand, even if it is the default model.
-        // Usage:
-        // /model reset force
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             dispatcher.register(
                     CommandManager.literal("model")
@@ -39,7 +22,14 @@ public class CommandRegistration {
                             .then(CommandManager.literal("apply")
                                     .then(CommandManager.argument("namespace", StringArgumentType.word())
                                             .then(CommandManager.argument("path", StringArgumentType.greedyString())
-                                                    .executes(ModelOperations::applyModel))))
+                                                    .executes(ModelOperations::applyModel)))
+                            )
+                            .then(CommandManager.literal("glint")
+                                    .then(CommandManager.literal("add")
+                                            .executes(ModelOperations::applyGlint))
+                                    .then(CommandManager.literal("remove")
+                                            .executes(ModelOperations::removeGlint))
+                            )
                             .then(CommandManager.literal("reset")
                                     .executes(ModelOperations::revertModel))
             );

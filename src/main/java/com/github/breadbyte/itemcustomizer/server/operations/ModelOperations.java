@@ -94,4 +94,35 @@ public class ModelOperations {
         Helper.SendMessage(player, "Model reset to default!", SoundEvents.ENTITY_ENDERMAN_TELEPORT);
         return 1;
     }
+
+    public static int applyGlint(CommandContext<ServerCommandSource> context) {
+        var playerContainer = Check.TryReturnValidState(context, Check.Permission.CUSTOMIZE.getPermission());
+        if (playerContainer.isEmpty())
+            return 0;
+
+        var player = playerContainer.get();
+        var playerItem = player.getMainHandStack();
+
+        // Set the shine component to true
+        playerItem.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true);
+
+        Helper.SendMessage(player, "Glint added!", SoundEvents.BLOCK_ANVIL_USE);
+        Helper.ApplyCost(player, 1);
+        return 1;
+    }
+
+    public static int removeGlint(CommandContext<ServerCommandSource> context) {
+        var playerContainer = Check.TryReturnValidState(context, Check.Permission.CUSTOMIZE.getPermission());
+        if (playerContainer.isEmpty())
+            return 0;
+
+        var player = playerContainer.get();
+        var playerItem = player.getMainHandStack();
+
+        // Remove the shine component
+        playerItem.remove(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE);
+
+        Helper.SendMessage(player, "Glint removed!", SoundEvents.BLOCK_ANVIL_USE);
+        return 1;
+    }
 }
