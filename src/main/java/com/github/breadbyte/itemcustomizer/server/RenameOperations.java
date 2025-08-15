@@ -1,4 +1,4 @@
-package com.github.breadbyte.itemcustomizer.main;
+package com.github.breadbyte.itemcustomizer.server;
 
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.component.DataComponentTypes;
@@ -6,11 +6,12 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 
-import static com.github.breadbyte.itemcustomizer.main.Helper.*;
+import static com.github.breadbyte.itemcustomizer.server.Helper.JsonString2Text;
+import static com.github.breadbyte.itemcustomizer.server.ModelOperations.performChecks;
 
 public class RenameOperations {
     public static int renameItem(CommandContext<ServerCommandSource> context) {
-        var player = performChecks(context, Helper.Permission.RENAME.getPermission());
+        var player = performChecks(context, Check.Permission.RENAME.getPermission());
         if (player == null) {
             return 0;
         }
@@ -19,9 +20,10 @@ public class RenameOperations {
         // Convert NBT text to string and apply the name to the item
         var input = String.valueOf(context.getArgument("name", String.class));
 
+        // todo: use CUSTOM_NAME component instead of ITEM_NAME
         playerItem.set(DataComponentTypes.ITEM_NAME, JsonString2Text(input));
 
-        Helper.SendMessage(player,Text.literal("Renamed to ").append(Helper.JsonString2Text(input)), SoundEvents.BLOCK_ANVIL_USE);
+        Helper.SendMessage(player,Text.literal("Renamed to ").append(JsonString2Text(input)), SoundEvents.BLOCK_ANVIL_USE);
         Helper.ApplyCost(player, 1);
 
         // Apply the name to the item
@@ -30,7 +32,7 @@ public class RenameOperations {
     }
 
     public static int resetName(CommandContext<ServerCommandSource> context) {
-        var player = performChecks(context, Helper.Permission.RENAME.getPermission());
+        var player = performChecks(context, Check.Permission.RENAME.getPermission());
         if (player == null) {
             return 0;
         }

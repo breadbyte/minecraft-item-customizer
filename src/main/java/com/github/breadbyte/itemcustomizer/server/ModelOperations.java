@@ -1,4 +1,4 @@
-package com.github.breadbyte.itemcustomizer.main;
+package com.github.breadbyte.itemcustomizer.server;
 
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.component.DataComponentTypes;
@@ -6,16 +6,18 @@ import net.minecraft.component.type.EquippableComponent;
 import net.minecraft.item.equipment.EquipmentAssetKeys;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvents;
 
-import static com.github.breadbyte.itemcustomizer.main.Helper.*;
+import static com.github.breadbyte.itemcustomizer.server.Helper.SendMessage;
 
 public class ModelOperations {
+
     public static int applyModel(CommandContext<ServerCommandSource> context) {
         var paramNamespace = String.valueOf(context.getArgument("namespace", String.class));
         var paramPath = String.valueOf(context.getArgument("path", String.class));
 
-        var player = performChecks(context, Permission.CUSTOMIZE.getPermission());
+        var player = performChecks(context, Check.Permission.CUSTOMIZE.getPermission());
         if (player == null) {
             return 0;
         }
@@ -51,8 +53,12 @@ public class ModelOperations {
         return 1;
     }
 
+    public static ServerPlayerEntity performChecks(CommandContext<ServerCommandSource> context, String permission) {
+        return Check.TryReturnValidState(context, permission).get();
+    }
+
     public static int revertModel(CommandContext<ServerCommandSource> context) {
-        var player = performChecks(context, Permission.CUSTOMIZE.getPermission());
+        var player = performChecks(context, Check.Permission.CUSTOMIZE.getPermission());
         if (player == null) {
             return 0;
         }

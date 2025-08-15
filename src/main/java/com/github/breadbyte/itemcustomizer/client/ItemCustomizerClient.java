@@ -9,8 +9,6 @@ public class ItemCustomizerClient implements net.fabricmc.api.ClientModInitializ
     @Override
     public void onInitializeClient() {
         LOGGER.info("Item Customizer Client is initializing...");
-
-        // Register client-side components, if any.
-        // This is where you would register custom item renderers, etc.
+        //CommandRegistration.RegisterCommands();
     }
 }

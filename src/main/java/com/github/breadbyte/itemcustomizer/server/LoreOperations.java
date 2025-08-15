@@ -1,4 +1,4 @@
-package com.github.breadbyte.itemcustomizer.main;
+package com.github.breadbyte.itemcustomizer.server;
 
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.component.DataComponentTypes;
@@ -8,13 +8,12 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 
 import java.util.ArrayList;
-
-import static com.github.breadbyte.itemcustomizer.main.Helper.SendMessage;
-import static com.github.breadbyte.itemcustomizer.main.Helper.performChecks;
+import static com.github.breadbyte.itemcustomizer.server.Helper.SendMessage;
+import static com.github.breadbyte.itemcustomizer.server.ModelOperations.performChecks;
 
 public class LoreOperations {
     public static int addLore(CommandContext<ServerCommandSource> context) {
-        var player = performChecks(context, Helper.Permission.LORE.getPermission());
+        var player = performChecks(context, Check.Permission.LORE.getPermission());
         if (player == null) {
             return 0;
         }
@@ -43,13 +42,13 @@ public class LoreOperations {
         LoreComponent newLore = new LoreComponent(newLine);
         playerItem.set(DataComponentTypes.LORE, newLore);
 
-        SendMessage(player,Text.literal("Added ").append(Helper.JsonString2Text(input)), SoundEvents.BLOCK_ANVIL_USE);
+        SendMessage(player, String.valueOf(Text.literal("Added ").append(Helper.JsonString2Text(input))), SoundEvents.BLOCK_ANVIL_USE);
         Helper.ApplyCost(player, 1);
         return 1;
     }
 
     public static int resetLore(CommandContext<ServerCommandSource> context) {
-        var player = performChecks(context, Helper.Permission.LORE.getPermission());
+        var player = performChecks(context, Check.Permission.LORE.getPermission());
         if (player == null) {
             return 0;
         }

@@ -9,9 +9,6 @@ public class ItemCustomizerServer implements net.fabricmc.api.DedicatedServerMod
     @Override
     public void onInitializeServer() {
         LOGGER.info("Item Customizer Server is initializing...");
-
-        // Register server-side components, commands, and event listeners.
-        // This is where you would register commands for renaming items, adding lore, etc.
-        //ItemCustomizerCommands.registerCommands();
+        CommandRegistration.RegisterCommands();
     }
 }

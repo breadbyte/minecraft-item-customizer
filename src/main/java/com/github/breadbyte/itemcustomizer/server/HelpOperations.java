@@ -1,4 +1,4 @@
-package com.github.breadbyte.itemcustomizer.main;
+package com.github.breadbyte.itemcustomizer.server;
 
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.server.command.ServerCommandSource;
