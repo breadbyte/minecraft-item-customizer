@@ -23,7 +23,7 @@ public class CommandRegistration {
                                     .or(scs -> scs.hasPermissionLevel(1)))
                             .then(CommandManager.literal("apply")
                                     .then(CommandManager.argument("namespace", StringArgumentType.word())
-                                            .then(CommandManager.argument("path", StringArgumentType.word()).executes(ModelOperations::applyModel)
+                                            .then(CommandManager.argument("path", StringArgumentType.string()).executes(ModelOperations::applyModel)
                                                     .then(CommandManager.argument("change_equippable_texture", BoolArgumentType.bool()).executes(ModelOperations::applyModel))
                                                 .then(CommandManager.argument("color", IntegerArgumentType.integer()).executes(ModelOperations::applyModel)
                                                     .then(CommandManager.argument("change_equippable_texture", BoolArgumentType.bool()).executes(ModelOperations::applyModel)))
