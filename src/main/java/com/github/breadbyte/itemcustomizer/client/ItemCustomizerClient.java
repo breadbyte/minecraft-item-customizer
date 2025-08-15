@@ -1,14 +1,11 @@
 package com.github.breadbyte.itemcustomizer.client;
 
-public class ItemCustomizerClient implements net.fabricmc.api.ClientModInitializer {
+import net.fabricmc.api.ClientModInitializer;
 
-    // Setup Fabric Logger
-    public static final String MOD_ID = "itemcustomizer";
-    public static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(MOD_ID);
+public class ItemCustomizerClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        LOGGER.info("Item Customizer Client is initializing...");
-        //CommandRegistration.RegisterCommands();
+
     }
 }
