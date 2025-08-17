@@ -2,14 +2,18 @@ package com.github.breadbyte.itemcustomizer.server.operations;
 
 import com.github.breadbyte.itemcustomizer.server.Check;
 import com.github.breadbyte.itemcustomizer.server.Helper;
+import com.github.breadbyte.itemcustomizer.server.data.Cache;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.CustomModelDataComponent;
 import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.component.type.EquippableComponent;
 import net.minecraft.item.equipment.EquipmentAssetKeys;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.sound.SoundEvents;
+
+import java.util.List;
 
 import static com.github.breadbyte.itemcustomizer.server.Helper.SendMessage;
 
@@ -25,8 +29,23 @@ public class ModelOperations {
     }
 
     public static int applyModel(CommandContext<ServerCommandSource> context) {
-        var paramNamespace = String.valueOf(context.getArgument("namespace", String.class));
-        var paramPath = String.valueOf(context.getArgument("path", String.class));
+        var paramItemType = String.valueOf(context.getArgument("item_type", String.class));
+        var paramItemName = String.valueOf(context.getArgument("item_name", String.class));
+        var defs = Cache.getInstance().getDefs(paramItemName);
+
+        // This allows us to keep the previous behavior of using direct paths for models,
+        // but also allows us to use the new namespace/path format.
+        if (!paramItemName.contains("/")) {
+            if (defs.isEmpty()) {
+                Helper.SendMessage(context.getSource().getPlayer(), "No custom model definitions found for item: " + paramItemType + "/" + paramItemName, SoundEvents.ENTITY_VILLAGER_NO);
+                return 0;
+            }
+        }
+
+        var customModel = defs.get();
+
+        var paramNamespace = customModel.getNamespace();
+        var paramPath = customModel.getDestination();
         Integer paramDyeColor;
         Boolean changeEquippableTexture;
 
@@ -54,6 +73,7 @@ public class ModelOperations {
         if (paramDyeColor != Integer.MAX_VALUE) {
             // Set the dyed color if provided
             playerItem.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(paramDyeColor, false));
+            playerItem.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(List.of(),List.of(),List.of(), List.of(paramDyeColor)));
         }
 
         if (changeEquippableTexture) {
@@ -72,7 +92,7 @@ public class ModelOperations {
             }
         }
 
-        Helper.SendMessage(player, "Model " + context.getArgument("path", String.class) + " applied!", SoundEvents.BLOCK_ANVIL_USE);
+        Helper.SendMessage(player, "Model " + paramItemName + " applied!", SoundEvents.BLOCK_ANVIL_USE);
         Helper.ApplyCost(player, 1);
 
         return 1;
@@ -107,6 +127,7 @@ public class ModelOperations {
 
         // Remove the current model component otherwise.
         playerItem.remove(DataComponentTypes.ITEM_MODEL);
+        playerItem.remove(DataComponentTypes.CUSTOM_MODEL_DATA);
 
         // Set the item model to the default model.
         playerItem.set(DataComponentTypes.ITEM_MODEL, defaultItemModel);

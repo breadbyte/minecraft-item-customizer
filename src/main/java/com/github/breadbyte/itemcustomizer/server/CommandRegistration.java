@@ -1,9 +1,9 @@
 package com.github.breadbyte.itemcustomizer.server;
 
-import com.github.breadbyte.itemcustomizer.server.operations.HelpOperations;
-import com.github.breadbyte.itemcustomizer.server.operations.LoreOperations;
-import com.github.breadbyte.itemcustomizer.server.operations.ModelOperations;
-import com.github.breadbyte.itemcustomizer.server.operations.RenameOperations;
+import com.github.breadbyte.itemcustomizer.server.operations.*;
+import com.github.breadbyte.itemcustomizer.server.suggester.ItemTypeSuggestionProvider;
+import com.github.breadbyte.itemcustomizer.server.suggester.ModelSuggestionProvider;
+import com.github.breadbyte.itemcustomizer.server.suggester.NamespaceSuggestionProvider;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -22,8 +22,11 @@ public class CommandRegistration {
                                     .or(scs -> scs.getPlayer().isCreative())
                                     .or(scs -> scs.hasPermissionLevel(1)))
                             .then(CommandManager.literal("apply")
-                                    .then(CommandManager.argument("namespace", StringArgumentType.word())
-                                            .then(CommandManager.argument("path", StringArgumentType.string()).executes(ModelOperations::applyModel)
+                                    .then(CommandManager.argument("item_type", StringArgumentType.word())
+                                            .suggests(ItemTypeSuggestionProvider.INSTANCE)
+                                            .then(CommandManager.argument("item_name", StringArgumentType.string())
+                                                    .suggests(ModelSuggestionProvider.INSTANCE)
+                                                    .executes(ModelOperations::applyModel)
                                                     .then(CommandManager.argument("change_equippable_texture", BoolArgumentType.bool()).executes(ModelOperations::applyModel))
                                                 .then(CommandManager.argument("color", IntegerArgumentType.integer()).executes(ModelOperations::applyModel)
                                                     .then(CommandManager.argument("change_equippable_texture", BoolArgumentType.bool()).executes(ModelOperations::applyModel)))
@@ -31,12 +34,33 @@ public class CommandRegistration {
                             )
                             .then(CommandManager.literal("glint")
                                     .then(CommandManager.literal("on")
-                                            .executes(ModelOperations::applyGlint))
+                                            .executes(ModelOperations::applyGlint)
+                                    )
                                     .then(CommandManager.literal("off")
-                                            .executes(ModelOperations::removeGlint))
+                                            .executes(ModelOperations::removeGlint)
+                                    )
                             )
                             .then(CommandManager.literal("reset")
-                                    .executes(ModelOperations::fullModelReset))
+                                    .executes(ModelOperations::fullModelReset)
+                            )
+                            .then(CommandManager.literal("namespaces")
+                                .requires(scs -> scs.hasPermissionLevel(4)) //ops only
+                                .then(CommandManager.literal("register")
+                                        .then(CommandManager.argument("namespace", StringArgumentType.word())
+                                                .then(CommandManager.argument("csv_url", StringArgumentType.greedyString())
+                                                        .executes(SuggestionOperations::registerSuggestions))
+                                        )
+                                )
+                                .then(CommandManager.literal("clear")
+                                        .executes(SuggestionOperations::clearSuggestions)
+                                )
+                                .then(CommandManager.literal("remove")
+                                        .then(CommandManager.argument("namespace", StringArgumentType.word())
+                                                .suggests(NamespaceSuggestionProvider.INSTANCE)
+                                                .executes(SuggestionOperations::removeNamespace))
+                                )
+                            )
+
             );
         });
 

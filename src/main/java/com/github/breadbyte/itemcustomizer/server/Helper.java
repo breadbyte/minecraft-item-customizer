@@ -1,11 +1,13 @@
 package com.github.breadbyte.itemcustomizer.server;
 
+import com.github.breadbyte.itemcustomizer.server.data.Storage;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.LoreComponent;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvent;
@@ -83,9 +85,14 @@ public class Helper {
         }
     }
 
-
     public static Identifier String2Identifier(String namespace, String path) {
         return Identifier.of(namespace, path);
+    }
+
+    public static void tryLoadStorage() {
+        if (!Storage.HANDLER.load()) {
+            throw new IllegalStateException("Failed to load storage handler.");
+        }
     }
 
     public static void SendMessage(ServerPlayerEntity player, String message, net.minecraft.sound.SoundEvent sound) {
@@ -100,6 +107,12 @@ public class Helper {
         if (sound != null) {
             player.playSound(sound, 1.0F, 1.0F);
         }
+    }
+
+    // Some events are apparently wrapped in a Reference
+    public static void SendMessage(ServerPlayerEntity player, String suggestionsUpdated, RegistryEntry.Reference<SoundEvent> soundEventReference) {
+        player.sendMessage(Text.of(suggestionsUpdated), true);
+        player.playSound(soundEventReference.value(), 1.0F, 1.0F);
     }
 
     public static void SendMessageNo(ServerPlayerEntity player, String message) {

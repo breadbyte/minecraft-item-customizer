@@ -55,7 +55,7 @@ public class RenameOperations {
         // Very straightforward, just remove the component
 
         if (playerItem.getComponents().get(DataComponentTypes.CUSTOM_NAME) == null) {
-            Helper.SendMessage(player, "This item is already using the default name!", null);
+            Helper.SendMessage(player, "This item is already using the default name!", SoundEvents.ENTITY_VILLAGER_NO);
             return 0;
         }
 
