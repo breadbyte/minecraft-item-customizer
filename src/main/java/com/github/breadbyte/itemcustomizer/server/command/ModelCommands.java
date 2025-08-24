@@ -17,8 +17,8 @@ public class ModelCommands {
 
         var retval = ModelOperations.applyGlint(player);
 
-        if (retval.isOk())
-            Helper.ApplyCost(player, retval.getCost());
+        if (retval.ok())
+            Helper.ApplyCost(player, retval.cost());
         else
             Helper.SendMessageNo(player, retval.details());
         return 1;
@@ -31,8 +31,8 @@ public class ModelCommands {
 
         var retval = ModelOperations.removeGlint(player);
 
-        if (retval.isOk())
-            Helper.ApplyCost(player, retval.getCost());
+        if (retval.ok())
+            Helper.ApplyCost(player, retval.cost());
         else
             Helper.SendMessageNo(player, retval.details());
 
@@ -52,8 +52,8 @@ public class ModelCommands {
         try { changeEquippable = ctx.getArgument("change_equippable_texture", Boolean.class); } catch (Exception ignored) {}
 
         var res = ModelOperations.applyModel(player, itemType, itemName, color, changeEquippable);
-        if (res.isOk()) {
-            Helper.ApplyCost(player, res.getCost());
+        if (res.ok()) {
+            Helper.ApplyCost(player, res.cost());
         } else
             Helper.SendMessageNo(player, res.details());
 
@@ -67,8 +67,8 @@ public class ModelCommands {
 
         var retval = ModelOperations.revertModel(player);
 
-        if (retval.isOk())
-            Helper.ApplyCost(player, retval.getCost());
+        if (retval.ok())
+            Helper.ApplyCost(player, retval.cost());
         else
             Helper.SendMessageNo(player, retval.details());
 
