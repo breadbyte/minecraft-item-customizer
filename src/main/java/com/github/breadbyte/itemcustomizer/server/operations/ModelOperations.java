@@ -22,7 +22,6 @@ public class ModelOperations {
 
     public static int fullModelReset(CommandContext<ServerCommandSource> context) {
         revertDyedColor(context);
-        removeGlint(context);
         revertModel(context);
 
         SendMessage(context.getSource().getPlayer(), "Model reset to default!", SoundEvents.ENTITY_ENDERMAN_TELEPORT);
@@ -43,10 +42,8 @@ public class ModelOperations {
             }
         }
 
-        var customModel = defs.get();
-
-        var paramNamespace = customModel.getNamespace();
-        var paramPath = customModel.getDestination();
+        var paramNamespace = defs.isPresent() ? defs.get().getNamespace() : paramItemType;
+        var paramPath = defs.isPresent() ? defs.get().destination : paramItemName;
         Integer paramDyeColor;
         Boolean changeEquippableTexture;
 
