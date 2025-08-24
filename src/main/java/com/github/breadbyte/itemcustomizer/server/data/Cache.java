@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Cache {
-    private final List<CustomModelDefinition> customModelsCache = new CopyOnWriteArrayList<>();
+    private final List<CustomModelDefinition> customModelsCache = new ArrayList<>();
 
     // The only thing that really matters in the end is the itemName,
     // as that is what determines the destination.
