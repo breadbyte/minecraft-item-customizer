@@ -14,7 +14,7 @@ import static com.github.breadbyte.itemcustomizer.server.Helper.JsonString2Text;
 
 public class RenameOperations {
     public static int renameItem(CommandContext<ServerCommandSource> context) {
-        var playerContainer = Check.TryReturnValidState(context, Check.Permission.CUSTOMIZE.getPermission());
+        var playerContainer = Check.TryReturnValidPlayer(context, Check.Permission.CUSTOMIZE.getPermission());
         if (playerContainer.isEmpty())
             return 0;
 
@@ -45,7 +45,7 @@ public class RenameOperations {
     }
 
     public static int resetName(CommandContext<ServerCommandSource> context) {
-        var playerContainer = Check.TryReturnValidState(context, Check.Permission.CUSTOMIZE.getPermission());
+        var playerContainer = Check.TryReturnValidPlayer(context, Check.Permission.CUSTOMIZE.getPermission());
         if (playerContainer.isEmpty())
             return 0;
 

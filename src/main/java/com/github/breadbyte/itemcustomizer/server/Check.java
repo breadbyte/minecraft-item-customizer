@@ -1,17 +1,12 @@
 package com.github.breadbyte.itemcustomizer.server;
 
-import com.github.breadbyte.itemcustomizer.main.ItemCustomizer;
 import com.mojang.brigadier.context.CommandContext;
 import me.lucko.fabric.api.permissions.v0.Permissions;
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundEvents;
 
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 import static net.minecraft.text.Text.*;
 
@@ -32,7 +27,7 @@ public class Check {
         }
     }
 
-    public static Optional<ServerPlayerEntity> TryReturnValidState(CommandContext<ServerCommandSource> context, String PermissionName) {
+    public static Optional<ServerPlayerEntity> TryReturnValidPlayer(CommandContext<ServerCommandSource> context, String PermissionName) {
         if (context.getSource().getPlayer() == null) {
             context.getSource().sendFeedback(() -> literal("Command can only be called by a player."), false);
             return Optional.empty();

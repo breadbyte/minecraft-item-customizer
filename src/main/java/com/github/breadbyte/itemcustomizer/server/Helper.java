@@ -5,8 +5,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.serialization.JsonOps;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.LoreComponent;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -16,10 +14,7 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TextCodecs;
 import net.minecraft.util.Identifier;
 
-import java.util.ArrayList;
 import java.util.Objects;
-
-import static com.github.breadbyte.itemcustomizer.server.Check.TryReturnValidState;
 
 public class Helper {
 
@@ -32,7 +27,7 @@ public class Helper {
     }
 
     public static ServerPlayerEntity ValidateState(CommandContext<ServerCommandSource> context, int cost) {
-        var playerContainer = Check.TryReturnValidState(context, Check.Permission.CUSTOMIZE.getPermission());
+        var playerContainer = Check.TryReturnValidPlayer(context, Check.Permission.CUSTOMIZE.getPermission());
 
         if (!ValidateCost(Objects.requireNonNull(context.getSource().getPlayer()), cost)) {
             return null;
