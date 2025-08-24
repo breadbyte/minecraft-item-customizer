@@ -1,5 +1,6 @@
 package com.github.breadbyte.itemcustomizer.server;
 
+import com.github.breadbyte.itemcustomizer.server.command.ModelCommands;
 import com.github.breadbyte.itemcustomizer.server.operations.*;
 import com.github.breadbyte.itemcustomizer.server.suggester.ItemTypeSuggestionProvider;
 import com.github.breadbyte.itemcustomizer.server.suggester.ModelSuggestionProvider;
@@ -26,22 +27,22 @@ public class CommandRegistration {
                                             .suggests(ItemTypeSuggestionProvider.INSTANCE)
                                             .then(CommandManager.argument("item_name", StringArgumentType.string())
                                                     .suggests(ModelSuggestionProvider.INSTANCE)
-                                                    .executes(ModelOperations::applyModel)
-                                                    .then(CommandManager.argument("change_equippable_texture", BoolArgumentType.bool()).executes(ModelOperations::applyModel))
-                                                .then(CommandManager.argument("color", IntegerArgumentType.integer()).executes(ModelOperations::applyModel)
-                                                    .then(CommandManager.argument("change_equippable_texture", BoolArgumentType.bool()).executes(ModelOperations::applyModel)))
+                                                    .executes(ModelCommands::applyModel)
+                                                    .then(CommandManager.argument("change_equippable_texture", BoolArgumentType.bool()).executes(ModelCommands::applyModel))
+                                                .then(CommandManager.argument("color", IntegerArgumentType.integer()).executes(ModelCommands::applyModel)
+                                                    .then(CommandManager.argument("change_equippable_texture", BoolArgumentType.bool()).executes(ModelCommands::applyModel)))
                                     ))
                             )
                             .then(CommandManager.literal("glint")
                                     .then(CommandManager.literal("on")
-                                            .executes(ModelOperations::applyGlint)
+                                            .executes(ModelCommands::applyGlint)
                                     )
                                     .then(CommandManager.literal("off")
-                                            .executes(ModelOperations::removeGlint)
+                                            .executes(ModelCommands::removeGlint)
                                     )
                             )
                             .then(CommandManager.literal("reset")
-                                    .executes(ModelOperations::fullModelReset)
+                                    .executes(ModelCommands::resetModel)
                             )
                             .then(CommandManager.literal("namespaces")
                                 .requires(scs -> scs.hasPermissionLevel(4)) //ops only
