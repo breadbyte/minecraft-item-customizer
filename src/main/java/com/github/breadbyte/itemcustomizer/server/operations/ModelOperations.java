@@ -1,5 +1,6 @@
 package com.github.breadbyte.itemcustomizer.server.operations;
 
+import com.github.breadbyte.itemcustomizer.main.ItemCustomizer;
 import com.github.breadbyte.itemcustomizer.server.Check;
 import com.github.breadbyte.itemcustomizer.server.Helper;
 import com.github.breadbyte.itemcustomizer.server.data.Cache;
@@ -20,9 +21,9 @@ import static com.github.breadbyte.itemcustomizer.server.Helper.SendMessage;
 public class ModelOperations {
 
     public static int fullModelReset(CommandContext<ServerCommandSource> context) {
-        revertModel(context);
         revertDyedColor(context);
         removeGlint(context);
+        revertModel(context);
 
         SendMessage(context.getSource().getPlayer(), "Model reset to default!", SoundEvents.ENTITY_ENDERMAN_TELEPORT);
         return 1;
@@ -113,8 +114,9 @@ public class ModelOperations {
         itemComps.get(DataComponentTypes.ITEM_MODEL);
 
         // Get the default item model for the item to compare
-        var defaultItemModel = playerItem.getItem().getDefaultStack().getComponents().get(DataComponentTypes.ITEM_MODEL);
-        var defaultEquippable = playerItem.getItem().getDefaultStack().getComponents().get(DataComponentTypes.EQUIPPABLE);
+        var defaultComponents = playerItem.getItem().getDefaultStack().getComponents();
+        var defaultItemModel = defaultComponents.get(DataComponentTypes.ITEM_MODEL);
+        var defaultEquippable = defaultComponents.get(DataComponentTypes.EQUIPPABLE);
 
         // Check if the item is currently using the default model.
         // If it is, do nothing, since we're already using the default model.
@@ -127,17 +129,58 @@ public class ModelOperations {
 
         // Remove the current model component otherwise.
         playerItem.remove(DataComponentTypes.ITEM_MODEL);
+        playerItem.remove(DataComponentTypes.CUSTOM_NAME);
         playerItem.remove(DataComponentTypes.CUSTOM_MODEL_DATA);
+        playerItem.remove(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE);
 
         // Set the item model to the default model.
         playerItem.set(DataComponentTypes.ITEM_MODEL, defaultItemModel);
 
         // If we have an equippable component, we also reset it to the default.
         if (playerItem.getComponents().contains(DataComponentTypes.EQUIPPABLE)) {
-            playerItem.set(DataComponentTypes.EQUIPPABLE, defaultEquippable);
+
+            if (defaultComponents.contains(DataComponentTypes.EQUIPPABLE))
+                playerItem.set(DataComponentTypes.EQUIPPABLE, defaultEquippable);
+            else
+                playerItem.remove(DataComponentTypes.EQUIPPABLE);
         }
 
-        Helper.SendMessage(player, "Model reset to default!", SoundEvents.ENTITY_ENDERMAN_TELEPORT);
+        // Ensure component parity with default stack
+        if (playerItem.getComponents().size() != defaultComponents.size()) {
+            // Nuke all components that _we_ modified if the component size doesn't match
+
+            // Remove custom anything that doesn't normally exist on the item
+            playerItem.remove(DataComponentTypes.CUSTOM_NAME);
+            playerItem.remove(DataComponentTypes.CUSTOM_MODEL_DATA);
+            playerItem.remove(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE);
+
+            // Dangerous, but set dyes to default (if it exists)
+            if (defaultComponents.get(DataComponentTypes.DYED_COLOR) == null) {
+                playerItem.remove(DataComponentTypes.DYED_COLOR);
+            } else
+                playerItem.set(DataComponentTypes.DYED_COLOR, defaultComponents.get(DataComponentTypes.DYED_COLOR));
+
+            // Set these to default
+            playerItem.set(DataComponentTypes.ITEM_MODEL, defaultItemModel);
+
+            if (defaultComponents.get(DataComponentTypes.EQUIPPABLE) == null) {
+                playerItem.remove(DataComponentTypes.EQUIPPABLE);
+            } else
+                playerItem.set(DataComponentTypes.EQUIPPABLE, defaultEquippable);
+
+            if (playerItem.getComponents().size() != defaultComponents.size()) {
+                // If we still don't match, something's wrong
+                ItemCustomizer.LOGGER.warn("Item components out of sync after reset! Current:");
+                ItemCustomizer.LOGGER.warn(playerItem.getComponents().toString());
+                ItemCustomizer.LOGGER.warn("Item components out of sync after reset! Default:");
+                ItemCustomizer.LOGGER.warn(defaultComponents.toString());
+
+                Helper.SendMessage(player, "Warning: Item cannot be fully reset. Item may not stack as expected. Check logs for details.", SoundEvents.ENTITY_VILLAGER_NO);
+            }
+            else
+                Helper.SendMessage(player, "Warning: Item components out of sync. Item may not stack as expected. Check logs for details.", SoundEvents.ENTITY_VILLAGER_NO);
+        } else
+            Helper.SendMessage(player, "Model reset to default!", SoundEvents.ENTITY_ENDERMAN_TELEPORT);
         return 1;
     }
 
