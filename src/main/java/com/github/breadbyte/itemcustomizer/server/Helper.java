@@ -17,20 +17,40 @@ import net.minecraft.text.TextCodecs;
 import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import static com.github.breadbyte.itemcustomizer.server.Check.TryReturnValidState;
 
 public class Helper {
 
     public static void ApplyCost(ServerPlayerEntity player, int cost) {
-        if (!player.isCreative()) {
-            if (player.experienceLevel < cost) {
-                player.sendMessage(Text.of("This command requires at least " + cost + " experience level(s)!"), true);
+        if (cost == 0)
+            return;
 
-                return;
-            }
+        if (ValidateCost(player, cost))
+            player.setExperienceLevel(player.experienceLevel - cost);
+    }
+
+    public static ServerPlayerEntity ValidateState(CommandContext<ServerCommandSource> context, int cost) {
+        var playerContainer = Check.TryReturnValidState(context, Check.Permission.CUSTOMIZE.getPermission());
+
+        if (!ValidateCost(Objects.requireNonNull(context.getSource().getPlayer()), cost)) {
+            return null;
         }
-        player.setExperienceLevel(player.experienceLevel - cost);
+
+        return playerContainer.orElse(null);
+    }
+
+    public static boolean ValidateCost(ServerPlayerEntity player, int cost) {
+        if (player.isCreative())
+            return true;
+
+        if (player.experienceLevel < cost) {
+            Helper.SendMessageNo(player, "This command requires at least " + cost + " experience level(s)!");
+            return false;
+        }
+
+        return true;
     }
 //
 //    static int Debug(CommandContext<ServerCommandSource> context) {

@@ -1,9 +1,9 @@
 package com.github.breadbyte.itemcustomizer.server.operations;
 
 import com.github.breadbyte.itemcustomizer.main.ItemCustomizer;
-import com.github.breadbyte.itemcustomizer.server.Check;
 import com.github.breadbyte.itemcustomizer.server.Helper;
 import com.github.breadbyte.itemcustomizer.server.data.Cache;
+import com.github.breadbyte.itemcustomizer.server.data.OperationResult;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.CustomModelDataComponent;
@@ -12,54 +12,37 @@ import net.minecraft.component.type.EquippableComponent;
 import net.minecraft.item.equipment.EquipmentAssetKeys;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvents;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.github.breadbyte.itemcustomizer.server.Helper.SendMessage;
 
 public class ModelOperations {
 
-    public static int fullModelReset(CommandContext<ServerCommandSource> context) {
-        revertDyedColor(context);
-        revertModel(context);
-
-        SendMessage(context.getSource().getPlayer(), "Model reset to default!", SoundEvents.ENTITY_ENDERMAN_TELEPORT);
-        return 1;
-    }
-
-    public static int applyModel(CommandContext<ServerCommandSource> context) {
-        var paramItemType = String.valueOf(context.getArgument("item_type", String.class));
-        var paramItemName = String.valueOf(context.getArgument("item_name", String.class));
-        var defs = Cache.getInstance().getDefs(paramItemName);
+    public static OperationResult applyModel(ServerPlayerEntity player, String itemType, String itemName, Integer color, Boolean changeEquippableTexture) {
+        var defs = Cache.getInstance().getDefs(itemName);
 
         // This allows us to keep the previous behavior of using direct paths for models,
         // but also allows us to use the new namespace/path format.
-        if (!paramItemName.contains("/")) {
+        if (!itemName.contains("/")) {
             if (defs.isEmpty()) {
-                Helper.SendMessage(context.getSource().getPlayer(), "No custom model definitions found for item: " + paramItemType + "/" + paramItemName, SoundEvents.ENTITY_VILLAGER_NO);
-                return 0;
+                return OperationResult.fail("No custom model definitions found for item: " + itemType + "/" + itemName, SoundEvents.ENTITY_VILLAGER_NO);
             }
         }
 
-        var paramNamespace = defs.isPresent() ? defs.get().getNamespace() : paramItemType;
-        var paramPath = defs.isPresent() ? defs.get().destination : paramItemName;
-        Integer paramDyeColor;
-        Boolean changeEquippableTexture;
+        var paramNamespace = defs.isPresent() ? defs.get().getNamespace() : itemType;
+        var paramPath = defs.isPresent() ? defs.get().itemName : itemName;
 
         // Check if these parameters exist, if not, set them to default values
-        try { paramDyeColor = context.getArgument("color", Integer.class); } catch (Exception e) {
-            paramDyeColor = Integer.MAX_VALUE; }
-        try { changeEquippableTexture = context.getArgument("change_equippable_texture", Boolean.class); } catch (Exception e) {
+        if (color == null)
+            color = Integer.MIN_VALUE;
+
+        if (changeEquippableTexture == null)
             changeEquippableTexture = false;
-        }
 
-
-        var playerContainer = Check.TryReturnValidState(context, Check.Permission.CUSTOMIZE.getPermission());
-        if (playerContainer.isEmpty())
-            return 0;
-
-        var player = playerContainer.get();
         var playerItem = player.getMainHandStack();
 
         // Get the components for the currently held item
@@ -68,10 +51,10 @@ public class ModelOperations {
         // Set it to the new model
         playerItem.set(DataComponentTypes.ITEM_MODEL, Helper.String2Identifier(paramNamespace, paramPath));
 
-        if (paramDyeColor != Integer.MAX_VALUE) {
+        if (color != Integer.MIN_VALUE) {
             // Set the dyed color if provided
-            playerItem.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(paramDyeColor, false));
-            playerItem.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(List.of(),List.of(),List.of(), List.of(paramDyeColor)));
+            playerItem.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(color, false));
+            playerItem.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(List.of(),List.of(),List.of(), List.of(color)));
         }
 
         if (changeEquippableTexture) {
@@ -90,18 +73,10 @@ public class ModelOperations {
             }
         }
 
-        Helper.SendMessage(player, "Model " + paramItemName + " applied!", SoundEvents.BLOCK_ANVIL_USE);
-        Helper.ApplyCost(player, 1);
-
-        return 1;
+        return OperationResult.ok("Model " + itemName + " applied!", SoundEvents.BLOCK_ANVIL_USE, 1);
     }
 
-    public static int revertModel(CommandContext<ServerCommandSource> context) {
-        var playerContainer = Check.TryReturnValidState(context, Check.Permission.CUSTOMIZE.getPermission());
-        if (playerContainer.isEmpty())
-            return 0;
-
-        var player = playerContainer.get();
+    public static OperationResult revertModel(ServerPlayerEntity player) {
 
         // Get the current item in the player's hand
         var playerItem = player.getMainHandStack();
@@ -114,15 +89,6 @@ public class ModelOperations {
         var defaultComponents = playerItem.getItem().getDefaultStack().getComponents();
         var defaultItemModel = defaultComponents.get(DataComponentTypes.ITEM_MODEL);
         var defaultEquippable = defaultComponents.get(DataComponentTypes.EQUIPPABLE);
-
-        // Check if the item is currently using the default model.
-        // If it is, do nothing, since we're already using the default model.
-        if (playerItem.getComponents().get(DataComponentTypes.ITEM_MODEL) == defaultItemModel ||
-                playerItem.getComponents().get(DataComponentTypes.ITEM_MODEL) == null) {
-
-            Helper.SendMessage(player, "This item is already using the default model!", SoundEvents.ENTITY_VILLAGER_NO);
-            return 0;
-        }
 
         // Remove the current model component otherwise.
         playerItem.remove(DataComponentTypes.ITEM_MODEL);
@@ -172,65 +138,37 @@ public class ModelOperations {
                 ItemCustomizer.LOGGER.warn("Item components out of sync after reset! Default:");
                 ItemCustomizer.LOGGER.warn(defaultComponents.toString());
 
-                Helper.SendMessage(player, "Warning: Item cannot be fully reset. Item may not stack as expected. Check logs for details.", SoundEvents.ENTITY_VILLAGER_NO);
+                return OperationResult.ok("Warning: Item not fully reset. Item may not stack as expected. Check logs for details.", SoundEvents.ENTITY_VILLAGER_NO, 1);
             }
             else
-                Helper.SendMessage(player, "Warning: Item components out of sync. Item may not stack as expected. Check logs for details.", SoundEvents.ENTITY_VILLAGER_NO);
+                return OperationResult.ok("Warning: Item components out of sync. Item may not stack as expected. Check logs for details.", SoundEvents.ENTITY_VILLAGER_NO, 1);
         } else
-            Helper.SendMessage(player, "Model reset to default!", SoundEvents.ENTITY_ENDERMAN_TELEPORT);
-        return 1;
+            return OperationResult.ok("Model reset to default!", SoundEvents.ENTITY_ENDERMAN_TELEPORT);
     }
 
-    public static int applyGlint(CommandContext<ServerCommandSource> context) {
-        var playerContainer = Check.TryReturnValidState(context, Check.Permission.CUSTOMIZE.getPermission());
-        if (playerContainer.isEmpty())
-            return 0;
-
-        var player = playerContainer.get();
+    public static OperationResult applyGlint(ServerPlayerEntity player) {
         var playerItem = player.getMainHandStack();
 
         // Set the shine component to true
         playerItem.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true);
 
-        Helper.SendMessage(player, "Glint added!", SoundEvents.BLOCK_ANVIL_USE);
-        Helper.ApplyCost(player, 1);
-        return 1;
+        return OperationResult.ok("Glint added!", SoundEvents.BLOCK_ANVIL_USE, 1);
     }
 
-    public static int removeGlint(CommandContext<ServerCommandSource> context) {
-        var playerContainer = Check.TryReturnValidState(context, Check.Permission.CUSTOMIZE.getPermission());
-        if (playerContainer.isEmpty())
-            return 0;
-
-        var player = playerContainer.get();
+    public static OperationResult removeGlint(ServerPlayerEntity player) {
         var playerItem = player.getMainHandStack();
 
         // Remove the shine component
         playerItem.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, false);
 
-        Helper.SendMessage(player, "Glint removed!", SoundEvents.BLOCK_ANVIL_USE);
-        return 1;
+        return OperationResult.ok("Glint removed!", SoundEvents.BLOCK_ANVIL_USE, 1);
     }
 
-    public static int revertDyedColor(CommandContext<ServerCommandSource> context) {
-        var playerContainer = Check.TryReturnValidState(context, Check.Permission.CUSTOMIZE.getPermission());
-        if (playerContainer.isEmpty())
-            return 0;
-
-        var player = playerContainer.get();
+    public static OperationResult revertDyedColor(ServerPlayerEntity player) {
         var playerItem = player.getMainHandStack();
 
         // Get the default dyed color for the item
         var defaultDyedColor = playerItem.getItem().getDefaultStack().getComponents().get(DataComponentTypes.DYED_COLOR);
-
-        // Check if the item is currently using the default dyed color.
-        // If it is, do nothing, since we're already using the default dyed color.
-        if (playerItem.getComponents().get(DataComponentTypes.DYED_COLOR) == defaultDyedColor ||
-                playerItem.getComponents().get(DataComponentTypes.DYED_COLOR) == null) {
-
-            Helper.SendMessage(player, "This item is already using the default color!", SoundEvents.ENTITY_VILLAGER_NO);
-            return 0;
-        }
 
         // Remove the current dyed color component otherwise.
         playerItem.remove(DataComponentTypes.DYED_COLOR);
@@ -238,8 +176,7 @@ public class ModelOperations {
         // Set the item dyed color to the default dyed color.
         playerItem.set(DataComponentTypes.DYED_COLOR, defaultDyedColor);
 
-        Helper.SendMessage(player, "Color reset to default!", SoundEvents.ENTITY_ENDERMAN_TELEPORT);
-        return 1;
+        return OperationResult.ok("Color reset to default!", SoundEvents.ENTITY_ENDERMAN_TELEPORT, 1);
     }
 
 }
