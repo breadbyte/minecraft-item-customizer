@@ -34,7 +34,7 @@ public class ModelOperations {
         }
 
         var paramNamespace = defs.isPresent() ? defs.get().getNamespace() : itemType;
-        var paramPath = defs.isPresent() ? defs.get().itemName : itemName;
+        var paramPath = defs.isPresent() ? defs.get().getDestination() : itemName;
 
         // Check if these parameters exist, if not, set them to default values
         if (color == null)
