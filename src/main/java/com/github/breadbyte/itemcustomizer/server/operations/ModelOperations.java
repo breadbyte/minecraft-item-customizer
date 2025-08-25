@@ -133,17 +133,16 @@ public class ModelOperations {
 
             if (playerItem.getComponents().size() != defaultComponents.size()) {
                 // If we still don't match, something's wrong
-                ItemCustomizer.LOGGER.warn("Item components out of sync after reset! Current:");
-                ItemCustomizer.LOGGER.warn(playerItem.getComponents().toString());
-                ItemCustomizer.LOGGER.warn("Item components out of sync after reset! Default:");
-                ItemCustomizer.LOGGER.warn(defaultComponents.toString());
+                ItemCustomizer.LOGGER.info("Item components out of sync after reset! Current:");
+                ItemCustomizer.LOGGER.info(playerItem.getComponents().toString());
+                ItemCustomizer.LOGGER.info("Item components out of sync after reset! Default:");
+                ItemCustomizer.LOGGER.info(defaultComponents.toString());
 
-                return OperationResult.ok("Warning: Item not fully reset. Item may not stack as expected. Check logs for details.", 1);
+                return OperationResult.ok("Warning: Item components out of sync. Item may not stack. Check logs for details.", 1);
             }
-            else
-                return OperationResult.ok("Warning: Item components out of sync. Item may not stack as expected. Check logs for details.", 1);
-        } else
-            return OperationResult.ok("Model reset to default!");
+        }
+
+        return OperationResult.ok("Model reset to default!");
     }
 
     public static OperationResult applyGlint(ServerPlayerEntity player) {
