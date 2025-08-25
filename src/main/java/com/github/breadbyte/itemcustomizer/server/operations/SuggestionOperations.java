@@ -3,7 +3,6 @@ package com.github.breadbyte.itemcustomizer.server.operations;
 import com.github.breadbyte.itemcustomizer.server.Helper;
 import com.github.breadbyte.itemcustomizer.server.data.Cache;
 import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
-import com.github.breadbyte.itemcustomizer.server.data.Storage;
 import com.github.breadbyte.itemcustomizer.server.suggester.builder.CSVFetcher;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.server.command.ServerCommandSource;
@@ -14,26 +13,50 @@ public class SuggestionOperations {
         var paramUrl = String.valueOf(context.getArgument("csv_url", String.class));
         var paramNamespace = String.valueOf(context.getArgument("namespace", String.class));
 
-        // Fetch our data
-        var suggests = CSVFetcher.fetch(paramNamespace, paramUrl);
+        var source = context.getSource();
 
-        // Load an instance of the storage cache
-        var storeInst = Cache.getInstance();
-        storeInst.load();
-
-        // Convert the model data to a list of suggestions
-        for (CustomModelDefinition defs : suggests) {
-            if (storeInst.getCustomModels().contains(defs)) {
-                continue;
+        // Start async fetch to avoid blocking the server thread.
+        CSVFetcher.fetchAsync(paramNamespace, paramUrl).whenComplete((suggests, throwable) -> {
+            if (throwable != null) {
+                // Post back to the server thread to interact with player safely.
+                source.getServer().execute(() -> {
+                    try {
+                        Helper.SendMessageNo(source.getPlayer(), "Failed to fetch suggestions: " + throwable.getMessage());
+                    } catch (Exception ignored) {}
+                });
+                return;
             }
-            storeInst.add(defs);
-        }
 
-        // Save after processing all suggestions
-        storeInst.save();
+            // Apply results on the server thread.
+            source.getServer().execute(() -> {
+                try {
+                    // Load an instance of the storage cache
+                    var storeInst = Cache.getInstance();
+                    storeInst.load();
 
-        // Send the suggestions to the player
-        Helper.SendMessage(context.getSource().getPlayer(), "Suggestions updated", SoundEvents.BLOCK_NOTE_BLOCK_PLING);
+                    // Convert the model data to a list of suggestions
+                    for (CustomModelDefinition defs : suggests) {
+                        if (storeInst.getCustomModels().contains(defs)) {
+                            continue;
+                        }
+                        storeInst.add(defs);
+                    }
+
+                    // Save after processing all suggestions
+                    storeInst.save();
+
+                    // Send the suggestions to the player
+                    Helper.SendMessage(source.getPlayer(), "Suggestions updated", SoundEvents.ENTITY_PLAYER_LEVELUP);
+                } catch (Exception ignored) {
+                    // Player may have disconnected or context invalid
+                }
+            });
+        });
+
+        // Immediate feedback and return without blocking.
+        try {
+            Helper.SendMessage(source.getPlayer(), "Fetching suggestions...", SoundEvents.BLOCK_NOTE_BLOCK_BASS);
+        } catch (Exception ignored) {}
         return 1;
     }
 
