@@ -15,6 +15,7 @@ public class LoreCommands {
         var input = String.valueOf(ctx.getArgument("text", String.class));
         var res = LoreOperations.addLore(player, input);
         if (res.ok()) {
+            Helper.SendMessageYes(player, res.details());
             Helper.ApplyCost(player, res.cost());
         } else {
             Helper.SendMessageNo(player, res.details());
@@ -29,6 +30,7 @@ public class LoreCommands {
 
         var res = LoreOperations.resetLore(player);
         if (res.ok()) {
+            Helper.SendMessageYes(player, res.details());
             Helper.ApplyCost(player, res.cost());
         } else {
             Helper.SendMessageNo(player, res.details());

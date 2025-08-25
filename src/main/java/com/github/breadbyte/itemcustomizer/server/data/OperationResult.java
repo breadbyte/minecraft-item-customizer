@@ -1,22 +1,16 @@
 package com.github.breadbyte.itemcustomizer.server.data;
 
-import net.minecraft.sound.SoundEvent;
+public record OperationResult(boolean ok, String details, int cost) {
 
-public record OperationResult(boolean ok, String details, SoundEvent soundEvent, int cost) {
-
-    public static OperationResult ok(String s, SoundEvent soundEvent) {
-        return new OperationResult(true, s, soundEvent, 0);
+    public static OperationResult ok(String s) {
+        return new OperationResult(true, s, 0);
     }
 
-    public static OperationResult ok(String s, SoundEvent soundEffect, int cost) {
-        return new OperationResult(true, s, soundEffect, cost);
+    public static OperationResult ok(String s, int cost) {
+        return new OperationResult(true, s, cost);
     }
 
     public static OperationResult fail(String details) {
-        return new OperationResult(false, details, null, 0);
-    }
-
-    public static OperationResult fail(String details, SoundEvent soundEffect) {
-        return new OperationResult(false, details, soundEffect, 0);
+        return new OperationResult(false, details, 0);
     }
 }

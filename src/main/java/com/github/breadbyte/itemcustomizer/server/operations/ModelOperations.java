@@ -29,7 +29,7 @@ public class ModelOperations {
         // but also allows us to use the new namespace/path format.
         if (!itemName.contains("/")) {
             if (defs.isEmpty()) {
-                return OperationResult.fail("No custom model definitions found for item: " + itemType + "/" + itemName, SoundEvents.ENTITY_VILLAGER_NO);
+                return OperationResult.fail("No custom model definitions found for item: " + itemType + "/" + itemName);
             }
         }
 
@@ -73,7 +73,7 @@ public class ModelOperations {
             }
         }
 
-        return OperationResult.ok("Model " + itemName + " applied!", SoundEvents.BLOCK_ANVIL_USE, 1);
+        return OperationResult.ok("Model " + itemName + " applied!", 1);
     }
 
     public static OperationResult revertModel(ServerPlayerEntity player) {
@@ -138,12 +138,12 @@ public class ModelOperations {
                 ItemCustomizer.LOGGER.warn("Item components out of sync after reset! Default:");
                 ItemCustomizer.LOGGER.warn(defaultComponents.toString());
 
-                return OperationResult.ok("Warning: Item not fully reset. Item may not stack as expected. Check logs for details.", SoundEvents.ENTITY_VILLAGER_NO, 1);
+                return OperationResult.ok("Warning: Item not fully reset. Item may not stack as expected. Check logs for details.", 1);
             }
             else
-                return OperationResult.ok("Warning: Item components out of sync. Item may not stack as expected. Check logs for details.", SoundEvents.ENTITY_VILLAGER_NO, 1);
+                return OperationResult.ok("Warning: Item components out of sync. Item may not stack as expected. Check logs for details.", 1);
         } else
-            return OperationResult.ok("Model reset to default!", SoundEvents.ENTITY_ENDERMAN_TELEPORT);
+            return OperationResult.ok("Model reset to default!");
     }
 
     public static OperationResult applyGlint(ServerPlayerEntity player) {
@@ -152,7 +152,7 @@ public class ModelOperations {
         // Set the shine component to true
         playerItem.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true);
 
-        return OperationResult.ok("Glint added!", SoundEvents.BLOCK_ANVIL_USE, 1);
+        return OperationResult.ok("Glint added!", 1);
     }
 
     public static OperationResult removeGlint(ServerPlayerEntity player) {
@@ -161,7 +161,7 @@ public class ModelOperations {
         // Remove the shine component
         playerItem.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, false);
 
-        return OperationResult.ok("Glint removed!", SoundEvents.BLOCK_ANVIL_USE, 1);
+        return OperationResult.ok("Glint removed!", 1);
     }
 
     public static OperationResult revertDyedColor(ServerPlayerEntity player) {
@@ -176,7 +176,7 @@ public class ModelOperations {
         // Set the item dyed color to the default dyed color.
         playerItem.set(DataComponentTypes.DYED_COLOR, defaultDyedColor);
 
-        return OperationResult.ok("Color reset to default!", SoundEvents.ENTITY_ENDERMAN_TELEPORT, 1);
+        return OperationResult.ok("Color reset to default!", 1);
     }
 
 }

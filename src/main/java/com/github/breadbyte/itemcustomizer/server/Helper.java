@@ -135,4 +135,9 @@ public class Helper {
         player.sendMessage(Text.of(message), true);
         player.playSoundToPlayer(SoundEvents.ENTITY_VILLAGER_NO, SoundCategory.MASTER, 1.0F, 1.0F);
     }
+
+    public static void SendMessageYes(ServerPlayerEntity player, String message) {
+        player.sendMessage(Text.of(message), true);
+        player.playSoundToPlayer(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, 1.0F, 1.0F);
+    }
 }

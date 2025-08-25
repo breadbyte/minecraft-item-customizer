@@ -134,7 +134,7 @@ public class Cache {
         if (removed)
             save();
         else {
-            return OperationResult.fail("No models found for namespace: " + namespace, null);
+            return OperationResult.fail("No models found for namespace: " + namespace);
         }
 
         // Rebuild the cache
@@ -142,6 +142,6 @@ public class Cache {
         populateSubArrays();
 
 
-        return OperationResult.ok("Removed " + count + " models for namespace: " + namespace, null);
+        return OperationResult.ok("Removed " + count + " models for namespace: " + namespace);
     }
 }

@@ -29,13 +29,13 @@ public class RenameOperations {
 
         playerItem.set(DataComponentTypes.CUSTOM_NAME, outputText);
 
-        return OperationResult.ok("Item renamed", SoundEvents.BLOCK_ANVIL_USE, 1);
+        return OperationResult.ok("Item renamed",1);
     }
 
     public static OperationResult resetName(ServerPlayerEntity player) {
         var playerItem = player.getMainHandStack();
 
         playerItem.set(DataComponentTypes.CUSTOM_NAME, null);
-        return OperationResult.ok("Item name reset to default!", SoundEvents.ENTITY_ENDERMAN_TELEPORT);
+        return OperationResult.ok("Item name reset to default!");
     }
 }

@@ -15,6 +15,7 @@ public class RenameCommands {
         var input = String.valueOf(ctx.getArgument("name", String.class));
         var res = RenameOperations.renameItem(player, input);
         if (res.ok()) {
+            Helper.SendMessageYes(player, res.details());
             Helper.ApplyCost(player, res.cost());
         } else {
             Helper.SendMessageNo(player, res.details());
@@ -29,6 +30,7 @@ public class RenameCommands {
 
         var res = RenameOperations.resetName(player);
         if (res.ok()) {
+            Helper.SendMessageYes(player, res.details());
             Helper.ApplyCost(player, res.cost());
         } else {
             Helper.SendMessageNo(player, res.details());

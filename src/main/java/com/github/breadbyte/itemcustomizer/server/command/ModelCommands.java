@@ -4,6 +4,7 @@ import com.github.breadbyte.itemcustomizer.server.Helper;
 import com.github.breadbyte.itemcustomizer.server.operations.ModelOperations;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.sound.SoundEvents;
 
 import static com.github.breadbyte.itemcustomizer.server.Helper.SendMessage;
 
@@ -17,8 +18,10 @@ public class ModelCommands {
 
         var retval = ModelOperations.applyGlint(player);
 
-        if (retval.ok())
+        if (retval.ok()) {
+            Helper.SendMessageYes(player, retval.details());
             Helper.ApplyCost(player, retval.cost());
+        }
         else
             Helper.SendMessageNo(player, retval.details());
         return 1;
@@ -31,8 +34,10 @@ public class ModelCommands {
 
         var retval = ModelOperations.removeGlint(player);
 
-        if (retval.ok())
+        if (retval.ok()) {
+            Helper.SendMessageYes(player, retval.details());
             Helper.ApplyCost(player, retval.cost());
+        }
         else
             Helper.SendMessageNo(player, retval.details());
 
@@ -53,6 +58,7 @@ public class ModelCommands {
 
         var res = ModelOperations.applyModel(player, itemType, itemName, color, changeEquippable);
         if (res.ok()) {
+            Helper.SendMessageYes(player, res.details());
             Helper.ApplyCost(player, res.cost());
         } else
             Helper.SendMessageNo(player, res.details());
@@ -67,8 +73,10 @@ public class ModelCommands {
 
         var retval = ModelOperations.revertModel(player);
 
-        if (retval.ok())
+        if (retval.ok()) {
+            Helper.SendMessageYes(player, retval.details());
             Helper.ApplyCost(player, retval.cost());
+        }
         else
             Helper.SendMessageNo(player, retval.details());
 

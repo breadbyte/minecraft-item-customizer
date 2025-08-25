@@ -24,7 +24,7 @@ public class LoreOperations {
             }});
 
             playerItem.set(DataComponentTypes.LORE, customLore);
-            return OperationResult.ok("Lore added", SoundEvents.BLOCK_ANVIL_USE, 1);
+            return OperationResult.ok("Lore added", 1);
         }
 
         // Create a hard copy of the current lore
@@ -36,8 +36,7 @@ public class LoreOperations {
         LoreComponent newLore = new LoreComponent(newLine);
         playerItem.set(DataComponentTypes.LORE, newLore);
 
-        Helper.SendMessage(player, String.valueOf(Text.literal("Added ").append(Helper.JsonString2Text(input))), SoundEvents.BLOCK_ANVIL_USE);
-        return OperationResult.ok("Lore added", SoundEvents.BLOCK_ANVIL_USE, 1);
+        return OperationResult.ok(String.valueOf(Text.literal("Added ").append(Helper.JsonString2Text(input))), 1);
     }
 
     public static OperationResult resetLore(ServerPlayerEntity player) {
@@ -54,6 +53,6 @@ public class LoreOperations {
         else
             playerItem.remove(DataComponentTypes.LORE);
 
-        return OperationResult.ok("Lore reset!", SoundEvents.ENTITY_ENDERMAN_TELEPORT);
+        return OperationResult.ok("Lore reset!");
     }
 }
