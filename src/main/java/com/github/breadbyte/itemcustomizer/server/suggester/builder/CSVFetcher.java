@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ public class CSVFetcher {
         // CSV 3 = destination
 
         try {
-            URL url = new URL(csvUrl);
+            URL url = URI.create(csvUrl).toURL();
             URLConnection connection = url.openConnection();
             connection.setConnectTimeout(10_000);
             connection.setReadTimeout(15_000);
