@@ -28,6 +28,7 @@ public class CustomModelDefinition {
     public String getItemType() { return itemType; }
     public String getItemName() { return itemName; }
     public String getDestination() { return destination; }
+    public String getPermissionNode() { return namespace + "." + destination.replace("/", "."); }
 
     @Override
     public boolean equals(Object obj) {

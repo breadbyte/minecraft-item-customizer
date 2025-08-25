@@ -1,10 +1,12 @@
 package com.github.breadbyte.itemcustomizer.server.operations;
 
 import com.github.breadbyte.itemcustomizer.main.ItemCustomizer;
+import com.github.breadbyte.itemcustomizer.server.Check;
 import com.github.breadbyte.itemcustomizer.server.Helper;
 import com.github.breadbyte.itemcustomizer.server.data.Cache;
 import com.github.breadbyte.itemcustomizer.server.data.OperationResult;
 import com.mojang.brigadier.context.CommandContext;
+import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.CustomModelDataComponent;
 import net.minecraft.component.type.DyedColorComponent;
@@ -18,12 +20,22 @@ import net.minecraft.sound.SoundEvents;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.breadbyte.itemcustomizer.server.Helper.SendMessage;
+import static com.github.breadbyte.itemcustomizer.main.ItemCustomizer.LOGGER;
+import static com.github.breadbyte.itemcustomizer.server.Check.IsAdmin;
 
 public class ModelOperations {
 
     public static OperationResult applyModel(ServerPlayerEntity player, String itemType, String itemName, Integer color, Boolean changeEquippableTexture) {
         var defs = Cache.getInstance().getDefs(itemName);
+        // Check if we have permissions for the specified item
+        if (!IsAdmin(player)) {
+            if (!Check.Permission.CUSTOMIZE.checkPermissionForNamespace(
+                    player, defs.isPresent() ? defs.get().getPermissionNode() :
+                    itemType + "." + itemName.replace("/", "."))) {
+                LOGGER.warn("Player {} tried to customize {}/{} with no permissions!", player.getName().getString(), itemType, itemName);
+                return OperationResult.fail("Permission denied for " + itemType + "/" + itemName);
+            }
+        }
 
         // This allows us to keep the previous behavior of using direct paths for models,
         // but also allows us to use the new namespace/path format.

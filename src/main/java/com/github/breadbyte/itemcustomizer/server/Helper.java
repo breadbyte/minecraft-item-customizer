@@ -48,21 +48,9 @@ public class Helper {
 
         return true;
     }
-//
+
 //    static int Debug(CommandContext<ServerCommandSource> context) {
-//        var player = TryReturnValidState(context, Check.Permission.CUSTOMIZE.getPermission());
-//        var playerItem = player.getMainHandStack();
-//
-//        // Get the currently applied lore in the item
-//        var ttd = playerItem.getTooltipData();
-//        player.sendMessage(Text.of(String.valueOf(ttd)), true);
-//
-//        var arrayL = new ArrayList<Text>();
-//
-//        //arrayL.add(Text.literal("Test").setStyle(new Style()));
-//        var LoreC = new LoreComponent(arrayL);
-//
-//        playerItem.set(DataComponentTypes.LORE, LoreC);
+//        context.getSource().sendFeedback(() -> Text.of(String.valueOf(context.getSource().getPlayer().getPermissionLevel())), false);
 //        return 1;
 //    }
 

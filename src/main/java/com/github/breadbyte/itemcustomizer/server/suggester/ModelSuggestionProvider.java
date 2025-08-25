@@ -1,5 +1,6 @@
 package com.github.breadbyte.itemcustomizer.server.suggester;
 
+import com.github.breadbyte.itemcustomizer.server.Check;
 import com.github.breadbyte.itemcustomizer.server.data.Cache;
 import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
 import com.mojang.brigadier.context.CommandContext;
@@ -10,6 +11,8 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.server.command.ServerCommandSource;
 
 import java.util.concurrent.CompletableFuture;
+
+import static com.github.breadbyte.itemcustomizer.server.Check.IsAdmin;
 
 public class ModelSuggestionProvider implements SuggestionProvider<ServerCommandSource> {
 
@@ -24,11 +27,22 @@ public class ModelSuggestionProvider implements SuggestionProvider<ServerCommand
             return builder.buildFuture();
 
         // Suggest only the item names that match the given item type.
+        // Make sure that we have CUSTOMIZE.<namespace>.<item_name> permission for it.
         var inst = Cache.getInstance();
-        inst.getCustomModels()
+        var player = context.getSource().getPlayer();
+        java.util.function.Predicate<CustomModelDefinition> valid =
+                model -> model.getItemType().equals(paramItemType.split("\\.")[1]) &&
+                        (IsAdmin(player) || Check.Permission.CUSTOMIZE.checkPermissionForNamespace(player, model.getPermissionNode()));
+
+        var s = inst.getCustomModels()
                 .stream()
-                .filter(model -> model.getItemType().equals(paramItemType))
-                .map(CustomModelDefinition::getItemName).distinct().forEach(builder::suggest);
+                .filter(valid)
+                .map(CustomModelDefinition::getItemName)
+                .distinct().toList();
+
+        for (String itemName : s) {
+            builder.suggest(itemName);
+        }
 
         // Lock the suggestions after we've modified them.
         return builder.buildFuture();

@@ -19,6 +19,7 @@ public class Cache {
     private ArrayList<String> namespaces = new ArrayList<>();
     private ArrayList<String> itemNames = new ArrayList<>();
     private ArrayList<String> itemTypes = new ArrayList<>();
+    private ArrayList<String> namespace_itemType = new ArrayList<>();
     private final HashMap<String, String> itemNameToDestinationMap = new HashMap<>();
 
     public static final Cache INSTANCE = new Cache();
@@ -41,15 +42,7 @@ public class Cache {
 
         // Clear cache
         clear();
-        var size = inst.CustomModels.size();
-
-        for (CustomModelDefinition model : inst.CustomModels) {
-            itemNameToDestinationMap.put(model.getItemName(), model.getDestination());
-            customModelsCache.add(model);
-            namespaces.add(model.getNamespace());
-            itemTypes.add(model.getItemType());
-            itemNames.add(model.getItemName());
-        }
+        populateSubArrays();
     }
 
     public void update() {
@@ -72,6 +65,7 @@ public class Cache {
         namespaces.add(model.getNamespace());
         itemTypes.add(model.getItemType());
         itemNames.add(model.getItemName());
+        namespace_itemType.add(model.getNamespace() + "." + model.getItemType());
 
         itemNameToDestinationMap.put(model.getItemName(), model.getDestination());
     }
@@ -89,6 +83,13 @@ public class Cache {
         namespaces.addAll(customModelsCache.stream().map(CustomModelDefinition::getNamespace).distinct().toList());
         itemTypes.addAll(customModelsCache.stream().map(CustomModelDefinition::getItemType).distinct().toList());
         itemNames.addAll(customModelsCache.stream().map(CustomModelDefinition::getItemName).distinct().toList());
+
+
+        // <namespace>.<itemType> in namespace_itemtype
+        namespace_itemType.addAll(customModelsCache.stream()
+                .map(model -> model.getNamespace() + "." + model.getItemType())
+                .distinct()
+                .toList());
     }
 
     public void clear() {
@@ -113,6 +114,10 @@ public class Cache {
 
     public List<String> getItemNames() {
         return itemNames;
+    }
+
+    public List<String> getNamespace_ItemType_s() {
+        return namespace_itemType;
     }
 
     public String getDestination(String itemName) {
@@ -142,6 +147,6 @@ public class Cache {
         populateSubArrays();
 
 
-        return OperationResult.ok("Removed " + count + " models for namespace: " + namespace);
+        return OperationResult.ok("Removed " + count.count() + " models for namespace: " + namespace);
     }
 }
