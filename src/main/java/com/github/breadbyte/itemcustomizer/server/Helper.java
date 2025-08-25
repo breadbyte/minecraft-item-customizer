@@ -8,6 +8,7 @@ import com.mojang.serialization.JsonOps;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
@@ -113,25 +114,25 @@ public class Helper {
     public static void SendMessage(ServerPlayerEntity player, String message, net.minecraft.sound.SoundEvent sound) {
         player.sendMessage(Text.of(message), true);
         if (sound != null) {
-            player.playSound(sound, 1.0F, 1.0F);
+            player.playSoundToPlayer(sound, SoundCategory.MASTER, 1.0F, 1.0F);
         }
     }
 
     public static void SendMessage(ServerPlayerEntity player, Text message, net.minecraft.sound.SoundEvent sound) {
         player.sendMessage(message, true);
         if (sound != null) {
-            player.playSound(sound, 1.0F, 1.0F);
+            player.playSoundToPlayer(sound, SoundCategory.MASTER,1.0F, 1.0F);
         }
     }
 
     // Some events are apparently wrapped in a Reference
     public static void SendMessage(ServerPlayerEntity player, String suggestionsUpdated, RegistryEntry.Reference<SoundEvent> soundEventReference) {
         player.sendMessage(Text.of(suggestionsUpdated), true);
-        player.playSound(soundEventReference.value(), 1.0F, 1.0F);
+        player.playSoundToPlayer(soundEventReference.value(), SoundCategory.MASTER, 1.0F, 1.0F);
     }
 
     public static void SendMessageNo(ServerPlayerEntity player, String message) {
         player.sendMessage(Text.of(message), true);
-        player.playSound(SoundEvents.ENTITY_VILLAGER_NO, 1.0F, 1.0F);
+        player.playSoundToPlayer(SoundEvents.ENTITY_VILLAGER_NO, SoundCategory.MASTER, 1.0F, 1.0F);
     }
 }
