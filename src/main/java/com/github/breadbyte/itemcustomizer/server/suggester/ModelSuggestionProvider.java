@@ -25,7 +25,7 @@ public class ModelSuggestionProvider implements SuggestionProvider<ServerCommand
 
         // Suggest only the item names that match the given item type.
         var inst = Cache.getInstance();
-        inst.getCustomModelsCache()
+        inst.getCustomModels()
                 .stream()
                 .filter(model -> model.getItemType().equals(paramItemType))
                 .map(CustomModelDefinition::getItemName).distinct().forEach(builder::suggest);

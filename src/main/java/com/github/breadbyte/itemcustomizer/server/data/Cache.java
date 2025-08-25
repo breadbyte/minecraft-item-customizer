@@ -2,26 +2,28 @@ package com.github.breadbyte.itemcustomizer.server.data;
 
 import com.github.breadbyte.itemcustomizer.server.Helper;
 
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CopyOnWriteArrayList;
 
+// Suppress the deprecation of Storage.HANDLER.instance()
+// as this is the only way to load definitions
+// It's marked as deprecated to catch external access
+@SuppressWarnings("deprecation")
 public class Cache {
     private final List<CustomModelDefinition> customModelsCache = new ArrayList<>();
 
     // The only thing that really matters in the end is the itemName,
     // as that is what determines the destination.
-    private String[] namespaces = new String[0];
-    private String[] itemTypes = new String[0];
-    private String[] itemNames = new String[0];
-    private HashMap<String, String> itemNameToDestinationMap = new HashMap<>();
+    private ArrayList<String> namespaces = new ArrayList<>();
+    private ArrayList<String> itemNames = new ArrayList<>();
+    private ArrayList<String> itemTypes = new ArrayList<>();
+    private final HashMap<String, String> itemNameToDestinationMap = new HashMap<>();
 
-    private static final Cache INSTANCE = new Cache();
+    public static final Cache INSTANCE = new Cache();
 
-    private Cache() {}
+    private Cache() { initialize(); }
 
     public static Cache getInstance() {
         return INSTANCE;
@@ -41,68 +43,75 @@ public class Cache {
         clear();
         var size = inst.CustomModels.size();
 
-        // Init
-        var _namespaces = new ArrayList<String>(size);
-        var _itemTypes = new ArrayList<String>(size);
-        var _itemNames = new ArrayList<String>(size);
-
         for (CustomModelDefinition model : inst.CustomModels) {
             itemNameToDestinationMap.put(model.getItemName(), model.getDestination());
             customModelsCache.add(model);
-            _namespaces.add(model.getNamespace());
-            _itemTypes.add(model.getItemType());
-            _itemNames.add(model.getItemName());
+            namespaces.add(model.getNamespace());
+            itemTypes.add(model.getItemType());
+            itemNames.add(model.getItemName());
         }
+    }
 
-        // Finalize
-        namespaces = _namespaces.stream().distinct().toArray(String[]::new);
-        itemTypes = _itemTypes.stream().distinct().toArray(String[]::new);
-        itemNames = _itemNames.stream().distinct().toArray(String[]::new);
+    public void update() {
+        // Update storage
+        var inst = Storage.HANDLER.instance();
+        inst.CustomModels = List.copyOf(customModelsCache);
+        Storage.HANDLER.save();
+    }
+
+    public void save() {
+        update();
+    }
+
+    public void load() {
+        initialize();
     }
 
     public void add(CustomModelDefinition model) {
         customModelsCache.add(model);
-        populate();
+        namespaces.add(model.getNamespace());
+        itemTypes.add(model.getItemType());
+        itemNames.add(model.getItemName());
 
         itemNameToDestinationMap.put(model.getItemName(), model.getDestination());
     }
 
     public void addAll(List<CustomModelDefinition> models) {
         customModelsCache.addAll(models);
-        populate();
+        populateSubArrays();
 
         for (CustomModelDefinition model : models) {
             itemNameToDestinationMap.put(model.getItemName(), model.getDestination());
         }
     }
 
-    private void populate() {
-        namespaces = customModelsCache.stream().map(CustomModelDefinition::getNamespace).distinct().toArray(String[]::new);
-        itemTypes = customModelsCache.stream().map(CustomModelDefinition::getItemType).distinct().toArray(String[]::new);
-        itemNames = customModelsCache.stream().map(CustomModelDefinition::getItemName).distinct().toArray(String[]::new);
+    private void populateSubArrays() {
+        namespaces.addAll(customModelsCache.stream().map(CustomModelDefinition::getNamespace).distinct().toList());
+        itemTypes.addAll(customModelsCache.stream().map(CustomModelDefinition::getItemType).distinct().toList());
+        itemNames.addAll(customModelsCache.stream().map(CustomModelDefinition::getItemName).distinct().toList());
     }
 
-    private void clear() {
+    public void clear() {
         customModelsCache.clear();
-        namespaces = new String[0];
-        itemTypes = new String[0];
-        itemNames = new String[0];
+        namespaces.clear();
+        itemTypes.clear();
+        itemNames.clear();
         itemNameToDestinationMap.clear();
     }
 
-    public List<CustomModelDefinition> getCustomModelsCache() {
+    public List<CustomModelDefinition> getCustomModels() {
         return List.copyOf(customModelsCache);
     }
 
-    public String[] getNamespaces() {
+    public List<String> getNamespaces() {
         return namespaces;
     }
 
-    public String[] getItemTypes() {
+    public List<String> getItemTypes() {
         return itemTypes;
     }
 
-    public String[] getItemNames() {
+    public List<String> getItemNames() {
         return itemNames;
     }
 
@@ -116,5 +125,23 @@ public class Cache {
                 .filter(model -> model.getItemName().equals(itemName))
                 .findFirst()
                 .or(Optional::empty);
+    }
+
+    public OperationResult removeNamespace(String namespace) {
+        var count = customModelsCache.stream().filter(model -> model.getNamespace().equals(namespace));
+        var removed = customModelsCache.removeIf(model -> model.getNamespace().equals(namespace));
+
+        if (removed)
+            save();
+        else {
+            return OperationResult.fail("No models found for namespace: " + namespace, null);
+        }
+
+        // Rebuild the cache
+        clear();
+        populateSubArrays();
+
+
+        return OperationResult.ok("Removed " + count + " models for namespace: " + namespace, null);
     }
 }
