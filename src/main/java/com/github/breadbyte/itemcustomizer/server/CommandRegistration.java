@@ -2,6 +2,7 @@ package com.github.breadbyte.itemcustomizer.server;
 
 import com.github.breadbyte.itemcustomizer.server.command.ModelCommands;
 import com.github.breadbyte.itemcustomizer.server.command.LoreCommands;
+import com.github.breadbyte.itemcustomizer.server.command.RenameCommands;
 import com.github.breadbyte.itemcustomizer.server.operations.*;
 import com.github.breadbyte.itemcustomizer.server.suggester.ItemTypeSuggestionProvider;
 import com.github.breadbyte.itemcustomizer.server.suggester.ModelSuggestionProvider;
@@ -73,9 +74,9 @@ public class CommandRegistration {
                                     .or(scs -> scs.getPlayer().isCreative())
                                     .or(scs -> scs.hasPermissionLevel(1)))
                             .then(CommandManager.argument("name", StringArgumentType.greedyString())
-                                    .executes(RenameOperations::renameItem))
+                                    .executes(RenameCommands::renameItem))
                             .then(CommandManager.literal("reset")
-                                    .executes(RenameOperations::resetName))
+                                    .executes(RenameCommands::resetName))
                             .then(CommandManager.literal("help")
                                     .executes(HelpOperations::RenameHelp))
             );
