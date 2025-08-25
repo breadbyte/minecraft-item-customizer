@@ -98,6 +98,7 @@ public class Cache {
         itemTypes.clear();
         itemNames.clear();
         itemNameToDestinationMap.clear();
+        namespace_itemType.clear();
     }
 
     public List<CustomModelDefinition> getCustomModels() {
@@ -133,7 +134,7 @@ public class Cache {
     }
 
     public OperationResult removeNamespace(String namespace) {
-        var count = customModelsCache.stream().filter(model -> model.getNamespace().equals(namespace));
+        var count = customModelsCache.stream().filter(model -> model.getNamespace().equals(namespace)).count();
         var removed = customModelsCache.removeIf(model -> model.getNamespace().equals(namespace));
 
         if (removed)
@@ -144,9 +145,10 @@ public class Cache {
 
         // Rebuild the cache
         clear();
-        populateSubArrays();
+        save();
+        initialize();
 
 
-        return OperationResult.ok("Removed " + count.count() + " models for namespace: " + namespace);
+        return OperationResult.ok("Removed " + count + " models for namespace: " + namespace);
     }
 }
