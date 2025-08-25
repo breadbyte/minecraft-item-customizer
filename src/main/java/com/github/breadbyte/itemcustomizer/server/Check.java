@@ -37,7 +37,10 @@ public class Check {
 
         // Check for permission (Redundant since we check it in the command registration, but better safe than sorry)
         if (!Permissions.check(player, PermissionName)) {
-            Helper.SendMessageNo(player, "You do not have permission to use this command!");
+            if (!player.hasPermissionLevel(1)) {
+                Helper.SendMessageNo(player, "You do not have permission to use this command!");
+                return Optional.empty();
+            }
         }
 
         // Check if the player has something in their hand
