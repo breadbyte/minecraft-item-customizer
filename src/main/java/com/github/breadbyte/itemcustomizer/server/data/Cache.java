@@ -48,7 +48,7 @@ public class Cache {
     public void update() {
         // Update storage
         var inst = Storage.HANDLER.instance();
-        inst.CustomModels = List.copyOf(customModelsCache);
+        inst.CustomModels.addAll(customModelsCache);
         Storage.HANDLER.save();
     }
 
