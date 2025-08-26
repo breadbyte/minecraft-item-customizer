@@ -49,7 +49,13 @@ public class Cache {
         // Update storage
         var inst = Storage.HANDLER.instance();
         inst.CustomModels.addAll(customModelsCache);
+
+        // Remove actual duplicates
+        inst.CustomModels = inst.CustomModels.stream().distinct().toList();
+
         Storage.HANDLER.save();
+        clear();
+        initialize();
     }
 
     public void save() {
