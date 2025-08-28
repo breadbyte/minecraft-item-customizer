@@ -39,18 +39,11 @@ public class ModelsIndex {
         // Update storage
         var inst = Storage.HANDLER.instance();
         if (!_index.isEmpty()) {
-            inst.CustomModels.addAll(
-                    _index.values().stream()
-                            .flatMap(List::stream)
-                            .toList()
-            );
+            inst.CustomModels = _index.values().stream().flatMap(List::stream).collect(Collectors.toList());
         } else {
             // If index is empty, clear storage too
             inst.CustomModels.clear();
         }
-
-        // Remove actual duplicates
-        //inst.CustomModels = inst.CustomModels.stream().distinct().toList();
 
         Storage.HANDLER.save();
         _index.clear();
@@ -123,8 +116,6 @@ public class ModelsIndex {
 
         if (count > 0) {
             save();
-            clear();
-
             return OperationResult.ok("Removed " + count + " models for namespace: " + namespace);
         }
         else
