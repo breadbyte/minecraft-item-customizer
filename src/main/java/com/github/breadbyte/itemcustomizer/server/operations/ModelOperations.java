@@ -3,22 +3,18 @@ package com.github.breadbyte.itemcustomizer.server.operations;
 import com.github.breadbyte.itemcustomizer.main.ItemCustomizer;
 import com.github.breadbyte.itemcustomizer.server.Check;
 import com.github.breadbyte.itemcustomizer.server.Helper;
-import com.github.breadbyte.itemcustomizer.server.data.Cache;
+import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
+import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import com.github.breadbyte.itemcustomizer.server.data.OperationResult;
-import com.mojang.brigadier.context.CommandContext;
-import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.CustomModelDataComponent;
 import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.component.type.EquippableComponent;
 import net.minecraft.item.equipment.EquipmentAssetKeys;
 import net.minecraft.registry.RegistryKey;
-import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundEvents;
 
 import java.util.List;
-import java.util.Optional;
 
 import static com.github.breadbyte.itemcustomizer.main.ItemCustomizer.LOGGER;
 import static com.github.breadbyte.itemcustomizer.server.Check.IsAdmin;
@@ -26,27 +22,39 @@ import static com.github.breadbyte.itemcustomizer.server.Check.IsAdmin;
 public class ModelOperations {
 
     public static OperationResult applyModel(ServerPlayerEntity player, String itemType, String itemName, Integer color, Boolean changeEquippableTexture) {
-        var defs = Cache.getInstance().getDefs(itemName);
-        // Check if we have permissions for the specified item
-        if (!IsAdmin(player)) {
-            if (!Check.Permission.CUSTOMIZE.checkPermissionForNamespace(
-                    player, defs.isPresent() ? defs.get().getPermissionNode() :
-                    itemType + "." + itemName.replace("/", "."))) {
-                LOGGER.warn("Player {} tried to customize {}/{} with no permissions!", player.getName().getString(), itemType, itemName);
-                return OperationResult.fail("Permission denied for " + itemType + "/" + itemName);
-            }
-        }
 
-        // This allows us to keep the previous behavior of using direct paths for models,
-        // but also allows us to use the new namespace/path format.
-        if (!itemName.contains("/")) {
-            if (defs.isEmpty()) {
+        String namespace;
+        String category;
+        CustomModelDefinition defs = null;
+
+        // Check for the autocomplete version of the itemType, which is in the format namespace.category
+        if (itemType.contains(".")) {
+            namespace = itemType.split("\\.")[0];
+            category = itemType.split("\\.")[1];
+            defs = ModelsIndex.getInstance().get(namespace, category, itemName);
+
+            // This allows us to keep the previous behavior of using direct paths for models,
+            // but also allows us to use the new namespace/path format.
+            if (defs == null) {
                 return OperationResult.fail("No custom model definitions found for item: " + itemType + "/" + itemName);
             }
+
+            // Check if we have permissions for the specified item
+            if (!IsAdmin(player)) {
+                if (!defs.getPermission(player)) {
+                    LOGGER.warn("Player {} tried to customize {}/{} with no permissions!", player.getName().getString(), itemType, itemName);
+                    return OperationResult.fail("Permission denied for " + itemType + "/" + itemName);
+                }
+            }
+
+            namespace = defs.getNamespace();
+            category = defs.getDestination();
+        } else {
+            // Using the old format of itemType as category only, and itemName as the full path.
+            namespace = itemType;
+            category = itemName;
         }
 
-        var paramNamespace = defs.isPresent() ? defs.get().getNamespace() : itemType;
-        var paramPath = defs.isPresent() ? defs.get().getDestination() : itemName;
 
         // Check if these parameters exist, if not, set them to default values
         if (color == null)
@@ -61,7 +69,7 @@ public class ModelOperations {
         var itemComps = playerItem.getComponents();
 
         // Set it to the new model
-        playerItem.set(DataComponentTypes.ITEM_MODEL, Helper.String2Identifier(paramNamespace, paramPath));
+        playerItem.set(DataComponentTypes.ITEM_MODEL, Helper.String2Identifier(namespace, category));
 
         if (color != Integer.MIN_VALUE) {
             // Set the dyed color if provided
@@ -78,7 +86,7 @@ public class ModelOperations {
                 // Clone the equippable, except the assetId, since we are changing the model.
                 assert equippable != null;
 
-                var eqAsset = java.util.Optional.ofNullable(RegistryKey.of(EquipmentAssetKeys.REGISTRY_KEY, Helper.String2Identifier(paramNamespace, paramPath)));
+                var eqAsset = java.util.Optional.ofNullable(RegistryKey.of(EquipmentAssetKeys.REGISTRY_KEY, Helper.String2Identifier(namespace, category)));
                 var newEquippable = new EquippableComponent(equippable.slot(), equippable.equipSound(), eqAsset, equippable.cameraOverlay(), equippable.allowedEntities(), equippable.dispensable(), equippable.swappable(), equippable.damageOnHurt());
 
                 playerItem.set(DataComponentTypes.EQUIPPABLE, newEquippable);

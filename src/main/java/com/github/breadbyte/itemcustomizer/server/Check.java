@@ -1,6 +1,7 @@
 package com.github.breadbyte.itemcustomizer.server;
 
 import com.github.breadbyte.itemcustomizer.main.ItemCustomizer;
+import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
 import com.mojang.brigadier.context.CommandContext;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.item.ItemStack;
@@ -30,14 +31,13 @@ public class Check {
             return this.getPermission() + "." + namespace;
         }
 
-        public boolean checkPermissionForNamespace(ServerPlayerEntity player, String path) {
-            ItemCustomizer.LOGGER.info("Checking permission for selector: {}", this.getPermission() + "." + path);
-            return Permissions.check(player, this.getPermission() + "." + path);
+        public String chain(String node) {
+            return this.getPermission() + "." + node;
         }
 
-        public boolean checkPermissionForStringSelector(ServerPlayerEntity player, String selector) {
-            ItemCustomizer.LOGGER.info("Checking permission for selector: {}", this.getPermission() + "." + selector.replace("/", "."));
-            return Permissions.check(player, this.getPermission() + "." + selector.replace("/", "."));
+        public boolean checkPermissionForModel(ServerPlayerEntity player, CustomModelDefinition model) {
+            ItemCustomizer.LOGGER.info("Checking permission for selector: {}", chain(model.getPermissionNode()));
+            return Permissions.check(player, chain(model.getPermissionNode()));
         }
     }
 

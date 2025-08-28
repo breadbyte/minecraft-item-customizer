@@ -1,6 +1,6 @@
 package com.github.breadbyte.itemcustomizer.server;
 
-import com.github.breadbyte.itemcustomizer.server.data.Cache;
+import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import net.fabricmc.api.DedicatedServerModInitializer;
 
 public class ItemCustomizerServer implements DedicatedServerModInitializer {
@@ -11,7 +11,7 @@ public class ItemCustomizerServer implements DedicatedServerModInitializer {
         Helper.tryLoadStorage();
 
         // Initialize the cache
-        Cache inst = Cache.getInstance();
+        ModelsIndex inst = ModelsIndex.getInstance();
         inst.initialize();
     }
 }

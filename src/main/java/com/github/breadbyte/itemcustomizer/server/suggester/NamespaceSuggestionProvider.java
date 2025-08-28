@@ -1,8 +1,7 @@
 package com.github.breadbyte.itemcustomizer.server.suggester;
 
 import com.github.breadbyte.itemcustomizer.server.Check;
-import com.github.breadbyte.itemcustomizer.server.data.Cache;
-import com.github.breadbyte.itemcustomizer.server.data.Storage;
+import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
@@ -19,17 +18,7 @@ public class NamespaceSuggestionProvider implements SuggestionProvider<ServerCom
 
     @Override
     public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) throws CommandSyntaxException {
-
-        // Get each namespace, and check if we have CUSTOMIZE.<namespace> permission for it.
-        var inst = Cache.getInstance();
-        var player = context.getSource().getPlayer();
-        var validNamespaces = inst.getNamespaces()
-                .stream()
-                .filter(
-                        n -> Permissions.check(
-                                player,
-                                Check.Permission.CUSTOMIZE.getPermissionForNamespace(n)) || Check.IsAdmin(player))
-                .toList();
+        var validNamespaces = ModelsIndex.getInstance().namespaces();
 
         for (String namespace : validNamespaces) {
             builder.suggest(namespace);

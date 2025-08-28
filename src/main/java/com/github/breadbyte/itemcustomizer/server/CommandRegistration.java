@@ -4,7 +4,7 @@ import com.github.breadbyte.itemcustomizer.server.command.ModelCommands;
 import com.github.breadbyte.itemcustomizer.server.command.LoreCommands;
 import com.github.breadbyte.itemcustomizer.server.command.RenameCommands;
 import com.github.breadbyte.itemcustomizer.server.operations.*;
-import com.github.breadbyte.itemcustomizer.server.suggester.ItemTypeSuggestionProvider;
+import com.github.breadbyte.itemcustomizer.server.suggester.ModelCategorySuggestionProvider;
 import com.github.breadbyte.itemcustomizer.server.suggester.ModelSuggestionProvider;
 import com.github.breadbyte.itemcustomizer.server.suggester.NamespaceSuggestionProvider;
 import com.mojang.brigadier.arguments.BoolArgumentType;
@@ -26,7 +26,7 @@ public class CommandRegistration {
                                     .or(scs -> scs.hasPermissionLevel(1)))
                             .then(CommandManager.literal("apply")
                                     .then(CommandManager.argument("item_type", StringArgumentType.word())
-                                            .suggests(ItemTypeSuggestionProvider.INSTANCE)
+                                            .suggests(ModelCategorySuggestionProvider.INSTANCE)
                                             .then(CommandManager.argument("item_name", StringArgumentType.string())
                                                     .suggests(ModelSuggestionProvider.INSTANCE)
                                                     .executes(ModelCommands::applyModel)

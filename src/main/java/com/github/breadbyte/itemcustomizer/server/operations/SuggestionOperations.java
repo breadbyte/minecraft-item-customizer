@@ -1,7 +1,7 @@
 package com.github.breadbyte.itemcustomizer.server.operations;
 
 import com.github.breadbyte.itemcustomizer.server.Helper;
-import com.github.breadbyte.itemcustomizer.server.data.Cache;
+import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
 import com.github.breadbyte.itemcustomizer.server.suggester.builder.CSVFetcher;
 import com.mojang.brigadier.context.CommandContext;
@@ -31,12 +31,12 @@ public class SuggestionOperations {
             source.getServer().execute(() -> {
                 try {
                     // Load an instance of the storage cache
-                    var storeInst = Cache.getInstance();
+                    var storeInst = ModelsIndex.getInstance();
                     storeInst.load();
 
                     // Convert the model data to a list of suggestions
                     for (CustomModelDefinition defs : suggests) {
-                        if (storeInst.getCustomModels().contains(defs)) {
+                        if (storeInst.get(defs.getNamespace(), defs.getCategory()) == null) {
                             continue;
                         }
                         storeInst.add(defs);
@@ -63,7 +63,7 @@ public class SuggestionOperations {
     public static int clearSuggestions(CommandContext<ServerCommandSource> context) {
         Helper.tryLoadStorage();
 
-        var inst = Cache.getInstance();
+        var inst = ModelsIndex.getInstance();
         inst.clear();
         inst.save();
 
@@ -75,7 +75,7 @@ public class SuggestionOperations {
         var paramNamespace = String.valueOf(context.getArgument("namespace", String.class));
         Helper.tryLoadStorage();
 
-        var inst = Cache.getInstance();
+        var inst = ModelsIndex.getInstance();
         var result = inst.removeNamespace(paramNamespace);
 
         if (result.ok())
