@@ -48,7 +48,7 @@ public class SuggestionOperations {
                     // Send the suggestions to the player
                     Helper.SendMessage(source.getPlayer(), "Suggestions updated", SoundEvents.ENTITY_PLAYER_LEVELUP);
                 } catch (Exception ignored) {
-                    // Player may have disconnected or context invalid
+                    throw ignored;
                 }
             });
         });

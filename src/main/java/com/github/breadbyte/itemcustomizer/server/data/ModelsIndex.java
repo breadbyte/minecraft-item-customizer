@@ -38,17 +38,22 @@ public class ModelsIndex {
     public void update_external() {
         // Update storage
         var inst = Storage.HANDLER.instance();
-        inst.CustomModels.addAll(
-                _index.values().stream()
-                        .flatMap(List::stream)
-                        .toList()
-        );
+        if (!_index.isEmpty()) {
+            inst.CustomModels.addAll(
+                    _index.values().stream()
+                            .flatMap(List::stream)
+                            .toList()
+            );
+        } else {
+            // If index is empty, clear storage too
+            inst.CustomModels.clear();
+        }
 
         // Remove actual duplicates
-        inst.CustomModels = inst.CustomModels.stream().distinct().toList();
+        //inst.CustomModels = inst.CustomModels.stream().distinct().toList();
 
         Storage.HANDLER.save();
-        clear();
+        _index.clear();
         initialize();
     }
 
@@ -130,6 +135,5 @@ public class ModelsIndex {
     public void clear() {
         _index.clear();
         save();
-        load();
     }
 }
