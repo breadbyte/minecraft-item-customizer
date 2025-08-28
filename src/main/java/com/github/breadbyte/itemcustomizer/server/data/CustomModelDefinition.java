@@ -25,7 +25,7 @@ public class CustomModelDefinition {
 
     @Override
     public String toString() {
-        return namespace + ":" + destination;
+        return namespace + "." + destination;
     }
 
     public String getNamespace() { return namespace; }

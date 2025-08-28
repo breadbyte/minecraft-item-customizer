@@ -31,7 +31,7 @@ public class ModelSuggestionProvider implements SuggestionProvider<ServerCommand
 
         // If the item type contains a dot, it means it's in the new format (namespace.category).
         // We should split it into namespace and category.
-        if (paramItemType.contains("\\.")) {
+        if (paramItemType.contains(".")) {
             var parts = paramItemType.split("\\.");
             var model = ModelsIndex.INSTANCE.get(parts[0], parts[1]);
 

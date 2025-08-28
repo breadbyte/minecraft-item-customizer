@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull;
 
 public record NamespaceCategory(String namespace, String category) {
     public @NotNull String toString() {
-        return namespace + ":" + category;
+        return namespace + "." + category;
     }
 
     public @NotNull String getPermissionNode() {
