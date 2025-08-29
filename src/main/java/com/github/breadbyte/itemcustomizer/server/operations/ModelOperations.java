@@ -205,4 +205,33 @@ public class ModelOperations {
         return OperationResult.ok("Color reset to default!", 1);
     }
 
+    public static OperationResult getPermissionNodeFor(String itemType, String itemName) {
+        String namespace;
+        String category;
+        CustomModelDefinition defs = null;
+
+        // Check for the autocomplete version of the itemType, which is in the format namespace.category
+        if (itemType.contains(".")) {
+            namespace = itemType.split("\\.")[0];
+            category = itemType.split("\\.")[1];
+            defs = ModelsIndex.getInstance().get(namespace, category, itemName);
+
+            if (defs == null) {
+                return OperationResult.fail("No custom model definitions found for item: " + itemType + "/" + itemName);
+            }
+        } else {
+            // Using the old format of itemType as category only, and itemName as the full path.
+            namespace = itemType;
+            category = itemName;
+
+            return OperationResult.ok(Check.Permission.CUSTOMIZE.getPermission() + "." + namespace + category.replace("/", "."));
+        }
+
+        if (defs != null) {
+            return OperationResult.ok(defs.getPermissionNode());
+        } else {
+            return OperationResult.fail("No custom model definitions found for item: " + itemType + "/" + itemName);
+        }
+    }
+
 }

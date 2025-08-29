@@ -1,10 +1,16 @@
 package com.github.breadbyte.itemcustomizer.server.command;
 
+import com.github.breadbyte.itemcustomizer.server.Check;
 import com.github.breadbyte.itemcustomizer.server.Helper;
 import com.github.breadbyte.itemcustomizer.server.operations.ModelOperations;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.ClickEvent;
+import net.minecraft.text.Style;
+import net.minecraft.text.Text;
+import net.minecraft.text.TextColor;
+import net.minecraft.util.Formatting;
 
 import static com.github.breadbyte.itemcustomizer.server.Helper.SendMessage;
 
@@ -79,6 +85,21 @@ public class ModelCommands {
         }
         else
             Helper.SendMessageNo(player, retval.details());
+
+        return 1;
+    }
+
+    public static int getPermissionNode(CommandContext<ServerCommandSource> ctx) {
+        var itemType = String.valueOf(ctx.getArgument("item_type", String.class));
+        var itemName = String.valueOf(ctx.getArgument("item_name", String.class));
+
+        var res = ModelOperations.getPermissionNodeFor(itemType, itemName);
+        if (res.ok()) {
+            var node = Check.Permission.CUSTOMIZE.chain(res.details());
+            ctx.getSource().sendFeedback(() -> Text.literal("Permission node:").append(Text.literal(node).setStyle(Style.EMPTY.withColor(Formatting.GREEN))), false);
+            ctx.getSource().sendFeedback(() -> Text.literal("Click here to copy to clipboard").setStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, node)).withColor(Formatting.BLUE)), false);
+        } else
+            ctx.getSource().sendFeedback(() -> Text.of(res.details()), false);
 
         return 1;
     }
