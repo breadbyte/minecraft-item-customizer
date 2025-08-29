@@ -152,13 +152,20 @@ public class ModelOperations {
                 playerItem.set(DataComponentTypes.EQUIPPABLE, defaultEquippable);
 
             if (playerItem.getComponents().size() != defaultComponents.size()) {
-                // If we still don't match, something's wrong
-                ItemCustomizer.LOGGER.info("Item components out of sync after reset! Current:");
-                ItemCustomizer.LOGGER.info(playerItem.getComponents().toString());
-                ItemCustomizer.LOGGER.info("Item components out of sync after reset! Default:");
-                ItemCustomizer.LOGGER.info(defaultComponents.toString());
 
-                return OperationResult.ok("Warning: Item components out of sync. Item may not stack. Check logs for details.", 1);
+                // If we have a trim, check if the component size matches if we exclude the trim
+                if (playerItem.getComponents().contains(DataComponentTypes.TRIM)) {
+                    if ((playerItem.getComponents().size() - 1) != defaultComponents.size()) {
+
+                        // If we still don't match, something's wrong
+                        ItemCustomizer.LOGGER.info("Item components out of sync after reset! Current:");
+                        ItemCustomizer.LOGGER.info(playerItem.getComponents().toString());
+                        ItemCustomizer.LOGGER.info("Item components out of sync after reset! Default:");
+                        ItemCustomizer.LOGGER.info(defaultComponents.toString());
+
+                        return OperationResult.ok("Warning: Item components out of sync. Item will still function correctly but won't stack. Check logs for details.", 1);
+                    }
+                }
             }
         }
 
