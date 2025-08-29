@@ -42,7 +42,7 @@ public class ModelSuggestionProvider implements SuggestionProvider<ServerCommand
                         return builder.buildFuture();
 
                     // Check if we have permission for the model's category
-                    if (!Permissions.check(player, Check.Permission.CUSTOMIZE.chain(parts[1])))
+                    if (!Permissions.check(player, Check.Permission.CUSTOMIZE.chain(paramItemType)))
                         return builder.buildFuture();
                 }
 
