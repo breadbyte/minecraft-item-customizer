@@ -112,7 +112,6 @@ public class ModelOperations {
 
         // Remove the current model component otherwise.
         playerItem.remove(DataComponentTypes.ITEM_MODEL);
-        playerItem.remove(DataComponentTypes.CUSTOM_NAME);
         playerItem.remove(DataComponentTypes.CUSTOM_MODEL_DATA);
         playerItem.remove(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE);
 
@@ -133,7 +132,6 @@ public class ModelOperations {
             // Nuke all components that _we_ modified if the component size doesn't match
 
             // Remove custom anything that doesn't normally exist on the item
-            playerItem.remove(DataComponentTypes.CUSTOM_NAME);
             playerItem.remove(DataComponentTypes.CUSTOM_MODEL_DATA);
             playerItem.remove(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE);
 

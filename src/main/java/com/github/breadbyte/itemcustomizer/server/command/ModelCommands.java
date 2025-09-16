@@ -96,7 +96,7 @@ public class ModelCommands {
         var res = ModelOperations.getPermissionNodeFor(itemType, itemName);
         if (res.ok()) {
             var node = Check.Permission.CUSTOMIZE.chain(res.details());
-            ctx.getSource().sendFeedback(() -> Text.literal("Permission node:").append(Text.literal(node).setStyle(Style.EMPTY.withColor(Formatting.GREEN))), false);
+            ctx.getSource().sendFeedback(() -> Text.literal("Permission node: ").append(Text.literal(node).setStyle(Style.EMPTY.withColor(Formatting.GREEN))), false);
             ctx.getSource().sendFeedback(() -> Text.literal("Click here to copy to clipboard").setStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, node)).withColor(Formatting.BLUE)), false);
         } else
             ctx.getSource().sendFeedback(() -> Text.of(res.details()), false);
