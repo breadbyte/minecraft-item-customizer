@@ -30,6 +30,7 @@ public class Helper {
             player.setExperienceLevel(player.experienceLevel - cost);
     }
 
+    @Deprecated
     public static ServerPlayerEntity ValidateState(CommandContext<ServerCommandSource> context, int cost) {
         var playerContainer = Check.TryReturnValidPlayer(context, Check.Permission.CUSTOMIZE.getPermission());
 

@@ -4,6 +4,7 @@ import com.github.breadbyte.itemcustomizer.main.ItemCustomizer;
 import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
 import com.mojang.brigadier.context.CommandContext;
 import me.lucko.fabric.api.permissions.v0.Permissions;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -14,6 +15,7 @@ import static net.minecraft.text.Text.*;
 
 public class Check {
     public enum Permission {
+        GRANT("itemcustomizer.grant"),
         CUSTOMIZE("itemcustomizer.customize"),
         RENAME("itemcustomizer.rename"),
         LORE("itemcustomizer.lore");
@@ -39,6 +41,17 @@ public class Check {
             ItemCustomizer.LOGGER.info("Checking permission for selector: {}", chain(model.getPermissionNode()));
             return Permissions.check(player, chain(model.getPermissionNode()));
         }
+    }
+
+
+    public static boolean checkPermissionForUser(ServerPlayerEntity player, String node) {
+        ItemCustomizer.LOGGER.info("Checking permission for selector: {}", node);
+        return Permissions.check(player, node);
+    }
+
+    public static boolean IsLuckpermsPresent() {
+        var serve = FabricLoader.getInstance().getModContainer("luckperms");
+        return serve.isPresent();
     }
 
     public static boolean IsCreativeMode(ServerPlayerEntity player) {

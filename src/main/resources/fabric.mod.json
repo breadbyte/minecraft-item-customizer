@@ -3,7 +3,7 @@
   "id": "itemcustomizer",
   "version": "${version}",
 
-  "name": "Item Customizer",
+  "name": "breadbyte's Item Customizer",
   "description": "",
   "authors": [],
   "contact": {},
@@ -29,5 +29,8 @@
     "fabric": "*",
     "minecraft": "${minecraft_version}",
     "yet_another_config_lib_v3": ">=${yacl_version}"
+  },
+  "softdepends": {
+    "luckperms": "*"
   }
 }
