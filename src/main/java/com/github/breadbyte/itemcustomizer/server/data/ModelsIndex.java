@@ -72,6 +72,18 @@ public class ModelsIndex {
         return List.copyOf(_index.getOrDefault(new NamespaceCategory(namespace, category), List.of()));
     }
 
+
+    public CustomModelDefinition getOldNamespacePath(String namespace, String path) {
+        var fullPath = namespace + ":" + path;
+        for (var model : _index.values()) {
+            return model.stream()
+                    .filter(m -> m.destination.equals(fullPath))
+                    .findFirst()
+                    .orElse(null);
+        }
+        return null;
+    }
+
     public CustomModelDefinition get(String namespace, String category, String name) {
         var models = _index.getOrDefault(new NamespaceCategory(namespace, category), List.of());
         return models.stream()

@@ -39,22 +39,28 @@ public class ModelOperations {
                 return OperationResult.fail("No custom model definitions found for item: " + itemType + "/" + itemName);
             }
 
-            // Check if we have permissions for the specified item
-            if (!IsAdmin(player)) {
-                if (!defs.getPermission(player)) {
-                    LOGGER.warn("Player {} tried to customize {}/{} with no permissions!", player.getName().getString(), itemType, itemName);
-                    return OperationResult.fail("Permission denied for " + itemType + "/" + itemName);
-                }
-            }
-
             namespace = defs.getNamespace();
             category = defs.getDestination();
         } else {
             // Using the old format of itemType as category only, and itemName as the full path.
             namespace = itemType;
             category = itemName;
+
+            var model = ModelsIndex.getInstance().getOldNamespacePath(itemType, itemName);
+            if (model == null) {
+                return OperationResult.fail("No custom model definitions found for item: " + itemType + ":" + itemName);
+            }
+
+            defs = model;
         }
 
+        // Check if we have permissions for the specified item
+        if (!IsAdmin(player)) {
+            if (!defs.getPermission(player)) {
+                LOGGER.warn("Player {} tried to customize {}/{} with no permissions!", player.getName().getString(), itemType, itemName);
+                return OperationResult.fail("Permission denied for " + itemType + "/" + itemName);
+            }
+        }
 
         // Check if these parameters exist, if not, set them to default values
         if (color == null)
@@ -161,7 +167,7 @@ public class ModelOperations {
                         ItemCustomizer.LOGGER.info("Item components out of sync after reset! Default:");
                         ItemCustomizer.LOGGER.info(defaultComponents.toString());
 
-                        return OperationResult.ok("Warning: Item components out of sync. Item will still function correctly but won't stack. Check logs for details.", 1);
+                        return OperationResult.ok("Warning: Item components out of sync. Check logs for details.", 1);
                     }
                 }
             }
