@@ -47,8 +47,12 @@ public class ModelOperations {
             category = itemName;
 
             var model = ModelsIndex.getInstance().getOldNamespacePath(itemType, itemName);
-            if (model == null) {
-                return OperationResult.fail("No custom model definitions found for item: " + itemType + ":" + itemName);
+
+            // Allow changing to a model that doesn't exist if we are an admin
+            if (!IsAdmin(player)) {
+                if (model == null) {
+                    return OperationResult.fail("No custom model definitions found for item: " + itemType + ":" + itemName);
+                }
             }
 
             defs = model;

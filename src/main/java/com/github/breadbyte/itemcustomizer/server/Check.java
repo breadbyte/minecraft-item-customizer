@@ -59,7 +59,7 @@ public class Check {
     }
 
     public static boolean IsAdmin(ServerPlayerEntity player) {
-        return player.hasPermissionLevel(1);
+        return player.hasPermissionLevel(3);
     }
 
     public static Optional<ServerPlayerEntity> TryReturnValidPlayer(CommandContext<ServerCommandSource> context, String PermissionName) {
