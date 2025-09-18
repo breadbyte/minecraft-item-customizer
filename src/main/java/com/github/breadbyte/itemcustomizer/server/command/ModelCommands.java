@@ -4,6 +4,9 @@ import com.github.breadbyte.itemcustomizer.server.Check;
 import com.github.breadbyte.itemcustomizer.server.Helper;
 import com.github.breadbyte.itemcustomizer.server.operations.ModelOperations;
 import com.mojang.brigadier.context.CommandContext;
+import net.minecraft.command.EntitySelector;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.CustomModelDataComponent;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.ClickEvent;
@@ -11,6 +14,8 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
 import net.minecraft.util.Formatting;
+
+import java.util.List;
 
 import static com.github.breadbyte.itemcustomizer.server.Helper.SendMessage;
 
@@ -101,6 +106,51 @@ public class ModelCommands {
         } else
             ctx.getSource().sendFeedback(() -> Text.of(res.details()), false);
 
+        return 1;
+    }
+
+    public static int tintModel(CommandContext<ServerCommandSource> ctx) {
+        var index = ctx.getArgument("index", Integer.class);
+        var color = ctx.getArgument("color", Integer.class);
+
+        // TODO: should be able to be executed by console
+        if (!ctx.getSource().isExecutedByPlayer())
+            return 0;
+
+        var getPlayer = Check.TryReturnValidPlayer(ctx, Check.Permission.CUSTOMIZE.getPermission());
+        if (getPlayer.isEmpty())
+            return 0;
+
+        var player = getPlayer.get();
+
+        var playerItem = player.getMainHandStack();
+
+        // Get the components for the currently held item
+        var itemComps = playerItem.getComponents();
+
+        var dyemap = itemComps.get(DataComponentTypes.CUSTOM_MODEL_DATA);
+
+        if (dyemap == null) {
+            List<Integer> intList = new java.util.ArrayList<>();
+            // populate until specified index
+            for (int i = 0; i <= index; i++)
+                intList.add(-0);
+            intList.set(index, color);
+
+            playerItem.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(List.of(), List.of(), List.of(), intList));
+            return 1;
+        }
+
+        if (index < 0 || index >= dyemap.colors().size()) {
+            return 0;
+        }
+
+        // Deep copy the entire color list
+        var newCol = new java.util.ArrayList<>(dyemap.colors());
+        newCol.set(index, color);
+
+        // Write back
+        playerItem.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(dyemap.floats(), dyemap.flags(), dyemap.strings(), List.copyOf(newCol)));
         return 1;
     }
 }
