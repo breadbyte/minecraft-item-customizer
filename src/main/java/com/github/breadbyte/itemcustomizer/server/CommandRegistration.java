@@ -25,7 +25,9 @@ public class CommandRegistration {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             dispatcher.register(
                     CommandManager.literal("model")
-                            .requires(Permissions.require(Check.Permission.CUSTOMIZE.getPermission()))
+                            .requires(Permissions.require(Check.Permission.CUSTOMIZE.getPermission())
+                                    .or(scs -> scs.getPlayer().isCreative())
+                                    .or(scs -> scs.hasPermissionLevel(1)))
                             .then(CommandManager.literal("apply")
                                     .then(CommandManager.argument("item_type", StringArgumentType.word())
                                             .suggests(ModelCategorySuggestionProvider.INSTANCE)
