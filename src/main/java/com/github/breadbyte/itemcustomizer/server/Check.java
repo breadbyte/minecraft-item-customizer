@@ -18,7 +18,8 @@ public class Check {
         GRANT("itemcustomizer.grant"),
         CUSTOMIZE("itemcustomizer.customize"),
         RENAME("itemcustomizer.rename"),
-        LORE("itemcustomizer.lore");
+        LORE("itemcustomizer.lore"),
+        ADMIN("itemcustomizer.admin");
 
         private final String permission;
 

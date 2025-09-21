@@ -69,7 +69,8 @@ public class CommandRegistration {
                                 )
                             )
                             .then(CommandManager.literal("namespaces")
-                                .requires(scs -> scs.hasPermissionLevel(4)) //ops only
+                                    .requires(Permissions.require(Check.Permission.ADMIN.getPermission())
+                                    .or(scs -> scs.hasPermissionLevel(1))) //ops only
                                 .then(CommandManager.literal("register")
                                         .then(CommandManager.argument("namespace", StringArgumentType.word())
                                                 .then(CommandManager.argument("csv_url", StringArgumentType.greedyString())
