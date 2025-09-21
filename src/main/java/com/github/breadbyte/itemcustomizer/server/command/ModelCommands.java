@@ -131,6 +131,11 @@ public class ModelCommands {
 
         var dyemap = itemComps.get(DataComponentTypes.CUSTOM_MODEL_DATA);
 
+        // For message output
+        int r = (color >> 16) & 0xFF;
+        int g = (color >> 8) & 0xFF;
+        int b = color & 0xFF;
+
         // If the data doesn't exist at all, create it
         if (dyemap == null) {
             List<Integer> intList = new java.util.ArrayList<>();
@@ -140,6 +145,7 @@ public class ModelCommands {
             intList.set(index, color);
 
             playerItem.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(List.of(), List.of(), List.of(), intList));
+            Helper.SendMessageYes(player, "Set color index " + index + " to RGB(" + r + ", " + g + ", " + b + ") for held item");
             return 1;
         }
 
@@ -157,6 +163,7 @@ public class ModelCommands {
             newCol.set(index, color);
 
             playerItem.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(List.of(), List.of(), List.of(), newCol));
+            Helper.SendMessageYes(player, "Set color index " + index + " to RGB(" + r + ", " + g + ", " + b + ") for held item");
             return 1;
         }
 
@@ -168,6 +175,30 @@ public class ModelCommands {
 
         // Write back
         playerItem.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(dyemap.floats(), dyemap.flags(), dyemap.strings(), List.copyOf(newCol)));
+        Helper.SendMessageYes(player, "Set color index " + index + " to RGB(" + r + ", " + g + ", " + b + ") for held item");
+        return 1;
+    }
+
+    public static int tintReset(CommandContext<ServerCommandSource> ctx) {
+        var getPlayer = Check.TryReturnValidPlayer(ctx, Check.Permission.CUSTOMIZE.getPermission());
+        if (getPlayer.isEmpty())
+            return 0;
+
+        var player = getPlayer.get();
+
+        var playerItem = player.getMainHandStack();
+
+        // Get the components for the currently held item
+        var itemComps = playerItem.getComponents();
+
+        var dyemap = itemComps.get(DataComponentTypes.CUSTOM_MODEL_DATA);
+        // Replace color list with empty list, but keep the rest of the data
+        playerItem.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(
+                dyemap == null ? List.of() : dyemap.floats(),
+                dyemap == null ? List.of() : dyemap.flags(),
+                dyemap == null ? List.of() : dyemap.strings(),
+                List.of()));
+        Helper.SendMessageYes(player, "Tints cleared for held item");
         return 1;
     }
 }

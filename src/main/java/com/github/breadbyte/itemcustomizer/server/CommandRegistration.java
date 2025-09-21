@@ -44,6 +44,7 @@ public class CommandRegistration {
                                     .then(CommandManager.argument("color", IntegerArgumentType.integer(Integer.MIN_VALUE, Integer.MAX_VALUE))
                                         .executes(ModelCommands::tintModel)
                                     ))
+                                .then(CommandManager.literal("reset").executes(ModelCommands::tintReset))
                             )
                             .then(CommandManager.literal("glint")
                                     .then(CommandManager.literal("on")
