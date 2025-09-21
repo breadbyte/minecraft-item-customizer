@@ -7,6 +7,8 @@ import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.command.EntitySelector;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.CustomModelDataComponent;
+import net.minecraft.component.type.EquippableComponent;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.ClickEvent;
@@ -199,6 +201,35 @@ public class ModelCommands {
                 dyemap == null ? List.of() : dyemap.strings(),
                 List.of()));
         Helper.SendMessageYes(player, "Tints cleared for held item");
+        return 1;
+    }
+
+    public static int toggleWearable(CommandContext<ServerCommandSource> ctx) {
+        if (!ctx.getSource().isExecutedByPlayer())
+            return 0;
+
+        var getPlayer = Check.TryReturnValidPlayer(ctx, Check.Permission.CUSTOMIZE.getPermission());
+        if (getPlayer.isEmpty())
+            return 0;
+
+        var player = getPlayer.get();
+
+        var playerItem = player.getMainHandStack();
+
+        // Get the components for the currently held item
+        var itemComps = playerItem.getComponents();
+
+        var equippableComponent = itemComps.get(DataComponentTypes.EQUIPPABLE);
+
+        // If the component doesn't exist, add it, otherwise, remove it
+        if (equippableComponent == null) {
+            playerItem.set(DataComponentTypes.EQUIPPABLE, EquippableComponent.builder(EquipmentSlot.HEAD).build());
+            Helper.SendMessageYes(player, "You can now equip this item as a wearable");
+        } else {
+            playerItem.set(DataComponentTypes.EQUIPPABLE, playerItem.getDefaultComponents().get(DataComponentTypes.EQUIPPABLE));
+            Helper.SendMessageYes(player, "Item equippable reset");
+        }
+
         return 1;
     }
 }
