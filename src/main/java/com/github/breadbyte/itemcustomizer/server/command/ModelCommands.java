@@ -113,6 +113,7 @@ public class ModelCommands {
         var index = ctx.getArgument("index", Integer.class);
         var color = ctx.getArgument("color", Integer.class);
 
+        ctx.getSource().sendFeedback(() -> Text.literal("Setting color index " + index + " to " + String.format("0x%06X", (0xFFFFFF & color))), false);
         // TODO: should be able to be executed by console
         if (!ctx.getSource().isExecutedByPlayer())
             return 0;
@@ -130,17 +131,19 @@ public class ModelCommands {
 
         var dyemap = itemComps.get(DataComponentTypes.CUSTOM_MODEL_DATA);
 
+        // If the data doesn't exist at all, create it
         if (dyemap == null) {
             List<Integer> intList = new java.util.ArrayList<>();
             // populate until specified index
             for (int i = 0; i <= index; i++)
-                intList.add(-0);
+                intList.add(-1);
             intList.set(index, color);
 
             playerItem.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(List.of(), List.of(), List.of(), intList));
             return 1;
         }
 
+        // If the data exists but the index is out of bounds, expand it
         if (index >= dyemap.colors().size()) {
             // Deep copy the entire color list
             var newCol = new java.util.ArrayList<>(dyemap.colors());
@@ -148,7 +151,7 @@ public class ModelCommands {
             if (newCol.size() <= index) {
                 // populate until specified index
                 for (int i = newCol.size(); i <= index; i++)
-                    newCol.add(-0);
+                    newCol.add(-1);
             }
 
             newCol.set(index, color);
@@ -157,6 +160,8 @@ public class ModelCommands {
             return 1;
         }
 
+
+        // Otherwise, modify existing data
         // Copy existing colors
         var newCol = new java.util.ArrayList<>(dyemap.colors());
         newCol.set(index, color);
