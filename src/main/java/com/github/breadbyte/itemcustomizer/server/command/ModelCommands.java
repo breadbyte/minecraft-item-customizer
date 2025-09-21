@@ -141,11 +141,23 @@ public class ModelCommands {
             return 1;
         }
 
-        if (index < 0 || index >= dyemap.colors().size()) {
-            return 0;
+        if (index >= dyemap.colors().size()) {
+            // Deep copy the entire color list
+            var newCol = new java.util.ArrayList<>(dyemap.colors());
+
+            if (newCol.size() <= index) {
+                // populate until specified index
+                for (int i = newCol.size(); i <= index; i++)
+                    newCol.add(-0);
+            }
+
+            newCol.set(index, color);
+
+            playerItem.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(List.of(), List.of(), List.of(), newCol));
+            return 1;
         }
 
-        // Deep copy the entire color list
+        // Copy existing colors
         var newCol = new java.util.ArrayList<>(dyemap.colors());
         newCol.set(index, color);
 
