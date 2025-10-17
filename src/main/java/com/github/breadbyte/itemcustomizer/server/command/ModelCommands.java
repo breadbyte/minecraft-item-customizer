@@ -232,4 +232,32 @@ public class ModelCommands {
 
         return 1;
     }
+
+    public static int toggleModelSound(CommandContext<ServerCommandSource> ctx) {
+        // todo:
+        var player = Helper.ValidateState(ctx, 0);
+        if (player == null)
+            return 0;
+
+
+        var sound = String.valueOf(ctx.getArgument("play_sound", String.class));
+
+        var playerItem = player.getMainHandStack();
+
+        // Get the components for the currently held item
+        var itemComps = playerItem.getComponents();
+
+        // Set it to the new model
+        playerItem.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(
+                itemComps.get(DataComponentTypes.CUSTOM_MODEL_DATA) == null ? List.of() : itemComps.get(DataComponentTypes.CUSTOM_MODEL_DATA).floats(),
+                itemComps.get(DataComponentTypes.CUSTOM_MODEL_DATA) == null ? List.of() : itemComps.get(DataComponentTypes.CUSTOM_MODEL_DATA).flags(),
+                new java.util.ArrayList<>() {{
+                    add(sound);
+                }},
+                itemComps.get(DataComponentTypes.CUSTOM_MODEL_DATA) == null ? List.of() : itemComps.get(DataComponentTypes.CUSTOM_MODEL_DATA).colors()
+        ));
+
+        Helper.SendMessageYes(player, "Set model sound to \"" + sound + "\" for held item");
+        return 1;
+    }
 }
