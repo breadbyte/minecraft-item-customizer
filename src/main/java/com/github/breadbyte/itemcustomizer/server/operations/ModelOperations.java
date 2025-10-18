@@ -101,16 +101,19 @@ public class ModelOperations {
                     return OperationResult.fail("Failed to create equipment asset for model: " + namespace + "/" + category);
                 }
 
-                // todo: crash if ispresent failed?
-                var newEquippable = EquippableComponent.builder(equippable.slot())
+                var newEquippableBuilder = EquippableComponent.builder(equippable.slot())
                         .equipSound(equippable.equipSound())
                         .model(eqAsset.get())
-                        .cameraOverlay(equippable.cameraOverlay().get())
-                        .allowedEntities(equippable.allowedEntities().get())
                         .dispensable(equippable.dispensable())
                         .swappable(equippable.swappable())
-                        .damageOnHurt(equippable.damageOnHurt())
-                        .build();
+                        .damageOnHurt(equippable.damageOnHurt());
+
+                if (equippable.cameraOverlay().isPresent())
+                    newEquippableBuilder.cameraOverlay(equippable.cameraOverlay().get());
+                if (equippable.allowedEntities().isPresent())
+                    newEquippableBuilder.allowedEntities(equippable.allowedEntities().get());
+
+                var newEquippable = newEquippableBuilder.build();
 
                 playerItem.set(DataComponentTypes.EQUIPPABLE, newEquippable);
             }
