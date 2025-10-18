@@ -23,6 +23,9 @@
         "com.github.breadbyte.itemcustomizer.server.ItemCustomizerServer"
     ]
   },
+  "mixins": [
+    "itemcustomizer.mixins.json"
+  ],
 
   "depends": {
     "fabricloader": ">=${loader_version}",

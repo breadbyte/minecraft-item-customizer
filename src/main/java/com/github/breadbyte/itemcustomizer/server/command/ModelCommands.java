@@ -4,22 +4,18 @@ import com.github.breadbyte.itemcustomizer.server.Check;
 import com.github.breadbyte.itemcustomizer.server.Helper;
 import com.github.breadbyte.itemcustomizer.server.operations.ModelOperations;
 import com.mojang.brigadier.context.CommandContext;
-import net.minecraft.command.EntitySelector;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.CustomModelDataComponent;
 import net.minecraft.component.type.EquippableComponent;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.text.TextColor;
 import net.minecraft.util.Formatting;
+import net.minecraft.item.ItemStack;
 
 import java.util.List;
-
-import static com.github.breadbyte.itemcustomizer.server.Helper.SendMessage;
 
 public class ModelCommands {
     // TODO: Cost is static
@@ -233,6 +229,32 @@ public class ModelCommands {
         return 1;
     }
 
+    // Helper to set a string at a specific index in the CustomModelData strings list and write back the component
+    private static void applyCustomModelDataString(ItemStack item, int index, String value) {
+        var itemComps = item.getComponents();
+        var cmd = itemComps.get(DataComponentTypes.CUSTOM_MODEL_DATA);
+
+        List<String> currentStrings = new java.util.ArrayList<>();
+        if (cmd != null && cmd.strings() != null)
+            currentStrings.addAll(cmd.strings());
+
+        // Ensure list is large enough
+        if (currentStrings.size() <= index) {
+            for (int i = currentStrings.size(); i <= index; i++)
+                currentStrings.add("");
+        }
+
+        currentStrings.set(index, value);
+
+        // Write it to the item, preserving other parts of the component
+        item.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(
+                cmd == null ? List.of() : cmd.floats(),
+                cmd == null ? List.of() : cmd.flags(),
+                currentStrings,
+                cmd == null ? List.of() : cmd.colors()
+        ));
+    }
+
     public static int toggleModelSound(CommandContext<ServerCommandSource> ctx) {
         // todo:
         var player = Helper.ValidateState(ctx, 0);
@@ -244,20 +266,56 @@ public class ModelCommands {
 
         var playerItem = player.getMainHandStack();
 
-        // Get the components for the currently held item
-        var itemComps = playerItem.getComponents();
+        // Apply/replace the first sound (index 0)
+        applyCustomModelDataString(playerItem, 0, sound);
 
-        // Set it to the new model
-        playerItem.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(
-                itemComps.get(DataComponentTypes.CUSTOM_MODEL_DATA) == null ? List.of() : itemComps.get(DataComponentTypes.CUSTOM_MODEL_DATA).floats(),
-                itemComps.get(DataComponentTypes.CUSTOM_MODEL_DATA) == null ? List.of() : itemComps.get(DataComponentTypes.CUSTOM_MODEL_DATA).flags(),
-                new java.util.ArrayList<>() {{
-                    add(sound);
-                }},
-                itemComps.get(DataComponentTypes.CUSTOM_MODEL_DATA) == null ? List.of() : itemComps.get(DataComponentTypes.CUSTOM_MODEL_DATA).colors()
-        ));
+        Helper.SendMessageYes(player, "Added swing sound to \"" + sound + "\" for held item");
+        return 1;
+    }
 
-        Helper.SendMessageYes(player, "Set model sound to \"" + sound + "\" for held item");
+    public static int addSwappingSound(CommandContext<ServerCommandSource> ctx) {
+        var player = Helper.ValidateState(ctx, 0);
+        if (player == null)
+            return 0;
+
+        var playerItem = player.getMainHandStack();
+        var sound = String.valueOf(ctx.getArgument("play_sound", String.class));
+
+        // Apply/replace the second sound (index 1)
+        applyCustomModelDataString(playerItem, 1, sound);
+
+        Helper.SendMessageYes(player, "Added swapping sound to held item");
+        return 1;
+
+    }
+
+    public static int addCritSound(CommandContext<ServerCommandSource> ctx) {
+        var player = Helper.ValidateState(ctx, 0);
+        if (player == null)
+            return 0;
+
+        var playerItem = player.getMainHandStack();
+        var sound = String.valueOf(ctx.getArgument("play_sound", String.class));
+
+        // Apply/replace the third sound (index 2)
+        applyCustomModelDataString(playerItem, 2, sound);
+
+        Helper.SendMessageYes(player, "Added critical hit sound to held item");
+        return 1;
+    }
+
+    public static int addSweepSound(CommandContext<ServerCommandSource> ctx) {
+        var player = Helper.ValidateState(ctx, 0);
+        if (player == null)
+            return 0;
+
+        var playerItem = player.getMainHandStack();
+        var sound = String.valueOf(ctx.getArgument("play_sound", String.class));
+
+        // Apply/replace the fourth sound (index 3)
+        applyCustomModelDataString(playerItem, 3, sound);
+
+        Helper.SendMessageYes(player, "Added sweep attack sound to held item");
         return 1;
     }
 }
