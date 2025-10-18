@@ -83,7 +83,7 @@ public class ModelOperations {
 
         if (color != Integer.MIN_VALUE) {
             // Set the dyed color if provided
-            playerItem.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(color, false));
+            playerItem.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(color));
             playerItem.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(List.of(),List.of(),List.of(), List.of(color)));
         }
 
@@ -97,7 +97,20 @@ public class ModelOperations {
                 assert equippable != null;
 
                 var eqAsset = java.util.Optional.ofNullable(RegistryKey.of(EquipmentAssetKeys.REGISTRY_KEY, Helper.String2Identifier(namespace, category)));
-                var newEquippable = new EquippableComponent(equippable.slot(), equippable.equipSound(), eqAsset, equippable.cameraOverlay(), equippable.allowedEntities(), equippable.dispensable(), equippable.swappable(), equippable.damageOnHurt());
+                if (eqAsset.isEmpty()) {
+                    return OperationResult.fail("Failed to create equipment asset for model: " + namespace + "/" + category);
+                }
+
+                // todo: crash if ispresent failed?
+                var newEquippable = EquippableComponent.builder(equippable.slot())
+                        .equipSound(equippable.equipSound())
+                        .model(eqAsset.get())
+                        .cameraOverlay(equippable.cameraOverlay().get())
+                        .allowedEntities(equippable.allowedEntities().get())
+                        .dispensable(equippable.dispensable())
+                        .swappable(equippable.swappable())
+                        .damageOnHurt(equippable.damageOnHurt())
+                        .build();
 
                 playerItem.set(DataComponentTypes.EQUIPPABLE, newEquippable);
             }
