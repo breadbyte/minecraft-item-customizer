@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.11.4'
+    id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
     id 'maven-publish'
 }
 
@@ -44,7 +44,7 @@ dependencies {
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
     include(modImplementation('me.lucko:fabric-permissions-api:0.3.3'))
     modImplementation "dev.isxander:yet-another-config-lib:${project.yacl_version}"
 
@@ -89,6 +89,7 @@ java {
 }
 
 jar {
+    inputs.property "archivesName", project.base.archivesName
     from("LICENSE") {
         rename { "${it}_${project.archives_base_name}"}
     }
