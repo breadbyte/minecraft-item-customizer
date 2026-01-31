@@ -9,6 +9,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import static net.minecraft.text.Text.*;
@@ -60,7 +61,8 @@ public class Check {
     }
 
     public static boolean IsAdmin(ServerPlayerEntity player) {
-        return player.hasPermissionLevel(3);
+        var server = Objects.requireNonNull(player.getEntityWorld().getServer());
+        return server.getPlayerManager().isOperator(player.getPlayerConfigEntry());
     }
 
     public static Optional<ServerPlayerEntity> TryReturnValidPlayer(CommandContext<ServerCommandSource> context, String PermissionName) {
