@@ -106,30 +106,30 @@ public class Helper {
     public static void SendMessage(ServerPlayerEntity player, String message, net.minecraft.sound.SoundEvent sound) {
         player.sendMessage(Text.of(message), true);
         if (sound != null) {
-            player.playSoundToPlayer(sound, SoundCategory.MASTER, 1.0F, 1.0F);
+            player.getEntityWorld().playSoundClient(player.getX(), player.getY(), player.getZ(), sound, SoundCategory.MASTER, 1.0F, 1.0F, false);
         }
     }
 
     public static void SendMessage(ServerPlayerEntity player, Text message, net.minecraft.sound.SoundEvent sound) {
         player.sendMessage(message, true);
         if (sound != null) {
-            player.playSoundToPlayer(sound, SoundCategory.MASTER,1.0F, 1.0F);
+            player.getEntityWorld().playSoundClient(player.getX(), player.getY(), player.getZ(), sound, SoundCategory.MASTER, 1.0F, 1.0F, false);
         }
     }
 
     // Some events are apparently wrapped in a Reference
     public static void SendMessage(ServerPlayerEntity player, String suggestionsUpdated, RegistryEntry.Reference<SoundEvent> soundEventReference) {
         player.sendMessage(Text.of(suggestionsUpdated), true);
-        player.playSoundToPlayer(soundEventReference.value(), SoundCategory.MASTER, 1.0F, 1.0F);
+        player.getEntityWorld().playSoundClient(player.getX(), player.getY(), player.getZ(), soundEventReference.value(), SoundCategory.MASTER, 1.0F, 1.0F, false);
     }
 
     public static void SendMessageNo(ServerPlayerEntity player, String message) {
         player.sendMessage(Text.of(message), true);
-        player.playSoundToPlayer(SoundEvents.ENTITY_VILLAGER_NO, SoundCategory.MASTER, 1.0F, 1.0F);
+        player.getEntityWorld().playSoundClient(player.getX(), player.getY(), player.getZ(), SoundEvents.ENTITY_VILLAGER_NO, SoundCategory.MASTER, 1.0F, 1.0F, false);
     }
 
     public static void SendMessageYes(ServerPlayerEntity player, String message) {
         player.sendMessage(Text.of(message), true);
-        player.playSoundToPlayer(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, 1.0F, 1.0F);
+        player.getEntityWorld().playSoundClient(player.getX(), player.getY(), player.getZ(), SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, 1.0F, 1.0F, false);
     }
 }
