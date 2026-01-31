@@ -27,7 +27,8 @@ public class CommandRegistration {
                     CommandManager.literal("model")
                             .requires(Permissions.require(Check.Permission.CUSTOMIZE.getPermission())
                                     .or(scs -> scs.getPlayer().isCreative())
-                                    .or(scs -> scs.hasPermissionLevel(1)))
+                                    //todo .or(scs -> scs.hasPermissionLevel(1))
+                            )
                             .then(CommandManager.literal("apply")
                                     .then(CommandManager.argument("item_type", StringArgumentType.word())
                                             .suggests(ModelCategorySuggestionProvider.INSTANCE)
@@ -73,7 +74,8 @@ public class CommandRegistration {
                             )
                             .then(CommandManager.literal("namespaces")
                                     .requires(Permissions.require(Check.Permission.ADMIN.getPermission())
-                                    .or(scs -> scs.hasPermissionLevel(1))) //ops only
+                                    //todo .or(scs -> scs.hasPermissionLevel(1)) //ops only
+                                    )
                                 .then(CommandManager.literal("register")
                                         .then(CommandManager.argument("namespace", StringArgumentType.word())
                                                 .then(CommandManager.argument("csv_url", StringArgumentType.greedyString())
@@ -90,8 +92,9 @@ public class CommandRegistration {
                                 )
                             )
                             .then(CommandManager.literal("permission")
-                                    .requires(Permissions.require(Check.Permission.GRANT.getPermission())
-                                    .or(scs -> scs.hasPermissionLevel(4)))
+                                    .requires(Permissions.require(Check.Permission.GRANT.getPermission()))
+                                    //todo .or(scs -> scs.hasPermissionLevel(4))
+                                    )
                                     .then(CommandManager.literal("grant")
                                             .then(CommandManager.argument("item_type", StringArgumentType.word())
                                                     .suggests(ModelCategorySuggestionProvider.INSTANCE)
@@ -106,8 +109,6 @@ public class CommandRegistration {
                                                     .suggests(ModelSuggestionProvider.INSTANCE)
                                                     .then(CommandManager.argument("player", EntityArgumentType.player())
                                                             .executes(GrantCommands::revokeModelPerm)))))
-                            )
-
             );
         });
 
@@ -116,7 +117,8 @@ public class CommandRegistration {
                     CommandManager.literal("rename")
                             .requires(Permissions.require(Check.Permission.RENAME.getPermission())
                                     .or(scs -> scs.getPlayer().isCreative())
-                                    .or(scs -> scs.hasPermissionLevel(1)))
+                                    //todo .or(scs -> scs.hasPermissionLevel(1))
+                                    )
                             .then(CommandManager.argument("name", StringArgumentType.greedyString())
                                     .executes(RenameCommands::renameItem))
                             .then(CommandManager.literal("reset")
@@ -131,7 +133,8 @@ public class CommandRegistration {
                     CommandManager.literal("lore")
                             .requires(Permissions.require(Check.Permission.LORE.getPermission())
                                     .or(scs -> scs.getPlayer().isCreative())
-                                    .or(scs -> scs.hasPermissionLevel(1)))
+                                    //todo .or(scs -> scs.hasPermissionLevel(1))
+                                    )
                             .then(CommandManager.argument("text", StringArgumentType.greedyString())
                                     .executes(LoreCommands::addLore))
                             .then(CommandManager.literal("reset")
