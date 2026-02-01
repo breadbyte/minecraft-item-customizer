@@ -19,6 +19,8 @@ import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.command.suggestion.SuggestionProviders;
 import net.minecraft.server.command.CommandManager;
 
+import java.util.Objects;
+
 public class CommandRegistration {
 
     public static void RegisterCommands() {
@@ -26,8 +28,14 @@ public class CommandRegistration {
             dispatcher.register(
                     CommandManager.literal("model")
                             .requires(Permissions.require(Check.Permission.CUSTOMIZE.getPermission())
-                                    .or(scs -> scs.getPlayer().isCreative())
-                                    //todo .or(scs -> scs.hasPermissionLevel(1))
+                                    .or(scs -> Objects.requireNonNull(scs.getPlayer()).isCreative())
+                                    .or(scs -> {
+                                        // Check if executed by player, if so, check if they are an operator
+                                        if (scs.isExecutedByPlayer())
+                                            return scs.getServer().getPlayerManager().isOperator(Objects.requireNonNull(scs.getPlayer()).getPlayerConfigEntry());
+                                        // Make this check true otherwise for everything else
+                                        else return true;
+                                    })
                             )
                             .then(CommandManager.literal("apply")
                                     .then(CommandManager.argument("item_type", StringArgumentType.word())
@@ -74,8 +82,13 @@ public class CommandRegistration {
                             )
                             .then(CommandManager.literal("namespaces")
                                     .requires(Permissions.require(Check.Permission.ADMIN.getPermission())
-                                    //todo .or(scs -> scs.hasPermissionLevel(1)) //ops only
-                                    )
+                                    .or(scs -> {
+                                         // Check if executed by player, if so, check if they are an operator
+                                         if (scs.isExecutedByPlayer())
+                                            return scs.getServer().getPlayerManager().isOperator(Objects.requireNonNull(scs.getPlayer()).getPlayerConfigEntry());
+                                         // Make this check true otherwise for everything else
+                                        else return true;
+                                    }))
                                 .then(CommandManager.literal("register")
                                         .then(CommandManager.argument("namespace", StringArgumentType.word())
                                                 .then(CommandManager.argument("csv_url", StringArgumentType.greedyString())
@@ -93,8 +106,6 @@ public class CommandRegistration {
                             )
                             .then(CommandManager.literal("permission")
                                     .requires(Permissions.require(Check.Permission.GRANT.getPermission()))
-                                    //todo .or(scs -> scs.hasPermissionLevel(4))
-                                    )
                                     .then(CommandManager.literal("grant")
                                             .then(CommandManager.argument("item_type", StringArgumentType.word())
                                                     .suggests(ModelCategorySuggestionProvider.INSTANCE)
@@ -109,7 +120,7 @@ public class CommandRegistration {
                                                     .suggests(ModelSuggestionProvider.INSTANCE)
                                                     .then(CommandManager.argument("player", EntityArgumentType.player())
                                                             .executes(GrantCommands::revokeModelPerm)))))
-            );
+            ));
         });
 
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
@@ -117,8 +128,13 @@ public class CommandRegistration {
                     CommandManager.literal("rename")
                             .requires(Permissions.require(Check.Permission.RENAME.getPermission())
                                     .or(scs -> scs.getPlayer().isCreative())
-                                    //todo .or(scs -> scs.hasPermissionLevel(1))
-                                    )
+                                    .or(scs -> {
+                                        // Check if executed by player, if so, check if they are an operator
+                                        if (scs.isExecutedByPlayer())
+                                            return scs.getServer().getPlayerManager().isOperator(Objects.requireNonNull(scs.getPlayer()).getPlayerConfigEntry());
+                                            // Make this check true otherwise for everything else
+                                        else return true;
+                                    }))
                             .then(CommandManager.argument("name", StringArgumentType.greedyString())
                                     .executes(RenameCommands::renameItem))
                             .then(CommandManager.literal("reset")
@@ -133,7 +149,13 @@ public class CommandRegistration {
                     CommandManager.literal("lore")
                             .requires(Permissions.require(Check.Permission.LORE.getPermission())
                                     .or(scs -> scs.getPlayer().isCreative())
-                                    //todo .or(scs -> scs.hasPermissionLevel(1))
+                                    .or(scs -> {
+                                       // Check if executed by player, if so, check if they are an operator
+                                       if (scs.isExecutedByPlayer())
+                                          return scs.getServer().getPlayerManager().isOperator(Objects.requireNonNull(scs.getPlayer()).getPlayerConfigEntry());
+                                       // Make this check true otherwise for everything else
+                                       else return true;
+                                       })
                                     )
                             .then(CommandManager.argument("text", StringArgumentType.greedyString())
                                     .executes(LoreCommands::addLore))
