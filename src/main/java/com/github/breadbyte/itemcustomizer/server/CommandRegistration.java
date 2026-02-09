@@ -1,9 +1,9 @@
 package com.github.breadbyte.itemcustomizer.server;
 
-import com.github.breadbyte.itemcustomizer.server.command.GrantCommands;
-import com.github.breadbyte.itemcustomizer.server.command.ModelCommands;
-import com.github.breadbyte.itemcustomizer.server.command.LoreCommands;
-import com.github.breadbyte.itemcustomizer.server.command.RenameCommands;
+import com.github.breadbyte.itemcustomizer.server.commands.impl.GrantCommands;
+import com.github.breadbyte.itemcustomizer.server.commands.impl.ModelCommands;
+import com.github.breadbyte.itemcustomizer.server.commands.impl.LoreCommands;
+import com.github.breadbyte.itemcustomizer.server.commands.impl.RenameCommands;
 import com.github.breadbyte.itemcustomizer.server.operations.*;
 import com.github.breadbyte.itemcustomizer.server.suggester.ModelCategorySuggestionProvider;
 import com.github.breadbyte.itemcustomizer.server.suggester.ModelSuggestionProvider;

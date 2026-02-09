@@ -1,4 +1,4 @@
-package com.github.breadbyte.itemcustomizer.server.command;
+package com.github.breadbyte.itemcustomizer.server.commands.impl;
 
 import com.github.breadbyte.itemcustomizer.server.Helper;
 import com.github.breadbyte.itemcustomizer.server.operations.RenameOperations;

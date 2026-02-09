@@ -13,7 +13,6 @@ public class ItemCustomizer implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        LOGGER.info("Item Customizer starting up! - registering commands once.");
 
         // This allows the mod to register commands in both the integrated server and dedicated server environments, but not on the client.
         CommandRegistration.RegisterCommands();
