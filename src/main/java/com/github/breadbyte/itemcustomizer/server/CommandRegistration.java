@@ -10,7 +10,7 @@ public class CommandRegistration {
     public static void RegisterCommands() {
 
         // This is the base name of the command.
-        var root = CommandManager.literal("model2");
+        var root = CommandManager.literal("model");
         CommandRegistrationCallback.EVENT.register((dispatcher, registry, environment) -> {
 
             // To add new commands, create a new class in commands/registrar/commands
