@@ -199,6 +199,14 @@ public class ModelOperations {
     public static OperationResult applyGlint(ServerPlayerEntity player) {
         var playerItem = player.getMainHandStack();
 
+        // TODO: Check if enchanted and does not have the override
+        // Refer to table below for logic
+        // - HAS OVERRIDE? FLIP THE FLAG, EXIT EARLY
+        // - IF ENCHANTED
+        //  - SET OVERRIDE TO FALSE (DISABLE GLINT)
+        // - IF NOT ENCHANTED
+        //  - SET OVERRIDE TO TRUE (ENABLE GLINT)
+
         // Set the shine component to true
         playerItem.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true);
 

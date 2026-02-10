@@ -62,7 +62,7 @@ public class ModelCommands {
         if (player == null)
             return 0;
 
-        var itemType = String.valueOf(ctx.getArgument("item_type", String.class));
+        var itemType = String.valueOf(ctx.getArgument("item_category", String.class));
         var itemName = String.valueOf(ctx.getArgument("item_name", String.class));
         Integer color = null;
         Boolean changeEquippable = null;
@@ -97,7 +97,7 @@ public class ModelCommands {
     }
 
     public static int getPermissionNode(CommandContext<ServerCommandSource> ctx) {
-        var itemType = String.valueOf(ctx.getArgument("item_type", String.class));
+        var itemType = String.valueOf(ctx.getArgument("item_category", String.class));
         var itemName = String.valueOf(ctx.getArgument("item_name", String.class));
 
         var res = ModelOperations.getPermissionNodeFor(itemType, itemName);

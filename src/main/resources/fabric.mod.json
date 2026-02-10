@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "itemcustomizer",
-  "version": "${version}",
+  "version": "1.16",
 
   "name": "breadbyte's Item Customizer",
   "description": "",
@@ -25,12 +25,9 @@
   },
 
   "depends": {
-    "fabricloader": ">=${loader_version}",
+    "fabricloader": ">=0.18.4",
     "fabric": "*",
-    "minecraft": "${minecraft_version}",
-    "yet_another_config_lib_v3": ">=${yacl_version}"
-  },
-  "softdepends": {
-    "luckperms": "*"
+    "minecraft": "1.21.11",
+    "yet_another_config_lib_v3": ">=3.8.1+1.21.11-fabric"
   }
 }

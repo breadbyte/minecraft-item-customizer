@@ -27,7 +27,7 @@ import static com.github.breadbyte.itemcustomizer.server.Check.TryReturnValidPla
 public class GrantCommands {
 
     public static int grantModelPerm(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-        var itemType = String.valueOf(ctx.getArgument("item_type", String.class));
+        var itemType = String.valueOf(ctx.getArgument("item_category", String.class));
         var itemName = String.valueOf(ctx.getArgument("item_name", String.class));
         var playerArg = ctx.getArgument("player", EntitySelector.class);
 
@@ -80,7 +80,7 @@ public class GrantCommands {
     }
 
     public static int revokeModelPerm(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-        var itemType = String.valueOf(ctx.getArgument("item_type", String.class));
+        var itemType = String.valueOf(ctx.getArgument("item_category", String.class));
         var itemName = String.valueOf(ctx.getArgument("item_name", String.class));
         var playerArg = ctx.getArgument("player", EntitySelector.class);
 

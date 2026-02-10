@@ -1,41 +1,40 @@
 package com.github.breadbyte.itemcustomizer.server.commands.registrar;
 
-import com.github.breadbyte.itemcustomizer.main.ItemCustomizer;
-import com.github.breadbyte.itemcustomizer.server.commands.CommandDefinition;
+import com.github.breadbyte.itemcustomizer.server.Check;
+import com.github.breadbyte.itemcustomizer.server.commands.registrar.commands.LoreCommand;
+import com.github.breadbyte.itemcustomizer.server.commands.registrar.commands.PermissionCommand;
+import com.github.breadbyte.itemcustomizer.server.commands.registrar.commands.RenameCommand;
+import com.github.breadbyte.itemcustomizer.server.commands.registrar.commands.model.*;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.minecraft.server.command.ServerCommandSource;
 
-import java.util.HashSet;
-import java.util.Set;
+public class CommandRegistrar {
+    // Setup
+    PermissionCommand permissionCommand = new PermissionCommand();
+    RenameCommand renameCommand = new RenameCommand();
+    LoreCommand loreCommand = new LoreCommand();
 
-import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
+    ModelApplyCommand modelApplyCommand = new ModelApplyCommand();
+    ModelGlintCommand modelGlintCommand = new ModelGlintCommand();
+    ModelTintCommand modelTintCommand = new ModelTintCommand();
+    ModelNamespaceCommand modelNamespaceCommand = new ModelNamespaceCommand();
+    ModelWearCommand modelWearCommand = new ModelWearCommand();
 
-public final class CommandRegistrar<S> {
-    private CommandDispatcher<ServerCommandSource> dispatcher;
-    private final Set<String> registered = new HashSet<String>();
-    private final LiteralArgumentBuilder<ServerCommandSource> rootNode = literal("model");
+    Check.Permission modelsPermission = Check.Permission.CUSTOMIZE;
 
-    public CommandRegistrar(CommandDispatcher<ServerCommandSource> dispatcher) {
-        this.dispatcher = dispatcher;
+    // Register to Brigadier
+    public void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher, LiteralArgumentBuilder<ServerCommandSource> root) {
+        permissionCommand.register(Check.Permission.GRANT, "permission", dispatcher, root);
+        renameCommand.register(Check.Permission.RENAME, "name", dispatcher, root);
+        loreCommand.register(Check.Permission.LORE,"lore", dispatcher, root);
+        modelNamespaceCommand.register(Check.Permission.ADMIN, "namespace", dispatcher, root);
+
+
+        // internally, model _is_ the root command, so we don't use the subCommandName
+        modelApplyCommand.register(modelsPermission, "", dispatcher, root);
+        modelGlintCommand.register(modelsPermission, "", dispatcher, root);
+        modelTintCommand.register(modelsPermission, "", dispatcher, root);
+        modelWearCommand.register(modelsPermission, "", dispatcher, root);
     }
-
-    public void register(CommandDefinition<ServerCommandSource> command) {
-        if (dispatcher == null)
-            throw new IllegalArgumentException("command dispatcher cannot be null");
-
-        var name = command.commandName();
-
-        if (registered.contains(name)) {
-            return; // Prevent re-registering already registered commands
-        }
-
-        ItemCustomizer.LOGGER.info("Registering {} ...", name);
-        command.register(dispatcher, rootNode);
-        registered.add(name);
-    }
-
-    public void setDispatcher(CommandDispatcher<ServerCommandSource> dispatcher) {
-        this.dispatcher = dispatcher;
-    };
 }

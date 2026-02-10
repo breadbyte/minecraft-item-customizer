@@ -23,7 +23,7 @@ public class ModelSuggestionProvider implements SuggestionProvider<ServerCommand
     @Override
     public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) throws CommandSyntaxException {
         // Can be namespace with the old format, namespace.category with the new format
-        var paramItemType = String.valueOf(context.getArgument("item_type", String.class));
+        var paramItemType = String.valueOf(context.getArgument("item_name", String.class));
 
         String namespace = null;
         String destination = null;
