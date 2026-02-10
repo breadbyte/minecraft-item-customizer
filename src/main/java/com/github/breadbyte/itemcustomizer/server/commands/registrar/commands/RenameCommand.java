@@ -1,7 +1,7 @@
 package com.github.breadbyte.itemcustomizer.server.commands.registrar.commands;
 
 import com.github.breadbyte.itemcustomizer.server.Check;
-import com.github.breadbyte.itemcustomizer.server.commands.impl.RenameCommands;
+import com.github.breadbyte.itemcustomizer.server.commands.impl.RenameCommandsPreChecked;
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.BaseCommand;
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.InternalHelper;
 import com.github.breadbyte.itemcustomizer.server.operations.HelpOperations;
@@ -25,14 +25,14 @@ public class RenameCommand implements BaseCommand {
         dispatcher.register(root
                 .then(subCommand
                 .then(ArgNodeName
-                .executes(RenameCommands::renameItem
+                .executes(RenameCommandsPreChecked::renameItem
                 ))));
 
         // model name reset
         dispatcher.register(root
                 .then(subCommand
                 .then(ArgNodeResetName
-                .executes(RenameCommands::resetName
+                .executes(RenameCommandsPreChecked::resetName
                 ))));
 
         // model name help

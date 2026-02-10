@@ -1,7 +1,7 @@
 package com.github.breadbyte.itemcustomizer.server.commands.registrar.commands.model;
 
 import com.github.breadbyte.itemcustomizer.server.Check;
-import com.github.breadbyte.itemcustomizer.server.commands.impl.ModelCommands;
+import com.github.breadbyte.itemcustomizer.server.commands.impl.ModelCommandsPreChecked;
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.BaseCommand;
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.InternalHelper;
 import com.github.breadbyte.itemcustomizer.server.suggester.ModelCategorySuggestionProvider;
@@ -38,13 +38,13 @@ public class ModelApplyCommand implements BaseCommand {
                 .then(ApplyNode
                 .then(ItemCategoryNode
                 .then(ItemNameNode
-                      .executes(ModelCommands::applyModel))
+                      .executes(ModelCommandsPreChecked::applyModel))
                 .then(ColorNode
-                .executes(ModelCommands::applyModel)))));
+                .executes(ModelCommandsPreChecked::applyModel)))));
 
         // model reset
         dispatcher.register(_root
                 .then(ResetNode
-                .executes(ModelCommands::resetModel)));
+                .executes(ModelCommandsPreChecked::resetModel)));
     }
 }

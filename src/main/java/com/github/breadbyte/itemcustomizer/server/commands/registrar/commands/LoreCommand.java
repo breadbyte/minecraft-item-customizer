@@ -1,7 +1,7 @@
 package com.github.breadbyte.itemcustomizer.server.commands.registrar.commands;
 
 import com.github.breadbyte.itemcustomizer.server.Check;
-import com.github.breadbyte.itemcustomizer.server.commands.impl.LoreCommands;
+import com.github.breadbyte.itemcustomizer.server.commands.impl.LoreCommandsPreChecked;
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.BaseCommand;
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.InternalHelper;
 import com.github.breadbyte.itemcustomizer.server.operations.HelpOperations;
@@ -25,12 +25,12 @@ public class LoreCommand implements BaseCommand {
         dispatcher.register(root
                 .then(subCommand
                 .then(ArgNodeText
-                .executes(LoreCommands::addLore))));
+                .executes(LoreCommandsPreChecked::addLore))));
 
         dispatcher.register(root
                 .then(subCommand
                 .then(ArgNodeReset
-                .executes(LoreCommands::resetLore))));
+                .executes(LoreCommandsPreChecked::resetLore))));
 
         dispatcher.register(root
                 .then(subCommand

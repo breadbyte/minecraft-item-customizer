@@ -1,7 +1,7 @@
 package com.github.breadbyte.itemcustomizer.server.commands.registrar.commands.model;
 
 import com.github.breadbyte.itemcustomizer.server.Check;
-import com.github.breadbyte.itemcustomizer.server.commands.impl.ModelCommands;
+import com.github.breadbyte.itemcustomizer.server.commands.impl.ModelCommandsPreChecked;
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.BaseCommand;
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.InternalHelper;
 import com.mojang.brigadier.CommandDispatcher;
@@ -19,6 +19,6 @@ public class ModelWearCommand implements BaseCommand {
 
         dispatcher.register(_root
                 .then(WearNode
-                .executes(ModelCommands::toggleWearable)));
+                .executes(ModelCommandsPreChecked::toggleWearable)));
     }
 }

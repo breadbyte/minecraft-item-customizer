@@ -13,6 +13,7 @@ import net.minecraft.component.type.EquippableComponent;
 import net.minecraft.item.equipment.EquipmentAssetKeys;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.network.ServerPlayerEntity;
+import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.List;
 
@@ -221,6 +222,18 @@ public class ModelOperations {
         }
     }
 
+    public static OperationResult applyDyedColor(ServerPlayerEntity player, @UnknownNullability Integer colorClass) {
+        var playerItem = player.getMainHandStack();
+
+        // Get the default dyed color for the item
+        var defaultDyedColor = playerItem.getItem().getDefaultStack().getComponents().get(DataComponentTypes.DYED_COLOR);
+        playerItem.remove(DataComponentTypes.DYED_COLOR);
+
+        // Set the item dyed color to the default dyed color.
+        playerItem.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(colorClass));
+
+        return OperationResult.ok("Dye set!", 1);
+    }
 
     public static OperationResult revertDyedColor(ServerPlayerEntity player) {
         var playerItem = player.getMainHandStack();
@@ -234,7 +247,7 @@ public class ModelOperations {
         // Set the item dyed color to the default dyed color.
         playerItem.set(DataComponentTypes.DYED_COLOR, defaultDyedColor);
 
-        return OperationResult.ok("Color reset to default!", 1);
+        return OperationResult.ok("Dye reset to default!", 1);
     }
 
     public static OperationResult getPermissionNodeFor(String itemType, String itemName) {

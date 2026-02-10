@@ -18,7 +18,7 @@ import java.util.List;
 
 import static com.github.breadbyte.itemcustomizer.server.Helper.SendMessage;
 
-public class ModelCommands {
+public class ModelCommandsPreChecked {
     // TODO: Cost is static
 
     public static int toggleGlint(CommandContext<ServerCommandSource> ctx) {
@@ -92,10 +92,11 @@ public class ModelCommands {
     }
 
     public static int tintModel(CommandContext<ServerCommandSource> ctx) {
-        var index = ctx.getArgument("index", Integer.class);
-        var color = ctx.getArgument("color", Integer.class);
+        var index = ctx.getArgument("tint_index", Integer.class);
+        var color = ctx.getArgument("tint_color", Integer.class);
+        // color is hex color
 
-        ctx.getSource().sendFeedback(() -> Text.literal("Setting color index " + index + " to " + String.format("0x%06X", (0xFFFFFF & color))), false);
+        ctx.getSource().sendFeedback(() -> Text.literal("Setting color index " + index + " to " + String.format("#%06X", (0xFFFFFF & color))), false);
         // TODO: should be able to be executed by console
         if (!ctx.getSource().isExecutedByPlayer())
             return 0;
@@ -113,11 +114,6 @@ public class ModelCommands {
 
         var dyemap = itemComps.get(DataComponentTypes.CUSTOM_MODEL_DATA);
 
-        // For message output
-        int r = (color >> 16) & 0xFF;
-        int g = (color >> 8) & 0xFF;
-        int b = color & 0xFF;
-
         // If the data doesn't exist at all, create it
         if (dyemap == null) {
             List<Integer> intList = new java.util.ArrayList<>();
@@ -127,7 +123,7 @@ public class ModelCommands {
             intList.set(index, color);
 
             playerItem.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(List.of(), List.of(), List.of(), intList));
-            Helper.SendMessageYes(player, "Set color index " + index + " to RGB(" + r + ", " + g + ", " + b + ") for held item");
+            Helper.SendMessageYes(player, "Set color index " + index + " to #" + String.format("%06X", (0xFFFFFF & color)) + " for held item");
             return 1;
         }
 
@@ -145,7 +141,7 @@ public class ModelCommands {
             newCol.set(index, color);
 
             playerItem.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(List.of(), List.of(), List.of(), newCol));
-            Helper.SendMessageYes(player, "Set color index " + index + " to RGB(" + r + ", " + g + ", " + b + ") for held item");
+            Helper.SendMessageYes(player, "Set color index " + index + " to #" + String.format("%06X", (0xFFFFFF & color)) + " for held item");
             return 1;
         }
 
@@ -157,7 +153,7 @@ public class ModelCommands {
 
         // Write back
         playerItem.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(dyemap.floats(), dyemap.flags(), dyemap.strings(), List.copyOf(newCol)));
-        Helper.SendMessageYes(player, "Set color index " + index + " to RGB(" + r + ", " + g + ", " + b + ") for held item");
+        Helper.SendMessageYes(player, "Set color index " + index + " to #" + String.format("%06X", (0xFFFFFF & color)) + " for held item");
         return 1;
     }
 
@@ -210,6 +206,39 @@ public class ModelCommands {
             Helper.SendMessageYes(player, "Item equippable reset");
         }
 
+        return 1;
+    }
+
+    public static int dyeModel(CommandContext<ServerCommandSource> ctx) {
+        var player = Helper.ValidateState(ctx, 1);
+        if (player == null)
+            return 0;
+
+        var colorClass = ctx.getArgument("dye_color", Integer.class);
+        var retval = ModelOperations.applyDyedColor(player, colorClass);
+
+        if (retval.ok()) {
+            Helper.SendMessageYes(player, retval.details());
+            Helper.ApplyCost(player, retval.cost());
+        }
+        else
+            Helper.SendMessageNo(player, retval.details());
+        return 1;
+    }
+
+    public static int dyeReset(CommandContext<ServerCommandSource> ctx) {
+        var player = Helper.ValidateState(ctx, 1);
+        if (player == null)
+            return 0;
+
+        var retval = ModelOperations.revertDyedColor(player);
+
+        if (retval.ok()) {
+            Helper.SendMessageYes(player, retval.details());
+            Helper.ApplyCost(player, retval.cost());
+        }
+        else
+            Helper.SendMessageNo(player, retval.details());
         return 1;
     }
 }

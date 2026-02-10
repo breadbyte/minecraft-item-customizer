@@ -2,7 +2,7 @@ package com.github.breadbyte.itemcustomizer.server.commands.registrar.commands;
 
 import com.github.breadbyte.itemcustomizer.server.Check;
 import com.github.breadbyte.itemcustomizer.server.commands.impl.GrantCommands;
-import com.github.breadbyte.itemcustomizer.server.commands.impl.ModelCommands;
+import com.github.breadbyte.itemcustomizer.server.commands.impl.ModelCommandsPreChecked;
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.BaseCommand;
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.InternalHelper;
 import com.github.breadbyte.itemcustomizer.server.suggester.ModelCategorySuggestionProvider;
@@ -69,7 +69,7 @@ public class PermissionCommand implements BaseCommand {
                 .then(ArgNodeItemNamespace
                 .then(ArgNodeItemCategory
                 .then(ArgNodeItemName
-                .executes(ModelCommands::getPermissionNode
+                .executes(ModelCommandsPreChecked::getPermissionNode
                 )))))));
     }
 }
