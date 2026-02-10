@@ -4,17 +4,14 @@ import com.github.breadbyte.itemcustomizer.server.Check;
 import com.github.breadbyte.itemcustomizer.server.Helper;
 import com.github.breadbyte.itemcustomizer.server.operations.ModelOperations;
 import com.mojang.brigadier.context.CommandContext;
-import net.minecraft.command.EntitySelector;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.CustomModelDataComponent;
 import net.minecraft.component.type.EquippableComponent;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.text.TextColor;
 import net.minecraft.util.Formatting;
 
 import java.util.List;
@@ -24,12 +21,12 @@ import static com.github.breadbyte.itemcustomizer.server.Helper.SendMessage;
 public class ModelCommands {
     // TODO: Cost is static
 
-    public static int applyGlint(CommandContext<ServerCommandSource> ctx) {
+    public static int toggleGlint(CommandContext<ServerCommandSource> ctx) {
         var player = Helper.ValidateState(ctx, 1);
         if (player == null)
             return 0;
 
-        var retval = ModelOperations.applyGlint(player);
+        var retval = ModelOperations.toggleGlint(player);
 
         if (retval.ok()) {
             Helper.SendMessageYes(player, retval.details());
@@ -37,23 +34,6 @@ public class ModelCommands {
         }
         else
             Helper.SendMessageNo(player, retval.details());
-        return 1;
-    }
-
-    public static int removeGlint(CommandContext<ServerCommandSource> ctx) {
-        var player = Helper.ValidateState(ctx, 1);
-        if (player == null)
-            return 0;
-
-        var retval = ModelOperations.removeGlint(player);
-
-        if (retval.ok()) {
-            Helper.SendMessageYes(player, retval.details());
-            Helper.ApplyCost(player, retval.cost());
-        }
-        else
-            Helper.SendMessageNo(player, retval.details());
-
         return 1;
     }
 

@@ -19,6 +19,6 @@ public class ModelGlintCommand implements BaseCommand {
 
         dispatcher.register(_root
                 .then(GlintNode
-                .executes(ModelCommands::applyGlint)));
+                .executes(ModelCommands::toggleGlint)));
     }
 }

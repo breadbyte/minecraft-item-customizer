@@ -84,7 +84,7 @@ public class ModelOperations {
         if (color != Integer.MIN_VALUE) {
             // Set the dyed color if provided
             playerItem.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(color));
-            playerItem.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(List.of(),List.of(),List.of(), List.of(color)));
+            playerItem.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(List.of(), List.of(), List.of(), List.of(color)));
         }
 
         if (changeEquippableTexture) {
@@ -196,31 +196,31 @@ public class ModelOperations {
         return OperationResult.ok("Model reset to default!");
     }
 
-    public static OperationResult applyGlint(ServerPlayerEntity player) {
+    public static OperationResult toggleGlint(ServerPlayerEntity player) {
         var playerItem = player.getMainHandStack();
 
-        // TODO: Check if enchanted and does not have the override
         // Refer to table below for logic
         // - HAS OVERRIDE? FLIP THE FLAG, EXIT EARLY
         // - IF ENCHANTED
         //  - SET OVERRIDE TO FALSE (DISABLE GLINT)
         // - IF NOT ENCHANTED
         //  - SET OVERRIDE TO TRUE (ENABLE GLINT)
+        var override = playerItem.getComponents().get(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE);
+        if (override != null) {
+            playerItem.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, !override);
+            var replyMessage = override ? "Glint disabled!" : "Glint enabled!";
+            return OperationResult.ok(replyMessage, 1);
+        }
 
-        // Set the shine component to true
-        playerItem.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true);
-
-        return OperationResult.ok("Glint added!", 1);
+        if (playerItem.hasEnchantments()) {
+            playerItem.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, false);
+            return OperationResult.ok("Glint disabled!", 1);
+        } else {
+            playerItem.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true);
+            return OperationResult.ok("Glint enabled!", 1);
+        }
     }
 
-    public static OperationResult removeGlint(ServerPlayerEntity player) {
-        var playerItem = player.getMainHandStack();
-
-        // Remove the shine component
-        playerItem.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, false);
-
-        return OperationResult.ok("Glint removed!", 1);
-    }
 
     public static OperationResult revertDyedColor(ServerPlayerEntity player) {
         var playerItem = player.getMainHandStack();
@@ -265,5 +265,4 @@ public class ModelOperations {
             return OperationResult.fail("No custom model definitions found for item: " + itemType + "/" + itemName);
         }
     }
-
 }
