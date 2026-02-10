@@ -14,6 +14,18 @@ public class LoreOperations {
     public static OperationResult addLore(ServerPlayerEntity player, String input) {
         var playerItem = player.getMainHandStack();
 
+        var splitNewlines = input.split("\n");
+
+        if (input.isEmpty())
+            return OperationResult.fail("Empty input!");
+
+        if (splitNewlines.length > 1) {
+            for (String line : splitNewlines) {
+                addLore(player, line);
+            }
+            return OperationResult.ok("Lore added", splitNewlines.length);
+        }
+
         // Get the currently applied lore in the item
         var currentLore = playerItem.get(DataComponentTypes.LORE);
 
@@ -36,7 +48,7 @@ public class LoreOperations {
         LoreComponent newLore = new LoreComponent(newLine);
         playerItem.set(DataComponentTypes.LORE, newLore);
 
-        return OperationResult.ok(String.valueOf(Text.literal("Added ").append(Helper.JsonString2Text(input))), 1);
+        return OperationResult.ok("Lore added", 1);
     }
 
     public static OperationResult resetLore(ServerPlayerEntity player) {
