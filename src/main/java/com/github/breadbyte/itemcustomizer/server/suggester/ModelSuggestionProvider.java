@@ -11,6 +11,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -22,8 +23,18 @@ public class ModelSuggestionProvider implements SuggestionProvider<ServerCommand
 
     @Override
     public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) throws CommandSyntaxException {
+        @Nullable
+        String paramItemType;
+
         // Can be namespace with the old format, namespace.category with the new format
-        var paramItemType = String.valueOf(context.getArgument("item_name", String.class));
+        try {
+            paramItemType = String.valueOf(context.getArgument("item_name", String.class));
+        } catch (IllegalArgumentException e) {
+            return builder.buildFuture();
+        }
+
+        // getArgument throws when we don't have an argument yet, so just skip all this stuff
+        if (paramItemType == null) return builder.buildFuture();
 
         String namespace = null;
         String destination = null;
