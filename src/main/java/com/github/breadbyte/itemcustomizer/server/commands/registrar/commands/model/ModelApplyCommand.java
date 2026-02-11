@@ -7,6 +7,7 @@ import com.github.breadbyte.itemcustomizer.server.commands.registrar.InternalHel
 import com.github.breadbyte.itemcustomizer.server.suggester.ModelCategorySuggestionProvider;
 import com.github.breadbyte.itemcustomizer.server.suggester.ModelSuggestionProvider;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -27,6 +28,8 @@ public class ModelApplyCommand implements BaseCommand {
         var ItemNameNode = CommandManager.argument("item_name", StringArgumentType.string())
                 .suggests(ModelSuggestionProvider.INSTANCE);
 
+        var ItemEquipmentTextureBooleanNode = CommandManager.argument("equipment_texture", BoolArgumentType.bool());
+
         // This has to be added to the Apply command to prevent being used for vanilla items
         var ColorNode = CommandManager.argument("color", IntegerArgumentType.integer());
 
@@ -38,10 +41,11 @@ public class ModelApplyCommand implements BaseCommand {
                 .then(ApplyNode
                 .then(ItemCategoryNode
                 .then(ItemNameNode
-                      .executes(ModelCommandsPreChecked::applyModel))
+                      .executes(ModelCommandsPreChecked::applyModel)
+                        .then(ItemEquipmentTextureBooleanNode
+                            .executes(ModelCommandsPreChecked::applyModel))
                 .then(ColorNode
-                .executes(ModelCommandsPreChecked::applyModel)))));
-
+                .executes(ModelCommandsPreChecked::applyModel))))));
         // model reset
         dispatcher.register(_root
                 .then(ResetNode
