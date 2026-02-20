@@ -38,7 +38,7 @@ public class ModelCategorySuggestionProvider implements SuggestionProvider<Serve
         }
 
         for (NamespaceCategory itemType : validItemTypes) {
-            builder.suggest(itemType.toString());
+            builder.suggest(itemType.getCategory());
         }
 
         // Lock the suggestions after we've modified them.

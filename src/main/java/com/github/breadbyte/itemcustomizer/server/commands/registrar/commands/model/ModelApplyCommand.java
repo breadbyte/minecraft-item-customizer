@@ -5,6 +5,7 @@ import com.github.breadbyte.itemcustomizer.server.commands.impl.ModelCommandsPre
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.BaseCommand;
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.InternalHelper;
 import com.github.breadbyte.itemcustomizer.server.suggester.ModelCategorySuggestionProvider;
+import com.github.breadbyte.itemcustomizer.server.suggester.ModelNamespaceSuggestionProvider;
 import com.github.breadbyte.itemcustomizer.server.suggester.ModelSuggestionProvider;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
@@ -21,6 +22,9 @@ public class ModelApplyCommand implements BaseCommand {
     public void register(Check.Permission permission, String subCommandName, CommandDispatcher<ServerCommandSource> dispatcher, LiteralArgumentBuilder<ServerCommandSource> root) {
         var _root = InternalHelper.RequirePermissionFor(root, permission);
 
+        var NamespaceNode = CommandManager.argument("namespace", StringArgumentType.string())
+                .suggests(ModelNamespaceSuggestionProvider.INSTANCE);
+
         var ApplyNode = literal("apply");
         var ItemCategoryNode = CommandManager.argument("item_category", StringArgumentType.word())
                 .suggests(ModelCategorySuggestionProvider.INSTANCE);
@@ -35,17 +39,19 @@ public class ModelApplyCommand implements BaseCommand {
 
         var ResetNode = literal("reset");
 
-        // model apply item_category item_name
-        // model apply item_category item_name color
+        // model apply item_namespace item_category item_name
+        // model apply item_namespace item_category item_name color
         dispatcher.register(_root
                 .then(ApplyNode
+                .then(NamespaceNode
                 .then(ItemCategoryNode
                 .then(ItemNameNode
                       .executes(ModelCommandsPreChecked::applyModel)
                         .then(ItemEquipmentTextureBooleanNode
                             .executes(ModelCommandsPreChecked::applyModel))
                 .then(ColorNode
-                .executes(ModelCommandsPreChecked::applyModel))))));
+                .executes(ModelCommandsPreChecked::applyModel)))))));
+
         // model reset
         dispatcher.register(_root
                 .then(ResetNode

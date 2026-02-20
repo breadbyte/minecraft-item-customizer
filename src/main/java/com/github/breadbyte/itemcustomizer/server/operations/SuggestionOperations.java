@@ -10,7 +10,7 @@ import net.minecraft.sound.SoundEvents;
 
 public class SuggestionOperations {
     public static int registerSuggestions(CommandContext<ServerCommandSource> context) {
-        var paramUrl = String.valueOf(context.getArgument("csv_url", String.class));
+        var paramUrl = String.valueOf(context.getArgument("url", String.class));
         var paramNamespace = String.valueOf(context.getArgument("namespace", String.class));
 
         var source = context.getSource();

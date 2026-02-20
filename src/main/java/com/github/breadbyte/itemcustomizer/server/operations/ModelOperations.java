@@ -30,20 +30,6 @@ public class ModelOperations {
         CustomModelDefinition defs = null;
 
         // Check for the autocomplete version of the itemType, which is in the format namespace.category
-        if (itemType.contains(".")) {
-            namespace = itemType.split("\\.")[0];
-            category = itemType.split("\\.")[1];
-            defs = ModelsIndex.getInstance().get(namespace, category, itemName);
-
-            // This allows us to keep the previous behavior of using direct paths for models,
-            // but also allows us to use the new namespace/path format.
-            if (defs == null) {
-                return OperationResult.fail("No custom model definitions found for item: " + itemType + "/" + itemName);
-            }
-
-            namespace = defs.getNamespace();
-            category = defs.getDestination();
-        } else {
             // Using the old format of itemType as category only, and itemName as the full path.
             namespace = itemType;
             category = itemName;
@@ -58,7 +44,6 @@ public class ModelOperations {
             }
 
             defs = model;
-        }
 
         // Check if we have permissions for the specified item
         if (!IsAdmin(player)) {

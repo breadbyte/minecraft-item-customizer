@@ -3,6 +3,7 @@ package com.github.breadbyte.itemcustomizer.server.suggester;
 import com.github.breadbyte.itemcustomizer.server.Check;
 import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
+import com.github.breadbyte.itemcustomizer.server.data.NamespaceCategory;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
@@ -13,7 +14,10 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import static com.github.breadbyte.itemcustomizer.server.Check.IsAdmin;
 
@@ -24,51 +28,35 @@ public class ModelSuggestionProvider implements SuggestionProvider<ServerCommand
     @Override
     public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) throws CommandSyntaxException {
         @Nullable
+        String paramNamespace;
+        @Nullable
+        String paramCategory;
+        @Nullable
         String paramItemType;
 
-        // Can be namespace with the old format, namespace.category with the new format
         try {
-            paramItemType = String.valueOf(context.getArgument("item_name", String.class));
+            paramNamespace = String.valueOf(context.getArgument("namespace", String.class));
+            paramCategory = String.valueOf(context.getArgument("item_category", String.class));
         } catch (IllegalArgumentException e) {
             return builder.buildFuture();
         }
 
-        // getArgument throws when we don't have an argument yet, so just skip all this stuff
-        if (paramItemType == null) return builder.buildFuture();
+        var player = context.getSource().getPlayer();
+        var items = ModelsIndex.getInstance().get(paramNamespace, paramCategory);
+        List<CustomModelDefinition> validItems;
 
-        String namespace = null;
-        String destination = null;
-        ServerPlayerEntity player = context.getSource().getPlayer();
+        if (Check.IsAdmin(player)) {
+            validItems = items;
+        } else {
+            validItems = items
+                    .stream()
+                    .filter(n ->
+                            Permissions.check(player, Check.Permission.CUSTOMIZE.chain(n.getPermissionNode()))
+                    ).collect(Collectors.toList());
+        }
 
-        // If the item type contains a dot, it means it's in the new format (namespace.category).
-        // We should split it into namespace and category.
-        if (paramItemType.contains(".")) {
-            var parts = paramItemType.split("\\.");
-            var model = ModelsIndex.INSTANCE.get(parts[0], parts[1]);
-
-            if (!model.isEmpty()) {
-                if (!Check.IsAdmin(player)) {
-                    // Check if we have permission for the model's namespace
-                    if (!Permissions.check(player, Check.Permission.CUSTOMIZE.chain(parts[0])))
-                        return builder.buildFuture();
-
-                    // Check if we have permission for the model's category
-                    if (!Permissions.check(player, Check.Permission.CUSTOMIZE.chain(paramItemType)))
-                        return builder.buildFuture();
-                }
-
-                // Check which models we can return as a suggestion
-
-                for (CustomModelDefinition cmd : model) {
-                    if (IsAdmin(player) || Check.Permission.CUSTOMIZE.checkPermissionForModel(player, cmd)) {
-                        builder.suggest(cmd.getName());
-                    }
-                }
-
-            } else {
-                // Return empty suggestions
-                return builder.buildFuture();
-            }
+        for (CustomModelDefinition item : validItems) {
+            builder.suggest(item.getName());
         }
 
         // Lock the suggestions after we've modified them.

@@ -69,9 +69,8 @@ public class ModelsIndex {
 
     // Get models for a namespace+category
     public List<CustomModelDefinition> get(String namespace, String category) {
-        return List.copyOf(_index.getOrDefault(new NamespaceCategory(namespace, category), List.of()));
+        return _index.getOrDefault(new NamespaceCategory(namespace, category), List.of());
     }
-
 
     public CustomModelDefinition getOldNamespacePath(String namespace, String path) {
         var fullPath = namespace + ":" + path;
@@ -92,9 +91,13 @@ public class ModelsIndex {
                 .orElse(null);
     }
 
+    public Set<CustomModelDefinition> getAll(String namespace, String category) {
+        return Set.copyOf(_index.getOrDefault(new NamespaceCategory(namespace, category), List.of()));
+    }
+
     // List all namespaces
     public Set<String> namespaces() {
-        return _index.keySet().stream().map(NamespaceCategory::namespace).collect(Collectors.toCollection(LinkedHashSet::new));
+        return _index.keySet().stream().map(NamespaceCategory::namespace).collect(Collectors.toUnmodifiableSet());
     }
 
     public CustomModelDefinition getByDestination(String namespace, String destination) {

@@ -15,23 +15,25 @@ public class CustomModelDefinition {
     public final String name;
     @SerialEntry
     public final String destination;
+    @SerialEntry
+    public final String madeBy;
 
-    public CustomModelDefinition(String namespace, String category, String name, String destination) {
+    public CustomModelDefinition(String namespace, String category, String name, String destination, String madeBy) {
         this.namespace = namespace;
         this.category = category;
         this.name = name;
         this.destination = destination;
+        this.madeBy = madeBy;
     }
 
     @Override
-    public String toString() {
-        return namespace + "." + destination;
-    }
+    public String toString() { return namespace; }
 
     public String getNamespace() { return namespace; }
     public String getCategory() { return category; }
     public String getName() { return name; }
     public String getDestination() { return destination; }
+    public String getMadeBy() { return madeBy; }
     public String getNamespaceCategoryPermissionNode() { return namespace + "." + category; }
     public String getPermissionNode() { return namespace + "." + destination.replace("/", "."); }
 

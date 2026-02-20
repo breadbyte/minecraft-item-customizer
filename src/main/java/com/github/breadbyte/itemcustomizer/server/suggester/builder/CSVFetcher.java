@@ -24,7 +24,7 @@ public class CSVFetcher {
 
         // CSV 0 = item type
         // CSV 1 = item name
-        // CSV 2 = item path (ignored)
+        // CSV 2 = made by
         // CSV 3 = destination
 
         try {
@@ -46,6 +46,7 @@ public class CSVFetcher {
                     if (parts.length >= 4) {
                         String itemType = parts[0].trim();
                         String itemName = parts[1].trim();
+                        String madeBy = parts[2].trim();
                         String destination = parts[3].replace('"', ' ').trim();
 
                         if (itemType.isEmpty() || itemName.isEmpty() || destination.isEmpty()) {
@@ -54,7 +55,7 @@ public class CSVFetcher {
                         }
 
                         // Create a tuple and add it to the suggestions list
-                        suggestions.add(new CustomModelDefinition(namespace, itemType, itemName, destination));
+                        suggestions.add(new CustomModelDefinition(namespace, itemType, itemName, destination, madeBy));
                     } else {
                         ItemCustomizer.LOGGER.warn("CSV line does not contain enough parts: {}", line);
                     }

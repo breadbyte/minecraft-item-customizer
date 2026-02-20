@@ -6,7 +6,8 @@ public record NamespaceCategory(String namespace, String category) {
     public @NotNull String toString() {
         return namespace + "." + category;
     }
-
+    public @NotNull String getNamespace() { return namespace; }
+    public @NotNull String getCategory() { return category; }
     public @NotNull String getPermissionNode() {
         return namespace + "." + category;
     }
