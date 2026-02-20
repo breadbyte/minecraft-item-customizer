@@ -2,11 +2,15 @@ package com.github.breadbyte.itemcustomizer.server.commands;
 
 import com.github.breadbyte.itemcustomizer.server.Check;
 import com.github.breadbyte.itemcustomizer.server.Helper;
+import com.github.breadbyte.itemcustomizer.server.data.OperationResult;
 import com.mojang.brigadier.context.CommandContext;
 import me.lucko.fabric.api.permissions.v0.Permissions;
+import net.minecraft.component.ComponentChanges;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -36,13 +40,50 @@ public class PreOperations {
         return true;
     }
 
-
     public static void ApplyCost(ServerPlayerEntity player, int cost) {
         if (cost == 0)
             return;
 
         if (ValidateCost(player, cost))
             player.setExperienceLevel(player.experienceLevel - cost);
+    }
+
+    public static boolean IsModelOwner(ServerPlayerEntity player) {
+        if (player == null) {
+            return false;
+        }
+
+        var playerItem = player.getMainHandStack();
+
+        // Get the components for the currently held item
+        var itemComps = playerItem.getComponents();
+        var playerUuid = Text.literal(player.getUuidAsString());
+
+        if (playerItem.isEmpty()) {
+            return false;
+        }
+
+        if (itemComps.get(DataComponentTypes.LOCK) != null) {
+            var lock = playerItem.getComponents().get(DataComponentTypes.LOCK);
+            var pred = lock.predicate().components().exact();
+
+            // Convert to ComponentChanges to get typed access
+            ComponentChanges changes = pred.toChanges();
+
+            // Read the specific component value
+            Optional<? extends Text> name = changes.get(DataComponentTypes.CUSTOM_NAME);
+            if (name == null) {
+                return false;
+            }
+
+            if (name.isPresent()) {
+                String uuid = name.get().getString();
+                return uuid.equals(player.getUuidAsString());
+            }
+        }
+
+        // True by default (no lock)
+        return true;
     }
 
     public static Optional<ServerPlayerEntity> TryReturnValidPlayer(CommandContext<ServerCommandSource> context, String PermissionName) {

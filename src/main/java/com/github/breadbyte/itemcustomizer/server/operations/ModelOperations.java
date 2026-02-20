@@ -6,16 +6,25 @@ import com.github.breadbyte.itemcustomizer.server.Helper;
 import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
 import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import com.github.breadbyte.itemcustomizer.server.data.OperationResult;
+import net.minecraft.component.ComponentChanges;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.CustomModelDataComponent;
 import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.component.type.EquippableComponent;
+import net.minecraft.inventory.ContainerLock;
+import net.minecraft.item.Item;
 import net.minecraft.item.equipment.EquipmentAssetKeys;
+import net.minecraft.predicate.component.ComponentMapPredicate;
+import net.minecraft.predicate.component.ComponentsPredicate;
+import net.minecraft.predicate.item.ItemPredicate;
+import net.minecraft.registry.RegistryEntryLookup;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
 import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.github.breadbyte.itemcustomizer.main.ItemCustomizer.LOGGER;
 import static com.github.breadbyte.itemcustomizer.server.Check.IsAdmin;
@@ -263,5 +272,51 @@ public class ModelOperations {
         } else {
             return OperationResult.fail("No custom model definitions found for item: " + itemType + "/" + itemName);
         }
+    }
+
+    public static OperationResult toggleModelLock(ServerPlayerEntity player) {
+        if (player == null) {
+            return OperationResult.fail("Player cannot be null");
+        }
+
+        var playerItem = player.getMainHandStack();
+
+        // Get the components for the currently held item
+        var itemComps = playerItem.getComponents();
+        var playerUuid = Text.literal(player.getUuidAsString());
+
+        if (playerItem.isEmpty()) {
+            return OperationResult.fail("You are not holding an item!");
+        }
+
+        if (itemComps.get(DataComponentTypes.LOCK) != null) {
+            var lock = playerItem.getComponents().get(DataComponentTypes.LOCK);
+            var pred = lock.predicate().components().exact();
+
+            // Convert to ComponentChanges to get typed access
+            ComponentChanges changes = pred.toChanges();
+
+            // Read the specific component value
+            Optional<? extends Text> name = changes.get(DataComponentTypes.CUSTOM_NAME);
+            if (name == null) {
+                return OperationResult.fail("Failed to read lock component");
+            }
+
+            if (name.isPresent()) {
+                String uuid = name.get().getString();
+                if (!uuid.equals(player.getUuidAsString())) {
+                    return OperationResult.fail("This item is locked by another player and cannot be modified!");
+                }
+            }
+        } else {
+            // Set it to the new model
+            playerItem.set(DataComponentTypes.LOCK, new ContainerLock(new ItemPredicate.Builder()
+                    .components(ComponentsPredicate.Builder.create()
+                            .exact(ComponentMapPredicate.of(DataComponentTypes.CUSTOM_NAME, playerUuid))
+                            .build())
+                    .build()));
+        }
+
+        return OperationResult.ok("Model locked!");
     }
 }
