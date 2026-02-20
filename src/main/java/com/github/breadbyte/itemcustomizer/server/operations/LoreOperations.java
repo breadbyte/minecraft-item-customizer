@@ -62,15 +62,14 @@ public class LoreOperations {
         for (int end = iterator.next(); end != BreakIterator.DONE; start = end, end = iterator.next()) {
             String segment = input.substring(start, end);
             boolean isNewline = segment.contains("\n");
-            String stripped = segment.stripTrailing();
 
-            if (isNewline || current.length() + stripped.length() > MAX_LINE_LENGTH) {
+            if (isNewline || current.length() + segment.length() > MAX_LINE_LENGTH) {
                 if (!current.isEmpty()) {
                     lines.add(current.toString().stripTrailing());
                     current.setLength(0);
                 }
-                if (!isNewline && !stripped.isEmpty())
-                    current.append(stripped);
+                if (!isNewline && !segment.isEmpty())
+                    current.append(segment);
             } else {
                 current.append(segment);
             }
