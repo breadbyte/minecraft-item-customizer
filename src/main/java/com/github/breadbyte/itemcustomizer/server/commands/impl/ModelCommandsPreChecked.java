@@ -10,7 +10,6 @@ import net.minecraft.component.type.CustomModelDataComponent;
 import net.minecraft.component.type.EquippableComponent;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -22,7 +21,7 @@ import static com.github.breadbyte.itemcustomizer.server.Helper.SendMessage;
 
 public class ModelCommandsPreChecked {
     // TODO: Cost is static
-    public static int toggleModelLock(CommandContext<ServerCommandSource> ctx) {
+    public static int lockModel(CommandContext<ServerCommandSource> ctx) {
         var player = PreOperations.ValidateState(ctx, 1);
         if (player == null)
             return 0;
@@ -32,7 +31,7 @@ public class ModelCommandsPreChecked {
             return 0;
         }
 
-        var retval = ModelOperations.toggleModelLock(player);
+        var retval = ModelOperations.lockModel(player);
 
         if (retval.ok()) {
             Helper.SendMessageYes(player, retval.details());
@@ -75,6 +74,7 @@ public class ModelCommandsPreChecked {
             return 0;
         }
 
+        var namespace = String.valueOf(ctx.getArgument("namespace", String.class));
         var itemType = String.valueOf(ctx.getArgument("item_category", String.class));
         var itemName = String.valueOf(ctx.getArgument("item_name", String.class));
         Integer color = null;
@@ -82,7 +82,7 @@ public class ModelCommandsPreChecked {
         try { color = ctx.getArgument("color", Integer.class); } catch (Exception ignored) {}
         try { changeEquippable = ctx.getArgument("change_equippable_texture", Boolean.class); } catch (Exception ignored) {}
 
-        var res = ModelOperations.applyModel(player, itemType, itemName, color, changeEquippable);
+        var res = ModelOperations.applyModel(player, namespace, itemType, itemName, color, changeEquippable);
         if (res.ok()) {
             Helper.SendMessageYes(player, res.details());
             PreOperations.ApplyCost(player, res.cost());
@@ -301,6 +301,28 @@ public class ModelCommandsPreChecked {
         }
         else
             Helper.SendMessageNo(player, retval.details());
+        return 1;
+    }
+
+    public static int unlockModel(CommandContext<ServerCommandSource> ctx) {
+        var player = PreOperations.ValidateState(ctx, 1);
+        if (player == null)
+            return 0;
+
+        if (!PreOperations.IsModelOwner(player)) {
+            Helper.SendMessageNo(player, "Model is locked!");
+            return 0;
+        }
+
+        var retval = ModelOperations.lockModel(player);
+
+        if (retval.ok()) {
+            Helper.SendMessageYes(player, retval.details());
+            PreOperations.ApplyCost(player, retval.cost());
+        }
+        else
+            Helper.SendMessageNo(player, retval.details());
+
         return 1;
     }
 }

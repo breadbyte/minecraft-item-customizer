@@ -6,18 +6,17 @@ import com.github.breadbyte.itemcustomizer.server.Helper;
 import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
 import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import com.github.breadbyte.itemcustomizer.server.data.OperationResult;
+import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.component.ComponentChanges;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.CustomModelDataComponent;
 import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.component.type.EquippableComponent;
 import net.minecraft.inventory.ContainerLock;
-import net.minecraft.item.Item;
 import net.minecraft.item.equipment.EquipmentAssetKeys;
 import net.minecraft.predicate.component.ComponentMapPredicate;
 import net.minecraft.predicate.component.ComponentsPredicate;
 import net.minecraft.predicate.item.ItemPredicate;
-import net.minecraft.registry.RegistryEntryLookup;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -32,33 +31,26 @@ import static com.github.breadbyte.itemcustomizer.server.Check.IsAdmin;
 public class ModelOperations {
 
     // todo: split color from apply model (use dye command instead)
-    public static OperationResult applyModel(ServerPlayerEntity player, String itemType, String itemName, Integer color, Boolean changeEquippableTexture) {
+    public static OperationResult applyModel(ServerPlayerEntity player, String namespace, String category, String name, Integer color, Boolean changeEquippableTexture) {
 
-        String namespace;
-        String category;
         CustomModelDefinition defs = null;
 
-        // Check for the autocomplete version of the itemType, which is in the format namespace.category
-            // Using the old format of itemType as category only, and itemName as the full path.
-            namespace = itemType;
-            category = itemName;
+        var model = ModelsIndex.getInstance().get(namespace, category, name);
 
-            var model = ModelsIndex.getInstance().getOldNamespacePath(itemType, itemName);
-
-            // Allow changing to a model that doesn't exist if we are an admin
-            if (!IsAdmin(player)) {
-                if (model == null) {
-                    return OperationResult.fail("No custom model definitions found for item: " + itemType + ":" + itemName);
-                }
+        // Allow changing to a model that doesn't exist if we are an admin
+        if (!IsAdmin(player)) {
+            if (model == null) {
+                return OperationResult.fail("No custom model definitions found for item: " + category + ":" + name);
             }
+        }
 
-            defs = model;
+        defs = model;
 
         // Check if we have permissions for the specified item
         if (!IsAdmin(player)) {
             if (!defs.getPermission(player)) {
-                LOGGER.warn("Player {} tried to customize {}/{} with no permissions!", player.getName().getString(), itemType, itemName);
-                return OperationResult.fail("Permission denied for " + itemType + "/" + itemName);
+                LOGGER.warn("Player {} tried to customize {}/{} with no permissions!", player.getName().getString(), category, name);
+                return OperationResult.fail("Permission denied for " + category + "/" + name);
             }
         }
 
@@ -75,7 +67,7 @@ public class ModelOperations {
         var itemComps = playerItem.getComponents();
 
         // Set it to the new model
-        playerItem.set(DataComponentTypes.ITEM_MODEL, Helper.String2Identifier(namespace, category));
+        playerItem.set(DataComponentTypes.ITEM_MODEL, Helper.String2Identifier(namespace, category, name));
 
         if (color != Integer.MIN_VALUE) {
             // Set the dyed color if provided
@@ -92,7 +84,7 @@ public class ModelOperations {
                 // Clone the equippable, except the assetId, since we are changing the model.
                 assert equippable != null;
 
-                var eqAsset = java.util.Optional.ofNullable(RegistryKey.of(EquipmentAssetKeys.REGISTRY_KEY, Helper.String2Identifier(namespace, category)));
+                var eqAsset = java.util.Optional.ofNullable(RegistryKey.of(EquipmentAssetKeys.REGISTRY_KEY, Helper.String2Identifier(namespace, category, name)));
                 if (eqAsset.isEmpty()) {
                     return OperationResult.fail("Failed to create equipment asset for model: " + namespace + "/" + category);
                 }
@@ -115,7 +107,7 @@ public class ModelOperations {
             }
         }
 
-        return OperationResult.ok("Model " + itemName + " applied!", 1);
+        return OperationResult.ok("Model " + name + " made by " + defs.getMadeBy() + " applied!", 1);
     }
 
     public static OperationResult revertModel(ServerPlayerEntity player) {
@@ -274,7 +266,7 @@ public class ModelOperations {
         }
     }
 
-    public static OperationResult toggleModelLock(ServerPlayerEntity player) {
+    public static OperationResult lockModel(ServerPlayerEntity player) {
         if (player == null) {
             return OperationResult.fail("Player cannot be null");
         }
@@ -305,7 +297,13 @@ public class ModelOperations {
             if (name.isPresent()) {
                 String uuid = name.get().getString();
                 if (!uuid.equals(player.getUuidAsString())) {
-                    return OperationResult.fail("This item is locked by another player and cannot be modified!");
+                    try {
+                        var locker = player.getEntityWorld().getServer().getPlayerManager().getPlayer(uuid).getName();
+                        return OperationResult.fail("This item is locked by + " + locker + " and cannot be modified!");
+                    }
+                    catch (NullPointerException e) {
+                        return OperationResult.fail("This item is locked by another player and cannot be modified!");
+                    }
                 }
             }
         } else {
@@ -318,5 +316,46 @@ public class ModelOperations {
         }
 
         return OperationResult.ok("Model locked!");
+    }
+
+    public static OperationResult unlockModel(ServerPlayerEntity player) {
+        if (player == null) {
+            return OperationResult.fail("Player cannot be null");
+        }
+
+        var playerItem = player.getMainHandStack();
+
+        // Get the components for the currently held item
+        var itemComps = playerItem.getComponents();
+        var playerUuid = Text.literal(player.getUuidAsString());
+
+        if (playerItem.isEmpty()) {
+            return OperationResult.fail("You are not holding an item!");
+        }
+
+        var lock = itemComps.get(DataComponentTypes.LOCK);
+
+        if (lock == null)
+            return OperationResult.fail("Item is not locked!");
+
+        var pred = lock.predicate().components().exact();
+
+        // Convert to ComponentChanges to get typed access
+        ComponentChanges changes = pred.toChanges();
+
+        // Read the specific component value
+        Optional<? extends Text> name = changes.get(DataComponentTypes.CUSTOM_NAME);
+        if (name == null) {
+            return OperationResult.fail("Failed to read lock component");
+        }
+
+        if (name.isPresent()) {
+            String uuid = name.get().getString();
+            if (!uuid.equals(player.getUuidAsString())) {
+                return OperationResult.fail("This item is locked by another player and cannot be modified!");
+            }
+        }
+
+        return OperationResult.ok("Model unlocked!");
     }
 }
