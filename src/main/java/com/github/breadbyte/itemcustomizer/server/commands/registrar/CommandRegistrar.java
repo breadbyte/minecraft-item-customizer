@@ -21,6 +21,7 @@ public class CommandRegistrar {
     ModelNamespaceCommand modelNamespaceCommand = new ModelNamespaceCommand();
     ModelWearCommand modelWearCommand = new ModelWearCommand();
     ModelDyeCommand modelDyeCommand = new ModelDyeCommand();
+    ModelLockCommand modelLockCommand = new ModelLockCommand();
 
     Check.Permission modelsPermission = Check.Permission.CUSTOMIZE;
 
@@ -38,5 +39,6 @@ public class CommandRegistrar {
         modelTintCommand.register(modelsPermission, "", dispatcher, root);
         modelWearCommand.register(modelsPermission, "", dispatcher, root);
         modelDyeCommand.register(modelsPermission, "", dispatcher, root);
+        modelLockCommand.register(modelsPermission, "", dispatcher, root);
     }
 }

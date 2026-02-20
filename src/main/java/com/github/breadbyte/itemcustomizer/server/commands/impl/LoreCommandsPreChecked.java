@@ -13,6 +13,11 @@ public class LoreCommandsPreChecked {
         if (player == null)
             return 0;
 
+        if (!PreOperations.IsModelOwner(player)) {
+            Helper.SendMessageNo(player, "Model is locked!");
+            return 0;
+        }
+
         var input = String.valueOf(ctx.getArgument("text", String.class));
         var res = LoreOperations.addLore(player, input);
         if (res.ok()) {

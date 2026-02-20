@@ -13,6 +13,11 @@ public class RenameCommandsPreChecked {
         if (player == null)
             return 0;
 
+        if (!PreOperations.IsModelOwner(player)) {
+            Helper.SendMessageNo(player, "Model is locked!");
+            return 0;
+        }
+
         var input = String.valueOf(ctx.getArgument("name", String.class));
         var res = RenameOperations.renameItem(player, input);
         if (res.ok()) {
@@ -28,6 +33,11 @@ public class RenameCommandsPreChecked {
         var player = PreOperations.ValidateState(ctx, 1);
         if (player == null)
             return 0;
+
+        if (!PreOperations.IsModelOwner(player)) {
+            Helper.SendMessageNo(player, "Model is locked!");
+            return 0;
+        }
 
         var res = RenameOperations.resetName(player);
         if (res.ok()) {
