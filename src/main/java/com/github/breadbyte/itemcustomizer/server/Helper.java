@@ -1,14 +1,10 @@
 package com.github.breadbyte.itemcustomizer.server;
 
-import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import com.github.breadbyte.itemcustomizer.server.data.Storage;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import com.mojang.brigadier.context.CommandContext;
 import com.mojang.serialization.JsonOps;
-import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
@@ -16,11 +12,6 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextCodecs;
 import net.minecraft.util.Identifier;
-
-import java.util.ArrayList;
-import java.util.Objects;
-
-import static com.github.breadbyte.itemcustomizer.server.commands.PreOperations.ValidateCost;
 
 public class Helper {
 
@@ -59,9 +50,10 @@ public class Helper {
         }
     }
 
-    public static Identifier String2Identifier(String namespace, String path) {
-        return Identifier.of(namespace, path);
+    public static Identifier String2Identifier(String namespace, String... path) {
+        return Identifier.of(namespace, String.join("/", path));
     }
+
 
     public static void tryLoadStorage() {
         if (!Storage.HANDLER.load()) {
