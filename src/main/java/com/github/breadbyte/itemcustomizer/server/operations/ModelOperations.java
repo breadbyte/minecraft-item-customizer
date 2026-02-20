@@ -22,6 +22,7 @@ import static com.github.breadbyte.itemcustomizer.server.Check.IsAdmin;
 
 public class ModelOperations {
 
+    // todo: split color from apply model (use dye command instead)
     public static OperationResult applyModel(ServerPlayerEntity player, String itemType, String itemName, Integer color, Boolean changeEquippableTexture) {
 
         String namespace;

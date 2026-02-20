@@ -20,43 +20,9 @@ import net.minecraft.util.Identifier;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import static com.github.breadbyte.itemcustomizer.server.commands.PreOperations.ValidateCost;
+
 public class Helper {
-
-    public static void ApplyCost(ServerPlayerEntity player, int cost) {
-        if (cost == 0)
-            return;
-
-        if (ValidateCost(player, cost))
-            player.setExperienceLevel(player.experienceLevel - cost);
-    }
-
-    @Deprecated
-    public static ServerPlayerEntity ValidateState(CommandContext<ServerCommandSource> context, int cost) {
-        var playerContainer = Check.TryReturnValidPlayer(context, Check.Permission.CUSTOMIZE.getPermission());
-
-        if (!ValidateCost(Objects.requireNonNull(context.getSource().getPlayer()), cost)) {
-            return null;
-        }
-
-        return playerContainer.orElse(null);
-    }
-
-    public static boolean ValidateCost(ServerPlayerEntity player, int cost) {
-        if (player.isCreative())
-            return true;
-
-        if (player.experienceLevel < cost) {
-            Helper.SendMessageNo(player, "This command requires at least " + cost + " experience level(s)!");
-            return false;
-        }
-
-        return true;
-    }
-
-//    static int Debug(CommandContext<ServerCommandSource> context) {
-//        context.getSource().sendFeedback(() -> Text.of(String.valueOf(context.getSource().getPlayer().getPermissionLevel())), false);
-//        return 1;
-//    }
 
     public static String ToSomewhatValidJson(String input) {
         // Return the input as-is if it is already valid JSON

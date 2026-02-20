@@ -3,26 +3,14 @@ package com.github.breadbyte.itemcustomizer.server.commands.impl;
 import com.github.breadbyte.itemcustomizer.server.Check;
 import com.github.breadbyte.itemcustomizer.server.Helper;
 import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
-import com.github.breadbyte.itemcustomizer.server.data.Storage;
-import com.github.breadbyte.itemcustomizer.server.operations.ModelOperations;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.node.Node;
 import net.minecraft.command.EntitySelector;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.text.TextColor;
-import net.minecraft.util.Formatting;
-
-import static com.github.breadbyte.itemcustomizer.server.Check.TryReturnValidPlayer;
 
 public class GrantCommands {
 

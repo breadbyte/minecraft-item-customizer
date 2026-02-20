@@ -2,6 +2,7 @@ package com.github.breadbyte.itemcustomizer.server.commands.impl;
 
 import com.github.breadbyte.itemcustomizer.server.Check;
 import com.github.breadbyte.itemcustomizer.server.Helper;
+import com.github.breadbyte.itemcustomizer.server.commands.PreOperations;
 import com.github.breadbyte.itemcustomizer.server.operations.ModelOperations;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.component.DataComponentTypes;
@@ -22,7 +23,7 @@ public class ModelCommandsPreChecked {
     // TODO: Cost is static
 
     public static int toggleGlint(CommandContext<ServerCommandSource> ctx) {
-        var player = Helper.ValidateState(ctx, 1);
+        var player = PreOperations.ValidateState(ctx, 1);
         if (player == null)
             return 0;
 
@@ -30,7 +31,7 @@ public class ModelCommandsPreChecked {
 
         if (retval.ok()) {
             Helper.SendMessageYes(player, retval.details());
-            Helper.ApplyCost(player, retval.cost());
+            PreOperations.ApplyCost(player, retval.cost());
         }
         else
             Helper.SendMessageNo(player, retval.details());
@@ -38,7 +39,7 @@ public class ModelCommandsPreChecked {
     }
 
     public static int applyModel(CommandContext<ServerCommandSource> ctx) {
-        var player = Helper.ValidateState(ctx, 1);
+        var player = PreOperations.ValidateState(ctx, 1);
         if (player == null)
             return 0;
 
@@ -52,7 +53,7 @@ public class ModelCommandsPreChecked {
         var res = ModelOperations.applyModel(player, itemType, itemName, color, changeEquippable);
         if (res.ok()) {
             Helper.SendMessageYes(player, res.details());
-            Helper.ApplyCost(player, res.cost());
+            PreOperations.ApplyCost(player, res.cost());
         } else
             Helper.SendMessageNo(player, res.details());
 
@@ -60,7 +61,7 @@ public class ModelCommandsPreChecked {
     }
 
     public static int resetModel(CommandContext<ServerCommandSource> ctx) {
-        var player = Helper.ValidateState(ctx, 1);
+        var player = PreOperations.ValidateState(ctx, 1);
         if (player == null)
             return 0;
 
@@ -68,7 +69,7 @@ public class ModelCommandsPreChecked {
 
         if (retval.ok()) {
             Helper.SendMessageYes(player, retval.details());
-            Helper.ApplyCost(player, retval.cost());
+            PreOperations.ApplyCost(player, retval.cost());
         }
         else
             Helper.SendMessageNo(player, retval.details());
@@ -101,7 +102,7 @@ public class ModelCommandsPreChecked {
         if (!ctx.getSource().isExecutedByPlayer())
             return 0;
 
-        var getPlayer = Check.TryReturnValidPlayer(ctx, Check.Permission.CUSTOMIZE.getPermission());
+        var getPlayer = PreOperations.TryReturnValidPlayer(ctx, Check.Permission.CUSTOMIZE.getPermission());
         if (getPlayer.isEmpty())
             return 0;
 
@@ -158,7 +159,7 @@ public class ModelCommandsPreChecked {
     }
 
     public static int tintReset(CommandContext<ServerCommandSource> ctx) {
-        var getPlayer = Check.TryReturnValidPlayer(ctx, Check.Permission.CUSTOMIZE.getPermission());
+        var getPlayer = PreOperations.TryReturnValidPlayer(ctx, Check.Permission.CUSTOMIZE.getPermission());
         if (getPlayer.isEmpty())
             return 0;
 
@@ -184,7 +185,7 @@ public class ModelCommandsPreChecked {
         if (!ctx.getSource().isExecutedByPlayer())
             return 0;
 
-        var getPlayer = Check.TryReturnValidPlayer(ctx, Check.Permission.CUSTOMIZE.getPermission());
+        var getPlayer = PreOperations.TryReturnValidPlayer(ctx, Check.Permission.CUSTOMIZE.getPermission());
         if (getPlayer.isEmpty())
             return 0;
 
@@ -210,7 +211,7 @@ public class ModelCommandsPreChecked {
     }
 
     public static int dyeModel(CommandContext<ServerCommandSource> ctx) {
-        var player = Helper.ValidateState(ctx, 1);
+        var player = PreOperations.ValidateState(ctx, 1);
         if (player == null)
             return 0;
 
@@ -219,7 +220,7 @@ public class ModelCommandsPreChecked {
 
         if (retval.ok()) {
             Helper.SendMessageYes(player, retval.details());
-            Helper.ApplyCost(player, retval.cost());
+            PreOperations.ApplyCost(player, retval.cost());
         }
         else
             Helper.SendMessageNo(player, retval.details());
@@ -227,7 +228,7 @@ public class ModelCommandsPreChecked {
     }
 
     public static int dyeReset(CommandContext<ServerCommandSource> ctx) {
-        var player = Helper.ValidateState(ctx, 1);
+        var player = PreOperations.ValidateState(ctx, 1);
         if (player == null)
             return 0;
 
@@ -235,7 +236,7 @@ public class ModelCommandsPreChecked {
 
         if (retval.ok()) {
             Helper.SendMessageYes(player, retval.details());
-            Helper.ApplyCost(player, retval.cost());
+            PreOperations.ApplyCost(player, retval.cost());
         }
         else
             Helper.SendMessageNo(player, retval.details());
