@@ -15,11 +15,11 @@ import static net.minecraft.server.command.CommandManager.literal;
 public class ModelNamespaceCommand implements BaseCommand {
     @Override
     public void register(Check.Permission permission, String subCommandName, CommandDispatcher<ServerCommandSource> dispatcher, LiteralArgumentBuilder<ServerCommandSource> root) {
-        var _root = InternalHelper.RequirePermissionFor(root, permission);
+        var subCommand = InternalHelper.RequirePermissionFor(literal(subCommandName), permission);
 
         var RegisterNode = literal("register");
         var NamespaceNode = CommandManager.argument("namespace", StringArgumentType.word());
-        var UrlNode = CommandManager.argument("url", StringArgumentType.string());
+        var UrlNode = CommandManager.argument("url", StringArgumentType.greedyString());
 
         var ClearNode = literal("clear");
 
@@ -27,22 +27,25 @@ public class ModelNamespaceCommand implements BaseCommand {
         // namespace node here
 
         // namespace register namespace url
-        dispatcher.register(_root
+        dispatcher.register(root
+                .then(subCommand
                 .then(RegisterNode
                 .then(NamespaceNode
                 .then(UrlNode
-                .executes(SuggestionOperations::registerSuggestions)))));
+                .executes(SuggestionOperations::registerSuggestions))))));
 
         // namespace clear
-        dispatcher.register(_root
+        dispatcher.register(root
+                .then(subCommand
                 .then(ClearNode
-                .executes(SuggestionOperations::clearSuggestions)));
+                .executes(SuggestionOperations::clearSuggestions))));
 
         // namespace remove namespace
-        dispatcher.register(_root
+        dispatcher.register(root
+                .then(subCommand
                 .then(RemoveNode
                 .then(NamespaceNode
-                .executes(SuggestionOperations::removeNamespace))));
+                .executes(SuggestionOperations::removeNamespace)))));
 
     }
 }
