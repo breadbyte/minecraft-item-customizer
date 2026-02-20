@@ -2,6 +2,7 @@ package com.github.breadbyte.itemcustomizer.server.commands.impl;
 
 import com.github.breadbyte.itemcustomizer.server.Helper;
 import com.github.breadbyte.itemcustomizer.server.commands.PreOperations;
+import com.github.breadbyte.itemcustomizer.server.commands.registrar.commands.LoreCommand;
 import com.github.breadbyte.itemcustomizer.server.operations.LoreOperations;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.server.command.ServerCommandSource;
@@ -18,7 +19,7 @@ public class LoreCommandsPreChecked {
             return 0;
         }
 
-        var input = String.valueOf(ctx.getArgument("text", String.class));
+        var input = String.valueOf(ctx.getArgument(LoreCommand.LORE_ARGUMENT, String.class));
         var res = LoreOperations.addLore(player, input);
         if (res.ok()) {
             Helper.SendMessageYes(player, res.details());

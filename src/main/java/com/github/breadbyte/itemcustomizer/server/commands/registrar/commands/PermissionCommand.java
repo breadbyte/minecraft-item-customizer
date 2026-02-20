@@ -16,6 +16,11 @@ import net.minecraft.server.command.ServerCommandSource;
 import static net.minecraft.server.command.CommandManager.*;
 
 public class PermissionCommand implements BaseCommand {
+    public static final String NAMESPACE_ARGUMENT = "namespace";
+    public static final String CATEGORY_ARGUMENT = "item_category";
+    public static final String NAME_ARGUMENT = "item_name";
+    public static final String PLAYER_ARGUMENT = "player";
+
     public void register(Check.Permission grant, String subCommandName, CommandDispatcher<ServerCommandSource> dispatcher, LiteralArgumentBuilder<ServerCommandSource> root) {
         var subCommand = InternalHelper.RequirePermissionFor(literal(subCommandName), grant);
 
@@ -27,18 +32,18 @@ public class PermissionCommand implements BaseCommand {
         // can we even? namespaces are a client side thing
         // maybe if the client also has the mod, we can add a plugin channel for it
         var ArgNodeItemNamespace =
-                argument("namespace", StringArgumentType.word());
+                argument(NAMESPACE_ARGUMENT, StringArgumentType.word());
 
         var ArgNodeItemCategory =
-                argument("item_category", StringArgumentType.word())
+                argument(CATEGORY_ARGUMENT, StringArgumentType.word())
                 .suggests(ModelCategorySuggestionProvider.INSTANCE);
 
         var ArgNodeItemName =
-                argument("item_name", StringArgumentType.string())
+                argument(NAME_ARGUMENT, StringArgumentType.string())
                 .suggests(ModelSuggestionProvider.INSTANCE);
 
         var ArgNodePlayer =
-                argument("player", EntityArgumentType.player());
+                argument(PLAYER_ARGUMENT, EntityArgumentType.player());
 
         // model permission grant namespace category name player
         dispatcher.register(root

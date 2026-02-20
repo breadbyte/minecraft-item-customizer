@@ -14,11 +14,14 @@ import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
 public class LoreCommand implements BaseCommand {
+
+    public static final String LORE_ARGUMENT = "text";
+
     @Override
     public void register(Check.Permission grant, String subCommandName, CommandDispatcher<ServerCommandSource> dispatcher, LiteralArgumentBuilder<ServerCommandSource> root) {
         var subCommand = InternalHelper.RequirePermissionFor(literal(subCommandName), grant);
 
-        var ArgNodeText = argument("text", StringArgumentType.greedyString());
+        var ArgNodeText = argument(LORE_ARGUMENT, StringArgumentType.greedyString());
         var ArgNodeReset = literal("reset");
         var ArgNodeHelp = literal("help");
 

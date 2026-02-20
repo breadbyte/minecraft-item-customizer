@@ -14,13 +14,17 @@ import net.minecraft.server.command.ServerCommandSource;
 import static net.minecraft.server.command.CommandManager.literal;
 
 public class ModelTintCommand implements BaseCommand {
+
+    public static final String TINT_INDEX_ARGUMENT = "tint_index";
+    public static final String TINT_COLOR_ARGUMENT = "tint_color";
+
     @Override
     public void register(Check.Permission permission, String subCommandName, CommandDispatcher<ServerCommandSource> dispatcher, LiteralArgumentBuilder<ServerCommandSource> root) {
         var _root = InternalHelper.RequirePermissionFor(root, permission);
 
         var TintNode = literal("tint");
-        var TintIndexNode = CommandManager.argument("tint_index", IntegerArgumentType.integer(0));
-        var TintColorNode = CommandManager.argument("tint_color", HexColorArgumentType.hexColor());
+        var TintIndexNode = CommandManager.argument(TINT_INDEX_ARGUMENT, IntegerArgumentType.integer(0));
+        var TintColorNode = CommandManager.argument(TINT_COLOR_ARGUMENT, HexColorArgumentType.hexColor());
         var TintResetNode = literal("reset");
 
 

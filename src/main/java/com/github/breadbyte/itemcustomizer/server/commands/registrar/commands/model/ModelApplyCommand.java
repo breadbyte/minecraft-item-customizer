@@ -18,24 +18,31 @@ import net.minecraft.server.command.ServerCommandSource;
 import static net.minecraft.server.command.CommandManager.literal;
 
 public class ModelApplyCommand implements BaseCommand {
+
+    public static final String NAMESPACE_ARGUMENT = "namespace";
+    public static final String ITEM_CATEGORY_ARGUMENT = "item_category";
+    public static final String ITEM_NAME_ARGUMENT = "item_name";
+    public static final String EQUIPMENT_TEXTURE_ARGUMENT = "change_equippable_texture";
+    public static final String COLOR_ARGUMENT = "color";
+
     @Override
     public void register(Check.Permission permission, String subCommandName, CommandDispatcher<ServerCommandSource> dispatcher, LiteralArgumentBuilder<ServerCommandSource> root) {
         var _root = InternalHelper.RequirePermissionFor(root, permission);
 
-        var NamespaceNode = CommandManager.argument("namespace", StringArgumentType.string())
+        var NamespaceNode = CommandManager.argument(NAMESPACE_ARGUMENT, StringArgumentType.string())
                 .suggests(ModelNamespaceSuggestionProvider.INSTANCE);
 
         var ApplyNode = literal("apply");
-        var ItemCategoryNode = CommandManager.argument("item_category", StringArgumentType.word())
+        var ItemCategoryNode = CommandManager.argument(ITEM_CATEGORY_ARGUMENT, StringArgumentType.word())
                 .suggests(ModelCategorySuggestionProvider.INSTANCE);
 
-        var ItemNameNode = CommandManager.argument("item_name", StringArgumentType.string())
+        var ItemNameNode = CommandManager.argument(ITEM_NAME_ARGUMENT, StringArgumentType.string())
                 .suggests(ModelSuggestionProvider.INSTANCE);
 
-        var ItemEquipmentTextureBooleanNode = CommandManager.argument("equipment_texture", BoolArgumentType.bool());
+        var ItemEquipmentTextureBooleanNode = CommandManager.argument(EQUIPMENT_TEXTURE_ARGUMENT, BoolArgumentType.bool());
 
         // This has to be added to the Apply command to prevent being used for vanilla items
-        var ColorNode = CommandManager.argument("color", IntegerArgumentType.integer());
+        var ColorNode = CommandManager.argument(COLOR_ARGUMENT, IntegerArgumentType.integer());
 
         var ResetNode = literal("reset");
 

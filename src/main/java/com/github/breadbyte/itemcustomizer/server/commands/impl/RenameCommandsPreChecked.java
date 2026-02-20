@@ -2,6 +2,7 @@ package com.github.breadbyte.itemcustomizer.server.commands.impl;
 
 import com.github.breadbyte.itemcustomizer.server.Helper;
 import com.github.breadbyte.itemcustomizer.server.commands.PreOperations;
+import com.github.breadbyte.itemcustomizer.server.commands.registrar.commands.RenameCommand;
 import com.github.breadbyte.itemcustomizer.server.operations.RenameOperations;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.server.command.ServerCommandSource;
@@ -18,7 +19,7 @@ public class RenameCommandsPreChecked {
             return 0;
         }
 
-        var input = String.valueOf(ctx.getArgument("name", String.class));
+        var input = String.valueOf(ctx.getArgument(RenameCommand.RENAME_ARGUMENT, String.class));
         var res = RenameOperations.renameItem(player, input);
         if (res.ok()) {
             Helper.SendMessageYes(player, res.details());

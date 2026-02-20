@@ -13,13 +13,17 @@ import net.minecraft.server.command.ServerCommandSource;
 import static net.minecraft.server.command.CommandManager.literal;
 
 public class ModelNamespaceCommand implements BaseCommand {
+
+    public static final String NAMESPACE_ARGUMENT = "namespace";
+    public static final String URL_ARGUMENT = "url";
+
     @Override
     public void register(Check.Permission permission, String subCommandName, CommandDispatcher<ServerCommandSource> dispatcher, LiteralArgumentBuilder<ServerCommandSource> root) {
         var subCommand = InternalHelper.RequirePermissionFor(literal(subCommandName), permission);
 
         var RegisterNode = literal("register");
-        var NamespaceNode = CommandManager.argument("namespace", StringArgumentType.word());
-        var UrlNode = CommandManager.argument("url", StringArgumentType.greedyString());
+        var NamespaceNode = CommandManager.argument(NAMESPACE_ARGUMENT, StringArgumentType.word());
+        var UrlNode = CommandManager.argument(URL_ARGUMENT, StringArgumentType.greedyString());
 
         var ClearNode = literal("clear");
 

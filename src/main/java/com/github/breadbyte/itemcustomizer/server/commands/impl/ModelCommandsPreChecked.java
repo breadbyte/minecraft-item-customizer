@@ -3,6 +3,9 @@ package com.github.breadbyte.itemcustomizer.server.commands.impl;
 import com.github.breadbyte.itemcustomizer.server.Check;
 import com.github.breadbyte.itemcustomizer.server.Helper;
 import com.github.breadbyte.itemcustomizer.server.commands.PreOperations;
+import com.github.breadbyte.itemcustomizer.server.commands.registrar.commands.model.ModelApplyCommand;
+import com.github.breadbyte.itemcustomizer.server.commands.registrar.commands.model.ModelDyeCommand;
+import com.github.breadbyte.itemcustomizer.server.commands.registrar.commands.model.ModelTintCommand;
 import com.github.breadbyte.itemcustomizer.server.operations.ModelOperations;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.component.DataComponentTypes;
@@ -74,12 +77,12 @@ public class ModelCommandsPreChecked {
             return 0;
         }
 
-        var namespace = String.valueOf(ctx.getArgument("namespace", String.class));
-        var itemType = String.valueOf(ctx.getArgument("item_category", String.class));
+        var namespace = String.valueOf(ctx.getArgument(ModelApplyCommand.NAMESPACE_ARGUMENT, String.class));
+        var itemType = String.valueOf(ctx.getArgument(ModelApplyCommand.ITEM_CATEGORY_ARGUMENT, String.class));
         Integer color = null;
         Boolean changeEquippable = null;
-        try { color = ctx.getArgument("color", Integer.class); } catch (Exception ignored) {}
-        try { changeEquippable = ctx.getArgument("change_equippable_texture", Boolean.class); } catch (Exception ignored) {}
+        try { color = ctx.getArgument(ModelApplyCommand.COLOR_ARGUMENT, Integer.class); } catch (Exception ignored) {}
+        try { changeEquippable = ctx.getArgument(ModelApplyCommand.EQUIPMENT_TEXTURE_ARGUMENT, Boolean.class); } catch (Exception ignored) {}
 
         if (itemType.contains("/")) {
             var split = itemType.split("/");
@@ -93,7 +96,7 @@ public class ModelCommandsPreChecked {
         }
 
 
-        var itemName = String.valueOf(ctx.getArgument("item_name", String.class));
+        var itemName = String.valueOf(ctx.getArgument(ModelApplyCommand.ITEM_NAME_ARGUMENT, String.class));
 
         var res = ModelOperations.applyModel(player, namespace, itemType, itemName, color, changeEquippable);
         if (res.ok()) {
@@ -127,8 +130,8 @@ public class ModelCommandsPreChecked {
     }
 
     public static int getPermissionNode(CommandContext<ServerCommandSource> ctx) {
-        var itemType = String.valueOf(ctx.getArgument("item_category", String.class));
-        var itemName = String.valueOf(ctx.getArgument("item_name", String.class));
+        var itemType = String.valueOf(ctx.getArgument(ModelApplyCommand.ITEM_CATEGORY_ARGUMENT, String.class));
+        var itemName = String.valueOf(ctx.getArgument(ModelApplyCommand.ITEM_NAME_ARGUMENT, String.class));
 
         var res = ModelOperations.getPermissionNodeFor(itemType, itemName);
         if (res.ok()) {
@@ -142,8 +145,8 @@ public class ModelCommandsPreChecked {
     }
 
     public static int tintModel(CommandContext<ServerCommandSource> ctx) {
-        var index = ctx.getArgument("tint_index", Integer.class);
-        var color = ctx.getArgument("tint_color", Integer.class);
+        var index = ctx.getArgument(ModelTintCommand.TINT_INDEX_ARGUMENT, Integer.class);
+        var color = ctx.getArgument(ModelTintCommand.TINT_COLOR_ARGUMENT, Integer.class);
         // color is hex color
 
         ctx.getSource().sendFeedback(() -> Text.literal("Setting color index " + index + " to " + String.format("#%06X", (0xFFFFFF & color))), false);
@@ -284,7 +287,7 @@ public class ModelCommandsPreChecked {
             return 0;
         }
 
-        var colorClass = ctx.getArgument("dye_color", Integer.class);
+        var colorClass = ctx.getArgument(ModelDyeCommand.COLOR_ARGUMENT, Integer.class);
         var retval = ModelOperations.applyDyedColor(player, colorClass);
 
         if (retval.ok()) {

@@ -2,6 +2,8 @@ package com.github.breadbyte.itemcustomizer.server.commands.impl;
 
 import com.github.breadbyte.itemcustomizer.server.Check;
 import com.github.breadbyte.itemcustomizer.server.Helper;
+import com.github.breadbyte.itemcustomizer.server.commands.registrar.commands.PermissionCommand;
+import com.github.breadbyte.itemcustomizer.server.commands.registrar.commands.model.ModelApplyCommand;
 import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -15,9 +17,9 @@ import net.minecraft.server.network.ServerPlayerEntity;
 public class GrantCommands {
 
     public static int grantModelPerm(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-        var itemType = String.valueOf(ctx.getArgument("item_category", String.class));
-        var itemName = String.valueOf(ctx.getArgument("item_name", String.class));
-        var playerArg = ctx.getArgument("player", EntitySelector.class);
+        var itemType = String.valueOf(ctx.getArgument(PermissionCommand.CATEGORY_ARGUMENT, String.class));
+        var itemName = String.valueOf(ctx.getArgument(PermissionCommand.NAME_ARGUMENT, String.class));
+        var playerArg = ctx.getArgument(PermissionCommand.PLAYER_ARGUMENT, EntitySelector.class);
 
         // TODO: should be able to be executed by console
         if (!ctx.getSource().isExecutedByPlayer())
@@ -68,9 +70,9 @@ public class GrantCommands {
     }
 
     public static int revokeModelPerm(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-        var itemType = String.valueOf(ctx.getArgument("item_category", String.class));
-        var itemName = String.valueOf(ctx.getArgument("item_name", String.class));
-        var playerArg = ctx.getArgument("player", EntitySelector.class);
+        var itemType = String.valueOf(ctx.getArgument(PermissionCommand.CATEGORY_ARGUMENT, String.class));
+        var itemName = String.valueOf(ctx.getArgument(PermissionCommand.NAME_ARGUMENT, String.class));
+        var playerArg = ctx.getArgument(PermissionCommand.PLAYER_ARGUMENT, EntitySelector.class);
 
         // TODO: should be able to be executed by console
         if (!ctx.getSource().isExecutedByPlayer())
