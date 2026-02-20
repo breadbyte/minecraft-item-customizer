@@ -40,11 +40,21 @@ public class ModelApplyCommand implements BaseCommand {
         var ResetNode = literal("reset");
 
         // model apply item_namespace item_category item_name
-        // model apply item_namespace item_category item_name color
+        // model apply item_namespace item_category item_name bool
+        // model apply item_namespace item_category item_name bool color
+
+        // model apply item_namespace old/item/format
+        // model apply item_namespace old/item/format bool
+        // model apply item_namespace old/item/format bool color
         dispatcher.register(_root
                 .then(ApplyNode
                 .then(NamespaceNode
                 .then(ItemCategoryNode
+                        .executes(ModelCommandsPreChecked::applyModel)
+                        .then(ItemEquipmentTextureBooleanNode
+                                .executes(ModelCommandsPreChecked::applyModel)
+                                .then(ColorNode
+                                .executes(ModelCommandsPreChecked::applyModel)))
                 .then(ItemNameNode
                       .executes(ModelCommandsPreChecked::applyModel)
                         .then(ItemEquipmentTextureBooleanNode

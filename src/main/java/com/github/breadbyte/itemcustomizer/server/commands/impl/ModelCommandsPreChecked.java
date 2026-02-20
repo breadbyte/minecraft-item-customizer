@@ -76,11 +76,24 @@ public class ModelCommandsPreChecked {
 
         var namespace = String.valueOf(ctx.getArgument("namespace", String.class));
         var itemType = String.valueOf(ctx.getArgument("item_category", String.class));
-        var itemName = String.valueOf(ctx.getArgument("item_name", String.class));
         Integer color = null;
         Boolean changeEquippable = null;
         try { color = ctx.getArgument("color", Integer.class); } catch (Exception ignored) {}
         try { changeEquippable = ctx.getArgument("change_equippable_texture", Boolean.class); } catch (Exception ignored) {}
+
+        if (itemType.contains("/")) {
+            var split = itemType.split("/");
+            var res = ModelOperations.applyModel(player, namespace, split[0], split[split.length - 1], color, changeEquippable);
+            if (res.ok()) {
+                Helper.SendMessageYes(player, res.details());
+                PreOperations.ApplyCost(player, res.cost());
+            } else
+                Helper.SendMessageNo(player, res.details());
+            return 1;
+        }
+
+
+        var itemName = String.valueOf(ctx.getArgument("item_name", String.class));
 
         var res = ModelOperations.applyModel(player, namespace, itemType, itemName, color, changeEquippable);
         if (res.ok()) {

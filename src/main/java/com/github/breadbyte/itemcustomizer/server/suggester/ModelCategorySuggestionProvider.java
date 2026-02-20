@@ -27,6 +27,8 @@ public class ModelCategorySuggestionProvider implements SuggestionProvider<Serve
         var categories = ModelsIndex.getInstance().namespaceCategories();
         Set<NamespaceCategory> validItemTypes = null;
 
+        // todo: sub categories (add / at the end to suggest sub categories)
+
         if (Check.IsAdmin(player)) {
             validItemTypes = categories;
         } else {
