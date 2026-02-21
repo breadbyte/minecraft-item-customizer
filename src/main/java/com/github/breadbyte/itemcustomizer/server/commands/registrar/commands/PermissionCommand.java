@@ -1,6 +1,6 @@
 package com.github.breadbyte.itemcustomizer.server.commands.registrar.commands;
 
-import com.github.breadbyte.itemcustomizer.server.Check;
+import com.github.breadbyte.itemcustomizer.server.util.Check;
 import com.github.breadbyte.itemcustomizer.server.commands.impl.GrantCommands;
 import com.github.breadbyte.itemcustomizer.server.commands.impl.ModelCommandsPreChecked;
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.BaseCommand;

@@ -1,7 +1,7 @@
 package com.github.breadbyte.itemcustomizer.server.commands.impl;
 
-import com.github.breadbyte.itemcustomizer.server.Helper;
-import com.github.breadbyte.itemcustomizer.server.commands.PreOperations;
+import com.github.breadbyte.itemcustomizer.server.util.Check;
+import com.github.breadbyte.itemcustomizer.server.util.Helper;
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.commands.RenameCommand;
 import com.github.breadbyte.itemcustomizer.server.operations.RenameOperations;
 import com.mojang.brigadier.context.CommandContext;
@@ -10,42 +10,36 @@ import net.minecraft.server.command.ServerCommandSource;
 public class RenameCommandsPreChecked {
 
     public static int renameItem(CommandContext<ServerCommandSource> ctx) {
-        var player = PreOperations.ValidateState(ctx, 1);
-        if (player == null)
-            return 0;
-
-        if (!PreOperations.IsModelOwner(player)) {
-            Helper.SendMessageNo(player, "Model is locked!");
+        var player = PreOperations.ValidateStack(ctx, 1, Check.Permission.CUSTOMIZE.getPermission());
+        if (player.isErr()) {
+            player.unwrapErr().BroadcastToPlayer(ctx.getSource());
             return 0;
         }
 
         var input = String.valueOf(ctx.getArgument(RenameCommand.RENAME_ARGUMENT, String.class));
-        var res = RenameOperations.renameItem(player, input);
+        var res = RenameOperations.renameItem(player.unwrap(), input);
         if (res.ok()) {
-            Helper.SendMessageYes(player, res.details());
-            PreOperations.ApplyCost(player, res.cost());
+            Helper.SendMessage(ctx.getSource(), res.details());
+            PreOperations.TryApplyCost(player.unwrap(), res.cost());
         } else {
-            Helper.SendMessageNo(player, res.details());
+            Helper.SendError(ctx.getSource(), res.details());
         }
         return 1;
     }
 
     public static int resetName(CommandContext<ServerCommandSource> ctx) {
-        var player = PreOperations.ValidateState(ctx, 1);
-        if (player == null)
-            return 0;
-
-        if (!PreOperations.IsModelOwner(player)) {
-            Helper.SendMessageNo(player, "Model is locked!");
+        var player = PreOperations.ValidateStack(ctx, 1, Check.Permission.CUSTOMIZE.getPermission());
+        if (player.isErr()) {
+            player.unwrapErr().BroadcastToPlayer(ctx.getSource());
             return 0;
         }
 
-        var res = RenameOperations.resetName(player);
+        var res = RenameOperations.resetName(player.unwrap());
         if (res.ok()) {
-            Helper.SendMessageYes(player, res.details());
-            PreOperations.ApplyCost(player, res.cost());
+            Helper.SendMessage(ctx.getSource(), res.details());
+            PreOperations.TryApplyCost(player.unwrap(), res.cost());
         } else {
-            Helper.SendMessageNo(player, res.details());
+            Helper.SendError(ctx.getSource(), res.details());
         }
         return 1;
     }

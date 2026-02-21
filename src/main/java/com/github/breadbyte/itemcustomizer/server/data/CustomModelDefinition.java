@@ -1,7 +1,6 @@
 package com.github.breadbyte.itemcustomizer.server.data;
 
-import com.github.breadbyte.itemcustomizer.server.Check;
-import com.github.breadbyte.itemcustomizer.server.Helper;
+import com.github.breadbyte.itemcustomizer.server.util.Check;
 import dev.isxander.yacl3.config.v2.api.SerialEntry;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.server.network.ServerPlayerEntity;

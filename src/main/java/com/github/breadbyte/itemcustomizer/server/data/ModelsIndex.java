@@ -1,6 +1,6 @@
 package com.github.breadbyte.itemcustomizer.server.data;
 
-import com.github.breadbyte.itemcustomizer.server.Helper;
+import com.github.breadbyte.itemcustomizer.server.util.Helper;
 
 import java.util.*;
 import java.util.stream.Collectors;

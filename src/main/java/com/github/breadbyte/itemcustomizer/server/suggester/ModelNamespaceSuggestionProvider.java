@@ -1,8 +1,9 @@
 package com.github.breadbyte.itemcustomizer.server.suggester;
 
-import com.github.breadbyte.itemcustomizer.server.Check;
+import com.github.breadbyte.itemcustomizer.server.util.Check;
 import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
 import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
+import com.github.breadbyte.itemcustomizer.server.util.AccessValidator;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
@@ -26,7 +27,7 @@ public class ModelNamespaceSuggestionProvider implements SuggestionProvider<Serv
 
         Set<String> validNamespaces;
 
-        if (Check.IsAdmin(player)) {
+        if (AccessValidator.IsAdmin(player)) {
             validNamespaces = allNamespaces;
         } else {
             validNamespaces = allNamespaces.stream()

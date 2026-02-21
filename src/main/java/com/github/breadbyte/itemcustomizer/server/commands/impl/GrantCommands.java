@@ -1,10 +1,10 @@
 package com.github.breadbyte.itemcustomizer.server.commands.impl;
 
-import com.github.breadbyte.itemcustomizer.server.Check;
-import com.github.breadbyte.itemcustomizer.server.Helper;
+import com.github.breadbyte.itemcustomizer.server.util.Check;
+import com.github.breadbyte.itemcustomizer.server.util.Helper;
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.commands.PermissionCommand;
-import com.github.breadbyte.itemcustomizer.server.commands.registrar.commands.model.ModelApplyCommand;
 import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
+import com.github.breadbyte.itemcustomizer.server.util.Luckperms;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.luckperms.api.LuckPerms;
@@ -20,18 +20,18 @@ public class GrantCommands {
         var itemType = String.valueOf(ctx.getArgument(PermissionCommand.CATEGORY_ARGUMENT, String.class));
         var itemName = String.valueOf(ctx.getArgument(PermissionCommand.NAME_ARGUMENT, String.class));
         var playerArg = ctx.getArgument(PermissionCommand.PLAYER_ARGUMENT, EntitySelector.class);
+        var cmdSrc = ctx.getSource();
 
         // TODO: should be able to be executed by console
-        if (!ctx.getSource().isExecutedByPlayer())
+        if (!cmdSrc.isExecutedByPlayer())
             return 0;
 
-        var executor = ctx.getSource().getPlayer();
+        var executor = cmdSrc.getPlayer();
 
-        var targetPlayer = playerArg.getPlayer(ctx.getSource());
+        var targetPlayer = playerArg.getPlayer(cmdSrc);
         if (targetPlayer == null) {
-            if (!Check.IsLuckpermsPresent()) {
-                Helper.SendMessageNo(ctx.getSource().getPlayer(), "Permissions can only be granted to offline players using LuckPerms.");
-                Helper.SendMessageNo(ctx.getSource().getPlayer(), "Please try again when the target player is online.");
+            if (!Luckperms.IsLuckpermsPresent()) {
+                Helper.SendError(cmdSrc, "Player must be online!");
                 return 0;
             }
         }
@@ -42,28 +42,24 @@ public class GrantCommands {
         if (model != null) {
 
             if (targetPlayer == null) {
-                targetPlayer = ctx.getSource().getServer().getPlayerManager().getPlayer(playerArg.toString());
+                targetPlayer = cmdSrc.getServer().getPlayerManager().getPlayer(playerArg.toString());
             }
 
-            if (!Check.IsLuckpermsPresent()) {
-                Helper.SendMessageNo(executor, "LuckPerms is not installed on this server, cannot grant permissions.");
-                Helper.SendMessageNo(executor, "Please refer to your permissions plugin documentation on how to grant permissions for the following node:");
-                Helper.SendMessageNo(executor, Check.Permission.GRANT.chain(model.getPermissionNode()));
+            if (!Luckperms.IsLuckpermsPresent()) {
+                Helper.SendError(cmdSrc, "LuckPerms is not installed on this server, cannot grant permission");
+                Helper.SendError(cmdSrc, Check.Permission.CUSTOMIZE.chain(model.getPermissionNode()));
                 return 0;
             }
 
             // If LuckPerms exists in the target server,
             // Directly access the LuckPerms API to add the permission node to the target player
 
-            LuckPerms lpapi = LuckPermsProvider.get();
-            var lpuser = lpapi.getPlayerAdapter(ServerPlayerEntity.class).getUser(targetPlayer);
-            lpuser.data().add(Node.builder(Check.Permission.CUSTOMIZE.chain(model.getPermissionNode())).build());
-            lpapi.getUserManager().saveUser(lpuser);
+            Luckperms.GrantPermission(targetPlayer, Check.Permission.CUSTOMIZE.chain(model.getPermissionNode()));
 
-            Helper.SendMessageYes(executor, "Granted permission " + Check.Permission.CUSTOMIZE.chain(model.getPermissionNode()) + " to " + targetPlayer.getDisplayName().getString() + ".");
+            Helper.SendMessage(cmdSrc, "Granted permission " + Check.Permission.CUSTOMIZE.chain(model.getPermissionNode()) + " to " + targetPlayer.getDisplayName().getString() + ".");
         }
         else {
-            Helper.SendMessageNo(executor, "No model found for " + itemType + "." + itemName + ", please check the item type and name and try again.");
+            Helper.SendError(cmdSrc, "No model found for " + itemType + "." + itemName + ", please check the item type and name and try again.");
             return 0;
         }
         return 1;
@@ -82,9 +78,8 @@ public class GrantCommands {
 
         var targetPlayer = playerArg.getPlayer(ctx.getSource());
         if (targetPlayer == null) {
-            if (!Check.IsLuckpermsPresent()) {
-                Helper.SendMessageNo(ctx.getSource().getPlayer(), "Permissions can only be revoked to offline players using LuckPerms.");
-                Helper.SendMessageNo(ctx.getSource().getPlayer(), "Please try again when the target player is online.");
+            if (!Luckperms.IsLuckpermsPresent()) {
+                Helper.SendError(ctx.getSource(), "Player must be online!");
                 return 0;
             }
         }
@@ -98,10 +93,9 @@ public class GrantCommands {
                 targetPlayer = ctx.getSource().getServer().getPlayerManager().getPlayer(playerArg.toString());
             }
 
-            if (!Check.IsLuckpermsPresent()) {
-                Helper.SendMessageNo(executor, "LuckPerms is not installed on this server, cannot revoke permissions.");
-                Helper.SendMessageNo(executor, "Please refer to your permissions plugin documentation on how to revoke permissions for the following node:");
-                Helper.SendMessageNo(executor, Check.Permission.GRANT.chain(model.getPermissionNode()));
+            if (!Luckperms.IsLuckpermsPresent()) {
+                Helper.SendError(ctx.getSource(), "LuckPerms is not installed on this server, cannot revoke permissions.");
+                Helper.SendError(ctx.getSource(), Check.Permission.GRANT.chain(model.getPermissionNode()));
                 return 0;
             }
 
@@ -113,10 +107,10 @@ public class GrantCommands {
             lpuser.data().remove(Node.builder(Check.Permission.CUSTOMIZE.chain(model.getPermissionNode())).build());
             lpapi.getUserManager().saveUser(lpuser);
 
-            Helper.SendMessageYes(executor, "Revoked permission " + Check.Permission.CUSTOMIZE.chain(model.getPermissionNode()) + " to " + targetPlayer.getDisplayName().getString() + ".");
+            Helper.SendMessage(ctx.getSource(), "Revoked permission " + Check.Permission.CUSTOMIZE.chain(model.getPermissionNode()) + " to " + targetPlayer.getDisplayName().getString() + ".");
         }
         else {
-            Helper.SendMessageNo(executor, "No model found for " + itemType + "." + itemName + ", please check the item type and name and try again.");
+            Helper.SendError(ctx.getSource(), "No model found for " + itemType + "." + itemName + ", please check the item type and name and try again.");
             return 0;
         }
         return 1;

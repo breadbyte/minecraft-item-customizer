@@ -1,12 +1,13 @@
 package com.github.breadbyte.itemcustomizer.server.operations;
 
 import com.github.breadbyte.itemcustomizer.main.ItemCustomizer;
-import com.github.breadbyte.itemcustomizer.server.Check;
-import com.github.breadbyte.itemcustomizer.server.Helper;
+import com.github.breadbyte.itemcustomizer.server.commands.impl.PreOperations;
+import com.github.breadbyte.itemcustomizer.server.util.AccessValidator;
+import com.github.breadbyte.itemcustomizer.server.util.Check;
+import com.github.breadbyte.itemcustomizer.server.util.Helper;
 import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
 import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import com.github.breadbyte.itemcustomizer.server.data.OperationResult;
-import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.component.ComponentChanges;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.CustomModelDataComponent;
@@ -26,19 +27,18 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.github.breadbyte.itemcustomizer.main.ItemCustomizer.LOGGER;
-import static com.github.breadbyte.itemcustomizer.server.Check.IsAdmin;
+import static com.github.breadbyte.itemcustomizer.server.util.AccessValidator.IsAdmin;
 
 public class ModelOperations {
 
     // todo: split color from apply model (use dye command instead)
     public static OperationResult applyModel(ServerPlayerEntity player, String namespace, String category, String name, Integer color, Boolean changeEquippableTexture) {
-
         CustomModelDefinition defs = null;
 
         var model = ModelsIndex.getInstance().get(namespace, category, name);
 
         // Allow changing to a model that doesn't exist if we are an admin
-        if (!IsAdmin(player)) {
+        if (!AccessValidator.IsAdmin(player)) {
             if (model == null) {
                 return OperationResult.fail("No custom model definitions found for item: " + category + ":" + name);
             }
@@ -47,7 +47,7 @@ public class ModelOperations {
         defs = model;
 
         // Check if we have permissions for the specified item
-        if (!IsAdmin(player)) {
+        if (!AccessValidator.IsAdmin(player)) {
             if (!defs.getPermission(player)) {
                 LOGGER.warn("Player {} tried to customize {}/{} with no permissions!", player.getName().getString(), category, name);
                 return OperationResult.fail("Permission denied for " + category + "/" + name);
@@ -113,7 +113,12 @@ public class ModelOperations {
     public static OperationResult revertModel(ServerPlayerEntity player) {
 
         // Get the current item in the player's hand
-        var playerItem = player.getMainHandStack();
+        var getPlayerItem = PreOperations.TryGetValidPlayerCurrentHand(player);
+        if (getPlayerItem.isErr()) {
+            return OperationResult.fail("Player has no valid item in hand");
+        }
+
+        var playerItem = getPlayerItem.unwrap();
 
         // Get its components
         var itemComps = playerItem.getComponents();
@@ -185,7 +190,12 @@ public class ModelOperations {
     }
 
     public static OperationResult toggleGlint(ServerPlayerEntity player) {
-        var playerItem = player.getMainHandStack();
+        var getPlayerItem = PreOperations.TryGetValidPlayerCurrentHand(player);
+        if (getPlayerItem.isErr()) {
+            return OperationResult.fail("Player has no valid item in hand");
+        }
+
+        var playerItem = getPlayerItem.unwrap();
 
         // Refer to table below for logic
         // - HAS OVERRIDE? FLIP THE FLAG, EXIT EARLY
@@ -210,7 +220,12 @@ public class ModelOperations {
     }
 
     public static OperationResult applyDyedColor(ServerPlayerEntity player, @UnknownNullability Integer colorClass) {
-        var playerItem = player.getMainHandStack();
+        var getPlayerItem = PreOperations.TryGetValidPlayerCurrentHand(player);
+        if (getPlayerItem.isErr()) {
+            return OperationResult.fail("Player has no valid item in hand");
+        }
+
+        var playerItem = getPlayerItem.unwrap();
 
         // Get the default dyed color for the item
         var defaultDyedColor = playerItem.getItem().getDefaultStack().getComponents().get(DataComponentTypes.DYED_COLOR);
@@ -223,7 +238,11 @@ public class ModelOperations {
     }
 
     public static OperationResult revertDyedColor(ServerPlayerEntity player) {
-        var playerItem = player.getMainHandStack();
+        var getPlayerItem = PreOperations.TryGetValidPlayerCurrentHand(player);
+        if (getPlayerItem.isErr()) {
+            return OperationResult.fail("Player has no valid item in hand");
+        }
+        var playerItem = getPlayerItem.unwrap();
 
         // Get the default dyed color for the item
         var defaultDyedColor = playerItem.getItem().getDefaultStack().getComponents().get(DataComponentTypes.DYED_COLOR);
@@ -267,19 +286,15 @@ public class ModelOperations {
     }
 
     public static OperationResult lockModel(ServerPlayerEntity player) {
-        if (player == null) {
-            return OperationResult.fail("Player cannot be null");
+        var playerHand = PreOperations.TryGetValidPlayerCurrentHand(player);
+        if (playerHand.isErr()) {
+            return OperationResult.fail(playerHand.unwrapErr().toString());
         }
-
-        var playerItem = player.getMainHandStack();
 
         // Get the components for the currently held item
+        var playerItem = playerHand.unwrap();
         var itemComps = playerItem.getComponents();
         var playerUuid = Text.literal(player.getUuidAsString());
-
-        if (playerItem.isEmpty()) {
-            return OperationResult.fail("You are not holding an item!");
-        }
 
         if (itemComps.get(DataComponentTypes.LOCK) != null) {
             var lock = playerItem.getComponents().get(DataComponentTypes.LOCK);
@@ -319,19 +334,15 @@ public class ModelOperations {
     }
 
     public static OperationResult unlockModel(ServerPlayerEntity player) {
-        if (player == null) {
-            return OperationResult.fail("Player cannot be null");
+        var playerHand = PreOperations.TryGetValidPlayerCurrentHand(player);
+        if (playerHand.isErr()) {
+            return OperationResult.fail(playerHand.unwrapErr().toString());
         }
-
-        var playerItem = player.getMainHandStack();
+        var playerItem = playerHand.unwrap();
 
         // Get the components for the currently held item
         var itemComps = playerItem.getComponents();
         var playerUuid = Text.literal(player.getUuidAsString());
-
-        if (playerItem.isEmpty()) {
-            return OperationResult.fail("You are not holding an item!");
-        }
 
         var lock = itemComps.get(DataComponentTypes.LOCK);
 

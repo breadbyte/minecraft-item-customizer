@@ -1,8 +1,9 @@
 package com.github.breadbyte.itemcustomizer.server.suggester;
 
-import com.github.breadbyte.itemcustomizer.server.Check;
+import com.github.breadbyte.itemcustomizer.server.util.Check;
 import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import com.github.breadbyte.itemcustomizer.server.data.NamespaceCategory;
+import com.github.breadbyte.itemcustomizer.server.util.AccessValidator;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
@@ -11,7 +12,6 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.server.command.ServerCommandSource;
 
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -29,7 +29,7 @@ public class ModelCategorySuggestionProvider implements SuggestionProvider<Serve
 
         // todo: sub categories (add / at the end to suggest sub categories)
 
-        if (Check.IsAdmin(player)) {
+        if (AccessValidator.IsAdmin(player)) {
             validItemTypes = categories;
         } else {
             validItemTypes = categories

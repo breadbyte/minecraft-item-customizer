@@ -1,12 +1,9 @@
-package com.github.breadbyte.itemcustomizer.server;
+package com.github.breadbyte.itemcustomizer.server.util;
 
 import com.github.breadbyte.itemcustomizer.main.ItemCustomizer;
 import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
 import me.lucko.fabric.api.permissions.v0.Permissions;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.server.network.ServerPlayerEntity;
-
-import java.util.Objects;
 
 public class Check {
     public enum Permission {
@@ -32,6 +29,7 @@ public class Check {
         public String chain(String node) {
             return this.getPermission() + "." + node;
         }
+        public String chain(String... node) { return chain(String.join(".", node)); }
 
         public boolean checkPermissionForModel(ServerPlayerEntity player, CustomModelDefinition model) {
             ItemCustomizer.LOGGER.info("Checking permission for selector: {}", chain(model.getPermissionNode()));
@@ -45,18 +43,8 @@ public class Check {
         return Permissions.check(player, node);
     }
 
-    public static boolean IsLuckpermsPresent() {
-        var serve = FabricLoader.getInstance().getModContainer("luckperms");
-        return serve.isPresent();
-    }
-
     public static boolean IsCreativeMode(ServerPlayerEntity player) {
         return player.isCreative();
-    }
-
-    public static boolean IsAdmin(ServerPlayerEntity player) {
-        var server = Objects.requireNonNull(player.getEntityWorld().getServer());
-        return server.getPlayerManager().isOperator(player.getPlayerConfigEntry());
     }
 
 }

@@ -9,6 +9,9 @@ public record NamespaceCategory(String namespace, String category) {
     public @NotNull String getNamespace() { return namespace; }
     public @NotNull String getCategory() { return category; }
     public @NotNull String getPermissionNode() {
+        if (category.contains("/")) {
+            return namespace + "." + category.replace("/", ".");
+        }
         return namespace + "." + category;
     }
 
@@ -18,5 +21,9 @@ public record NamespaceCategory(String namespace, String category) {
         if (obj == null || getClass() != obj.getClass()) return false;
         NamespaceCategory that = (NamespaceCategory) obj;
         return namespace.equalsIgnoreCase(that.namespace) && category.equalsIgnoreCase(that.category);
+    }
+
+    public static NamespaceCategory of(String namespace, String category) {
+        return new NamespaceCategory(namespace, category);
     }
 }

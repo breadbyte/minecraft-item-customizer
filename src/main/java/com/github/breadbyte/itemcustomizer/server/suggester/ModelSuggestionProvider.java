@@ -1,9 +1,9 @@
 package com.github.breadbyte.itemcustomizer.server.suggester;
 
-import com.github.breadbyte.itemcustomizer.server.Check;
+import com.github.breadbyte.itemcustomizer.server.util.Check;
 import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
-import com.github.breadbyte.itemcustomizer.server.data.NamespaceCategory;
+import com.github.breadbyte.itemcustomizer.server.util.AccessValidator;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
@@ -11,15 +11,11 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
-
-import static com.github.breadbyte.itemcustomizer.server.Check.IsAdmin;
 
 public class ModelSuggestionProvider implements SuggestionProvider<ServerCommandSource> {
 
@@ -45,7 +41,7 @@ public class ModelSuggestionProvider implements SuggestionProvider<ServerCommand
         var items = ModelsIndex.getInstance().get(paramNamespace, paramCategory);
         List<CustomModelDefinition> validItems;
 
-        if (Check.IsAdmin(player)) {
+        if (AccessValidator.IsAdmin(player)) {
             validItems = items;
         } else {
             validItems = items

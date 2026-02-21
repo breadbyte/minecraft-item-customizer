@@ -1,8 +1,7 @@
 package com.github.breadbyte.itemcustomizer.server.commands.impl;
 
-import com.github.breadbyte.itemcustomizer.server.Check;
-import com.github.breadbyte.itemcustomizer.server.Helper;
-import com.github.breadbyte.itemcustomizer.server.commands.PreOperations;
+import com.github.breadbyte.itemcustomizer.server.util.Check;
+import com.github.breadbyte.itemcustomizer.server.util.Helper;
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.commands.model.ModelApplyCommand;
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.commands.model.ModelDyeCommand;
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.commands.model.ModelTintCommand;
@@ -20,65 +19,60 @@ import net.minecraft.util.Formatting;
 
 import java.util.List;
 
-import static com.github.breadbyte.itemcustomizer.server.Helper.SendMessage;
+import static com.github.breadbyte.itemcustomizer.server.util.Helper.SendMessage;
 
 public class ModelCommandsPreChecked {
     // TODO: Cost is static
     public static int lockModel(CommandContext<ServerCommandSource> ctx) {
-        var player = PreOperations.ValidateState(ctx, 1);
-        if (player == null)
-            return 0;
-
-        if (!PreOperations.IsModelOwner(player)) {
-            Helper.SendMessageNo(player, "Model is locked!");
+        var player = PreOperations.ValidateStack(ctx, 1, Check.Permission.CUSTOMIZE.getPermission());
+        if (player.isErr()) {
+            player.unwrapErr().BroadcastToPlayer(ctx.getSource());
             return 0;
         }
 
-        var retval = ModelOperations.lockModel(player);
+        var retval = ModelOperations.lockModel(player.unwrap());
 
         if (retval.ok()) {
-            Helper.SendMessageYes(player, retval.details());
-            PreOperations.ApplyCost(player, retval.cost());
+            Helper.SendMessage(ctx.getSource(), retval.details());
+            PreOperations.TryApplyCost(player.unwrap(), retval.cost());
         }
         else
-            Helper.SendMessageNo(player, retval.details());
+            Helper.SendError(ctx.getSource(), retval.details());
 
         return 1;
     }
 
     public static int toggleGlint(CommandContext<ServerCommandSource> ctx) {
-        var player = PreOperations.ValidateState(ctx, 1);
-        if (player == null)
-            return 0;
-
-        if (!PreOperations.IsModelOwner(player)) {
-            Helper.SendMessageNo(player, "Model is locked!");
+        var player = PreOperations.ValidateStack(ctx, 1, Check.Permission.CUSTOMIZE.getPermission());
+        if (player.isErr()) {
+            player.unwrapErr().BroadcastToPlayer(ctx.getSource());
             return 0;
         }
 
-        var retval = ModelOperations.toggleGlint(player);
+        var retval = ModelOperations.toggleGlint(player.unwrap());
 
         if (retval.ok()) {
-            Helper.SendMessageYes(player, retval.details());
-            PreOperations.ApplyCost(player, retval.cost());
+            Helper.SendMessage(ctx.getSource(), retval.details());
+            PreOperations.TryApplyCost(player.unwrap(), retval.cost());
         }
         else
-            Helper.SendMessageNo(player, retval.details());
+            Helper.SendError(ctx.getSource(), retval.details());
+
         return 1;
     }
 
     public static int applyModel(CommandContext<ServerCommandSource> ctx) {
-        var player = PreOperations.ValidateState(ctx, 1);
-        if (player == null)
-            return 0;
-
-        if (!PreOperations.IsModelOwner(player)) {
-            Helper.SendMessageNo(player, "Model is locked!");
+        var player = PreOperations.ValidateStack(ctx, 1, Check.Permission.CUSTOMIZE.getPermission());
+        if (player.isErr()) {
+            player.unwrapErr().BroadcastToPlayer(ctx.getSource());
             return 0;
         }
 
+        // Arguments that exist normally
         var namespace = String.valueOf(ctx.getArgument(ModelApplyCommand.NAMESPACE_ARGUMENT, String.class));
         var itemType = String.valueOf(ctx.getArgument(ModelApplyCommand.ITEM_CATEGORY_ARGUMENT, String.class));
+
+        // Arguments that don't necessarily exist
         Integer color = null;
         Boolean changeEquippable = null;
         try { color = ctx.getArgument(ModelApplyCommand.COLOR_ARGUMENT, Integer.class); } catch (Exception ignored) {}
@@ -86,45 +80,42 @@ public class ModelCommandsPreChecked {
 
         if (itemType.contains("/")) {
             var split = itemType.split("/");
-            var res = ModelOperations.applyModel(player, namespace, split[0], split[split.length - 1], color, changeEquippable);
+            var res = ModelOperations.applyModel(player.unwrap(), namespace, split[0], split[split.length - 1], color, changeEquippable);
             if (res.ok()) {
-                Helper.SendMessageYes(player, res.details());
-                PreOperations.ApplyCost(player, res.cost());
+                Helper.SendMessage(ctx.getSource(), res.details());
+                PreOperations.TryApplyCost(player.unwrap(), res.cost());
             } else
-                Helper.SendMessageNo(player, res.details());
+                Helper.SendError(ctx.getSource(), res.details());
             return 1;
         }
 
 
         var itemName = String.valueOf(ctx.getArgument(ModelApplyCommand.ITEM_NAME_ARGUMENT, String.class));
 
-        var res = ModelOperations.applyModel(player, namespace, itemType, itemName, color, changeEquippable);
+        var res = ModelOperations.applyModel(player.unwrap(), namespace, itemType, itemName, color, changeEquippable);
         if (res.ok()) {
-            Helper.SendMessageYes(player, res.details());
-            PreOperations.ApplyCost(player, res.cost());
+            Helper.SendMessage(ctx.getSource(), res.details());
+            PreOperations.TryApplyCost(player.unwrap(), res.cost());
         } else
-            Helper.SendMessageNo(player, res.details());
+            Helper.SendError(ctx.getSource(), res.details());
 
         return 1;
     }
 
     public static int resetModel(CommandContext<ServerCommandSource> ctx) {
-        var player = PreOperations.ValidateState(ctx, 1);
-        if (player == null)
-            return 0;
-
-        if (!PreOperations.IsModelOwner(player)) {
-            Helper.SendMessageNo(player, "Model is locked!");
+        var player = PreOperations.ValidateStack(ctx, 1, Check.Permission.CUSTOMIZE.getPermission());
+        if (player.isErr()) {
+            player.unwrapErr().BroadcastToPlayer(ctx.getSource());
             return 0;
         }
 
-        var retval = ModelOperations.revertModel(player);
+        var retval = ModelOperations.revertModel(player.unwrap());
 
         if (retval.ok()) {
-            Helper.SendMessageYes(player, retval.details());
-            PreOperations.ApplyCost(player, retval.cost());
+            Helper.SendMessage(ctx.getSource(), retval.details());
+            PreOperations.TryApplyCost(player.unwrap(), retval.cost());
         } else
-            Helper.SendMessageNo(player, retval.details());
+            Helper.SendError(ctx.getSource(), retval.details());
 
         return 1;
     }
@@ -149,23 +140,19 @@ public class ModelCommandsPreChecked {
         var color = ctx.getArgument(ModelTintCommand.TINT_COLOR_ARGUMENT, Integer.class);
         // color is hex color
 
-        ctx.getSource().sendFeedback(() -> Text.literal("Setting color index " + index + " to " + String.format("#%06X", (0xFFFFFF & color))), false);
-        // TODO: should be able to be executed by console
-        if (!ctx.getSource().isExecutedByPlayer())
-            return 0;
-
-        var getPlayer = PreOperations.TryReturnValidPlayer(ctx, Check.Permission.CUSTOMIZE.getPermission());
-        if (getPlayer.isEmpty())
-            return 0;
-
-        var player = getPlayer.get();
-
-        var playerItem = player.getMainHandStack();
-
-        if (!PreOperations.IsModelOwner(player)) {
-            Helper.SendMessageNo(player, "Model is locked!");
+        var player = PreOperations.ValidateStack(ctx, 1, Check.Permission.CUSTOMIZE.getPermission());
+        if (player.isErr()) {
+            player.unwrapErr().BroadcastToPlayer(ctx.getSource());
             return 0;
         }
+
+        var playerItemResult = PreOperations.TryGetValidPlayerCurrentHand(player.unwrap());
+        if (playerItemResult.isErr()) {
+            playerItemResult.unwrapErr().BroadcastToPlayer(ctx.getSource());
+            return 0;
+        }
+
+        var playerItem = playerItemResult.unwrap();
 
         // Get the components for the currently held item
         var itemComps = playerItem.getComponents();
@@ -181,7 +168,7 @@ public class ModelCommandsPreChecked {
             intList.set(index, color);
 
             playerItem.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(List.of(), List.of(), List.of(), intList));
-            Helper.SendMessageYes(player, "Set color index " + index + " to #" + String.format("%06X", (0xFFFFFF & color)) + " for held item");
+            Helper.SendMessage(ctx.getSource(), "Set color index " + index + " to #" + String.format("%06X", (0xFFFFFF & color)) + " for held item");
             return 1;
         }
 
@@ -199,7 +186,7 @@ public class ModelCommandsPreChecked {
             newCol.set(index, color);
 
             playerItem.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(List.of(), List.of(), List.of(), newCol));
-            Helper.SendMessageYes(player, "Set color index " + index + " to #" + String.format("%06X", (0xFFFFFF & color)) + " for held item");
+            Helper.SendMessage(ctx.getSource(), "Set color index " + index + " to #" + String.format("%06X", (0xFFFFFF & color)) + " for held item");
             return 1;
         }
 
@@ -211,23 +198,26 @@ public class ModelCommandsPreChecked {
 
         // Write back
         playerItem.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(dyemap.floats(), dyemap.flags(), dyemap.strings(), List.copyOf(newCol)));
-        Helper.SendMessageYes(player, "Set color index " + index + " to #" + String.format("%06X", (0xFFFFFF & color)) + " for held item");
+        Helper.SendMessage(ctx.getSource(), "Set color index " + index + " to #" + String.format("%06X", (0xFFFFFF & color)) + " for held item");
         return 1;
     }
 
     public static int tintReset(CommandContext<ServerCommandSource> ctx) {
-        var getPlayer = PreOperations.TryReturnValidPlayer(ctx, Check.Permission.CUSTOMIZE.getPermission());
-        if (getPlayer.isEmpty())
-            return 0;
-
-        var player = getPlayer.get();
-
-        var playerItem = player.getMainHandStack();
-
-        if (!PreOperations.IsModelOwner(player)) {
-            Helper.SendMessageNo(player, "Model is locked!");
+        var getPlayer = PreOperations.ValidateStack(ctx, 1, Check.Permission.CUSTOMIZE.getPermission());
+        if (getPlayer.isErr()) {
+            getPlayer.unwrapErr().BroadcastToPlayer(ctx.getSource());
             return 0;
         }
+
+        var player = getPlayer.unwrap();
+
+        var playerItemResult = PreOperations.TryGetValidPlayerCurrentHand(player);
+        if (playerItemResult.isErr()) {
+            playerItemResult.unwrapErr().BroadcastToPlayer(ctx.getSource());
+            return 0;
+        }
+
+        var playerItem = playerItemResult.unwrap();
 
         // Get the components for the currently held item
         var itemComps = playerItem.getComponents();
@@ -239,26 +229,26 @@ public class ModelCommandsPreChecked {
                 dyemap == null ? List.of() : dyemap.flags(),
                 dyemap == null ? List.of() : dyemap.strings(),
                 List.of()));
-        Helper.SendMessageYes(player, "Tints cleared for held item");
+        Helper.SendMessage(ctx.getSource(), "Tints cleared for held item");
         return 1;
     }
 
     public static int toggleWearable(CommandContext<ServerCommandSource> ctx) {
-        if (!ctx.getSource().isExecutedByPlayer())
-            return 0;
-
-        var getPlayer = PreOperations.TryReturnValidPlayer(ctx, Check.Permission.CUSTOMIZE.getPermission());
-        if (getPlayer.isEmpty())
-            return 0;
-
-        var player = getPlayer.get();
-
-        var playerItem = player.getMainHandStack();
-
-        if (!PreOperations.IsModelOwner(player)) {
-            Helper.SendMessageNo(player, "Model is locked!");
+        var getPlayer = PreOperations.ValidateStack(ctx, 1, Check.Permission.CUSTOMIZE.getPermission());
+        if (getPlayer.isErr()) {
+            getPlayer.unwrapErr().BroadcastToPlayer(ctx.getSource());
             return 0;
         }
+
+        var player = getPlayer.unwrap();
+
+        var playerItemResult = PreOperations.TryGetValidPlayerCurrentHand(player);
+        if (playerItemResult.isErr()) {
+            playerItemResult.unwrapErr().BroadcastToPlayer(ctx.getSource());
+            return 0;
+        }
+
+        var playerItem = playerItemResult.unwrap();
 
         // Get the components for the currently held item
         var itemComps = playerItem.getComponents();
@@ -268,76 +258,69 @@ public class ModelCommandsPreChecked {
         // If the component doesn't exist, add it, otherwise, remove it
         if (equippableComponent == null) {
             playerItem.set(DataComponentTypes.EQUIPPABLE, EquippableComponent.builder(EquipmentSlot.HEAD).build());
-            Helper.SendMessageYes(player, "You can now equip this item as a wearable");
+            Helper.SendMessage(ctx.getSource(), "You can now equip this item as a wearable");
         } else {
             playerItem.set(DataComponentTypes.EQUIPPABLE, playerItem.getDefaultComponents().get(DataComponentTypes.EQUIPPABLE));
-            Helper.SendMessageYes(player, "Item equippable reset");
+            Helper.SendMessage(ctx.getSource(), "Item equippable reset");
         }
 
         return 1;
     }
 
     public static int dyeModel(CommandContext<ServerCommandSource> ctx) {
-        var player = PreOperations.ValidateState(ctx, 1);
-        if (player == null)
-            return 0;
-
-        if (!PreOperations.IsModelOwner(player)) {
-            Helper.SendMessageNo(player, "Model is locked!");
+        var getPlayer = PreOperations.ValidateStack(ctx, 1, Check.Permission.CUSTOMIZE.getPermission());
+        if (getPlayer.isErr()) {
+            getPlayer.unwrapErr().BroadcastToPlayer(ctx.getSource());
             return 0;
         }
+
+        var player = getPlayer.unwrap();
 
         var colorClass = ctx.getArgument(ModelDyeCommand.COLOR_ARGUMENT, Integer.class);
         var retval = ModelOperations.applyDyedColor(player, colorClass);
 
         if (retval.ok()) {
-            Helper.SendMessageYes(player, retval.details());
-            PreOperations.ApplyCost(player, retval.cost());
+            Helper.SendMessage(ctx.getSource(), retval.details());
+            PreOperations.TryApplyCost(player, retval.cost());
         }
         else
-            Helper.SendMessageNo(player, retval.details());
+            Helper.SendError(ctx.getSource(), retval.details());
         return 1;
     }
 
     public static int dyeReset(CommandContext<ServerCommandSource> ctx) {
-        var player = PreOperations.ValidateState(ctx, 1);
-        if (player == null)
-            return 0;
-
-        if (!PreOperations.IsModelOwner(player)) {
-            Helper.SendMessageNo(player, "Model is locked!");
+        var player = PreOperations.ValidateStack(ctx, 1, Check.Permission.CUSTOMIZE.getPermission());
+        if (player.isErr()) {
+            player.unwrapErr().BroadcastToPlayer(ctx.getSource());
             return 0;
         }
 
-        var retval = ModelOperations.revertDyedColor(player);
+        var retval = ModelOperations.revertDyedColor(player.unwrap());
 
         if (retval.ok()) {
-            Helper.SendMessageYes(player, retval.details());
-            PreOperations.ApplyCost(player, retval.cost());
+            Helper.SendMessage(ctx.getSource(), retval.details());
+            PreOperations.TryApplyCost(player.unwrap(), retval.cost());
         }
         else
-            Helper.SendMessageNo(player, retval.details());
+            Helper.SendError(ctx.getSource(), retval.details());
         return 1;
     }
 
     public static int unlockModel(CommandContext<ServerCommandSource> ctx) {
-        var player = PreOperations.ValidateState(ctx, 1);
-        if (player == null)
-            return 0;
-
-        if (!PreOperations.IsModelOwner(player)) {
-            Helper.SendMessageNo(player, "Model is locked!");
+        var player = PreOperations.ValidateStack(ctx, 1, Check.Permission.CUSTOMIZE.getPermission());
+        if (player.isErr()) {
+            player.unwrapErr().BroadcastToPlayer(ctx.getSource());
             return 0;
         }
 
-        var retval = ModelOperations.lockModel(player);
+        var retval = ModelOperations.lockModel(player.unwrap());
 
         if (retval.ok()) {
-            Helper.SendMessageYes(player, retval.details());
-            PreOperations.ApplyCost(player, retval.cost());
+            Helper.SendMessage(ctx.getSource(), retval.details());
+            PreOperations.TryApplyCost(player.unwrap(), retval.cost());
         }
         else
-            Helper.SendMessageNo(player, retval.details());
+            Helper.SendError(ctx.getSource(), retval.details());
 
         return 1;
     }

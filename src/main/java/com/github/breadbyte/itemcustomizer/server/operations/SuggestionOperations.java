@@ -1,6 +1,6 @@
 package com.github.breadbyte.itemcustomizer.server.operations;
 
-import com.github.breadbyte.itemcustomizer.server.Helper;
+import com.github.breadbyte.itemcustomizer.server.util.Helper;
 import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
 import com.github.breadbyte.itemcustomizer.server.suggester.builder.CSVFetcher;
@@ -21,7 +21,7 @@ public class SuggestionOperations {
                 // Post back to the server thread to interact with player safely.
                 source.getServer().execute(() -> {
                     try {
-                        Helper.SendMessageNo(source.getPlayer(), "Failed to fetch suggestions: " + throwable.getMessage());
+                        Helper.SendMessage(source, "Failed to fetch suggestions: " + throwable.getMessage());
                     } catch (Exception ignored) {}
                 });
                 return;
@@ -46,7 +46,7 @@ public class SuggestionOperations {
                     storeInst.save();
 
                     // Send the suggestions to the player
-                    Helper.SendMessage(source.getPlayer(), "Suggestions updated", SoundEvents.ENTITY_PLAYER_LEVELUP);
+                    Helper.SendMessage(source, "Suggestions updated");
                 } catch (Exception ignored) {
                     throw ignored;
                 }
@@ -55,7 +55,7 @@ public class SuggestionOperations {
 
         // Immediate feedback and return without blocking.
         try {
-            Helper.SendMessage(source.getPlayer(), "Fetching suggestions...", SoundEvents.BLOCK_NOTE_BLOCK_BASS);
+            Helper.SendMessage(source, "Fetching suggestions...");
         } catch (Exception ignored) {}
         return 1;
     }
@@ -67,7 +67,7 @@ public class SuggestionOperations {
         inst.clear();
         inst.save();
 
-        Helper.SendMessage(context.getSource().getPlayer(), "All custom model data suggestions cleared!", SoundEvents.BLOCK_NOTE_BLOCK_BASS);
+        Helper.SendMessage(context.getSource(), "All custom model data suggestions cleared!");
         return 1;
     }
 
@@ -79,9 +79,9 @@ public class SuggestionOperations {
         var result = inst.removeNamespace(paramNamespace);
 
         if (result.ok())
-            Helper.SendMessage(context.getSource().getPlayer(), result.details(), SoundEvents.BLOCK_NOTE_BLOCK_PLING);
+            Helper.SendMessage(context.getSource(), result.details());
         else
-            Helper.SendMessageNo(context.getSource().getPlayer(), result.details());
+            Helper.SendError(context.getSource(), result.details());
 
         return 1;
     }

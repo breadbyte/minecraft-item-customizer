@@ -1,6 +1,6 @@
 package com.github.breadbyte.itemcustomizer.server.operations;
 
-import com.github.breadbyte.itemcustomizer.server.Helper;
+import com.github.breadbyte.itemcustomizer.server.util.Helper;
 import com.github.breadbyte.itemcustomizer.server.data.OperationResult;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.LoreComponent;

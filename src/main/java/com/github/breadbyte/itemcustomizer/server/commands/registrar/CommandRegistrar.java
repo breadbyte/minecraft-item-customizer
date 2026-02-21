@@ -1,6 +1,6 @@
 package com.github.breadbyte.itemcustomizer.server.commands.registrar;
 
-import com.github.breadbyte.itemcustomizer.server.Check;
+import com.github.breadbyte.itemcustomizer.server.util.Check;
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.commands.LoreCommand;
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.commands.PermissionCommand;
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.commands.RenameCommand;
