@@ -1,7 +1,8 @@
-package com.github.breadbyte.itemcustomizer.server.suggester.builder;
+package com.github.breadbyte.itemcustomizer.server.internal;
 
 import com.github.breadbyte.itemcustomizer.main.ItemCustomizer;
 import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
+import com.github.breadbyte.itemcustomizer.server.data.NamespaceCategory;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
@@ -55,7 +56,12 @@ public class CSVFetcher {
                         }
 
                         // Create a tuple and add it to the suggestions list
-                        suggestions.add(new CustomModelDefinition(namespace, itemType, itemName, madeBy));
+
+                        var removeStartingBackslash = itemType.startsWith("/") ? itemType.substring(1) : itemType;
+                        var removeEndingBackslash = removeStartingBackslash.endsWith("/") ? removeStartingBackslash.substring(0, removeStartingBackslash.length() - 1) : removeStartingBackslash;
+                        var nc = new NamespaceCategory(namespace, removeStartingBackslash);
+
+                        suggestions.add(new CustomModelDefinition(nc, itemName, madeBy));
                     } else {
                         ItemCustomizer.LOGGER.warn("CSV line does not contain enough parts: {}", line);
                     }

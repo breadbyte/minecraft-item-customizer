@@ -3,10 +3,9 @@ package com.github.breadbyte.itemcustomizer.server.operations;
 import com.github.breadbyte.itemcustomizer.server.util.Helper;
 import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
-import com.github.breadbyte.itemcustomizer.server.suggester.builder.CSVFetcher;
+import com.github.breadbyte.itemcustomizer.server.internal.CSVFetcher;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.sound.SoundEvents;
 
 public class SuggestionOperations {
     public static int registerSuggestions(CommandContext<ServerCommandSource> context) {
