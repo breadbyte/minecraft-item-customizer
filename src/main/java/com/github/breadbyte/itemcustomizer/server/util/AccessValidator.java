@@ -36,7 +36,7 @@ public class AccessValidator {
 
         // Get the components for the currently held item
         var itemComps = playerItem.getComponents();
-        var playerUuid = Text.literal(player.getUuidAsString());
+        var playerUuid = player.getUuidAsString();
 
         if (playerItem.isEmpty()) {
             return false;
@@ -57,7 +57,7 @@ public class AccessValidator {
 
             if (name.isPresent()) {
                 String uuid = name.get().getString();
-                return uuid.equals(player.getUuidAsString());
+                return uuid.equals(playerUuid);
             }
         }
 

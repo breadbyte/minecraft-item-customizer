@@ -349,7 +349,7 @@ public class ModelCommandsPreChecked {
             return 0;
         }
 
-        var retval = ModelOperations.lockModel(player.unwrap());
+        var retval = ModelOperations.unlockModel(player.unwrap());
 
         if (retval.ok()) {
             Helper.SendMessage(ctx.getSource(), retval.details());
