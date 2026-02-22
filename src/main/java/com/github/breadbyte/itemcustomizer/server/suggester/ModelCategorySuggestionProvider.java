@@ -1,5 +1,6 @@
 package com.github.breadbyte.itemcustomizer.server.suggester;
 
+import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
 import com.github.breadbyte.itemcustomizer.server.util.Check;
 import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import com.github.breadbyte.itemcustomizer.server.data.NamespaceCategory;
@@ -23,11 +24,6 @@ public class ModelCategorySuggestionProvider implements SuggestionProvider<Serve
 
     @Override
     public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) throws CommandSyntaxException {
-        // Get all models, and check if we have CUSTOMIZE.<namespace>.<item_name> permission for it.
-        var player = context.getSource().getPlayer();
-        var categories = ModelsIndex.getInstance().namespaceCategories();
-        Set<NamespaceCategory> validItemTypes = null;
-
         @Nullable
         String paramNamespace;
         @Nullable
@@ -42,11 +38,36 @@ public class ModelCategorySuggestionProvider implements SuggestionProvider<Serve
         if (paramNamespace.isEmpty() || paramCategory.isEmpty())
             return builder.buildFuture();
 
-        // todo: sub categories (add / at the end to suggest sub categories)
+        // Get all models, and check if we have CUSTOMIZE.<namespace>.<item_name> permission for it.
+        var player = context.getSource().getPlayer();
+        var instance = ModelsIndex.getInstance();
+        var categories = instance.categories(paramNamespace);
+        Set<NamespaceCategory> validItemTypes = null;
 
         if (AccessValidator.IsAdmin(player)) {
             validItemTypes = categories;
         } else {
+            validItemTypes = categories.stream()
+                    .filter(namespace -> {
+                        // We have permission for this category, skip
+                        for (NamespaceCategory category : categories) {
+                            if (Permissions.check(player, Check.Permission.CUSTOMIZE.chain(category.getPermissionNode()))) {
+                                return true;
+                            }
+
+                            // We have permission for this model, continue
+                            for (CustomModelDefinition model : instance.getAllRecursive(category)) {
+                                if (model.getPermission(player)) {
+                                    return true;
+                                }
+                            }
+                        }
+                        return false;
+                    })
+                    .collect(Collectors.toSet());
+        }
+
+        {
             validItemTypes = categories
                     .stream()
                     .filter(n ->

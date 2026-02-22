@@ -1,5 +1,6 @@
 package com.github.breadbyte.itemcustomizer.server.suggester;
 
+import com.github.breadbyte.itemcustomizer.server.data.NamespaceCategory;
 import com.github.breadbyte.itemcustomizer.server.util.Check;
 import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
 import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
@@ -38,14 +39,13 @@ public class ModelNamespaceSuggestionProvider implements SuggestionProvider<Serv
                     }
 
                     // We have permission for this category, skip
-                    for (String category : index.categories(namespace)) {
-                        String namespaceCategoryNode = namespace + "." + category;
-                        if (Permissions.check(player, Check.Permission.CUSTOMIZE.chain(namespaceCategoryNode))) {
+                    for (NamespaceCategory category : index.categories(namespace)) {
+                        if (Permissions.check(player, Check.Permission.CUSTOMIZE.chain(category.getPermissionNode()))) {
                             return true;
                         }
 
                         // We have permission for this model, continue
-                        for (CustomModelDefinition model : index.get(namespace, category)) {
+                        for (CustomModelDefinition model : index.getAllRecursive(category)) {
                             if (model.getPermission(player)) {
                                 return true;
                             }

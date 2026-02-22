@@ -1,5 +1,6 @@
 package com.github.breadbyte.itemcustomizer.server.suggester;
 
+import com.github.breadbyte.itemcustomizer.server.data.NamespaceCategory;
 import com.github.breadbyte.itemcustomizer.server.util.Check;
 import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
@@ -13,7 +14,9 @@ import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.server.command.ServerCommandSource;
 import org.jetbrains.annotations.Nullable;
 
+import javax.naming.Name;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -38,8 +41,8 @@ public class ModelSuggestionProvider implements SuggestionProvider<ServerCommand
         }
 
         var player = context.getSource().getPlayer();
-        var items = ModelsIndex.getInstance().get(paramNamespace, paramCategory);
-        List<CustomModelDefinition> validItems;
+        var items = ModelsIndex.getInstance().getAllRecursive(new NamespaceCategory(paramNamespace, paramCategory));
+        Set<CustomModelDefinition> validItems;
 
         if (AccessValidator.IsAdmin(player)) {
             validItems = items;
@@ -48,7 +51,7 @@ public class ModelSuggestionProvider implements SuggestionProvider<ServerCommand
                     .stream()
                     .filter(n ->
                             Permissions.check(player, Check.Permission.CUSTOMIZE.chain(n.getPermissionNode()))
-                    ).collect(Collectors.toList());
+                    ).collect(Collectors.toUnmodifiableSet());
         }
 
         for (CustomModelDefinition item : validItems) {

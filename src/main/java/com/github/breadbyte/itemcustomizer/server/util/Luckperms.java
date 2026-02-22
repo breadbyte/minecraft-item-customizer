@@ -8,6 +8,8 @@ import net.luckperms.api.cacheddata.CachedMetaData;
 import net.luckperms.api.cacheddata.CachedPermissionData;
 import net.luckperms.api.node.Node;
 import net.luckperms.api.platform.PlayerAdapter;
+import net.luckperms.api.query.QueryMode;
+import net.luckperms.api.query.QueryOptions;
 import net.luckperms.api.util.Tristate;
 import net.minecraft.server.network.ServerPlayerEntity;
 
@@ -23,9 +25,7 @@ public class Luckperms {
         LuckPerms l = LuckPermsProvider.get();
 
         PlayerAdapter<ServerPlayerEntity> adapter = l.getPlayerAdapter(ServerPlayerEntity.class);
-
         CachedPermissionData permissionData = adapter.getPermissionData(player);
-        CachedMetaData metaData = adapter.getMetaData(player);
 
         Tristate checkResult = permissionData.checkPermission(node);
         return checkResult.asBoolean();

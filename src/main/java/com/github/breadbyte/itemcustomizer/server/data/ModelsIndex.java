@@ -135,10 +135,12 @@ public class ModelsIndex {
     }
 
     /** All category paths (at any depth) within a namespace. */
-    public Set<String> categories(String namespace) {
+    public Set<NamespaceCategory> categories(String namespace) {
         var trie = _index.get(namespace);
         if (trie == null) return Set.of();
-        return Collections.unmodifiableSet(trie.keySet());
+        return trie.keySet().stream()
+                .map(cat -> new NamespaceCategory(namespace, cat))
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     public Set<NamespaceCategory> namespaceCategories() {
