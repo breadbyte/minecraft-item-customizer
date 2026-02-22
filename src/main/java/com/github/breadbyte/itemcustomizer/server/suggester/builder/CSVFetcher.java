@@ -55,7 +55,7 @@ public class CSVFetcher {
                         }
 
                         // Create a tuple and add it to the suggestions list
-                        suggestions.add(new CustomModelDefinition(namespace, itemType, itemName, destination, madeBy));
+                        suggestions.add(new CustomModelDefinition(namespace, itemType, itemName, madeBy));
                     } else {
                         ItemCustomizer.LOGGER.warn("CSV line does not contain enough parts: {}", line);
                     }

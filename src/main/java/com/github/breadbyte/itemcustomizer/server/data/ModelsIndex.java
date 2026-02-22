@@ -1,34 +1,38 @@
 package com.github.breadbyte.itemcustomizer.server.data;
 
 import com.github.breadbyte.itemcustomizer.server.util.Helper;
+import org.apache.commons.collections4.trie.PatriciaTrie;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-// Suppress the deprecation of Storage.HANDLER.instance()
-// as this is the only way to load definitions
-// It's marked as deprecated to catch external access
 @SuppressWarnings("deprecation")
 public class ModelsIndex {
-    private final Map<NamespaceCategory, List<CustomModelDefinition>> _index = new HashMap<>();
 
-    public static final ModelsIndex INSTANCE = new ModelsIndex();
+    // namespace -> PatriciaTrie<category path -> models>
+    private final Map<String, PatriciaTrie<List<CustomModelDefinition>>> _index = new HashMap<>();
 
-    private ModelsIndex() { initialize(); }
+    public static ModelsIndex INSTANCE;
 
-    public static ModelsIndex getInstance() {
-        return INSTANCE;
+    private ModelsIndex() { }
+    private ModelsIndex(boolean init) {
+        if (init) initialize();
     }
 
+    public static ModelsIndex testHarness() {
+        return new ModelsIndex(false);
+    }
+
+    public static ModelsIndex getInstance() { if (INSTANCE == null) INSTANCE = new ModelsIndex(true); return INSTANCE; }
+
     public void initialize() {
-        // Try load existing defs
+        if (INSTANCE == null) INSTANCE = new ModelsIndex(true);
+
         Helper.tryLoadStorage();
         var inst = Storage.HANDLER.instance();
 
-        // No existing defs available, exit early
-        if (inst.CustomModels.isEmpty()) {
-            return;
-        }
+        if (inst.CustomModels.isEmpty()) return;
 
         for (var model : inst.CustomModels) {
             add(model);
@@ -36,12 +40,11 @@ public class ModelsIndex {
     }
 
     public void update_external() {
-        // Update storage
         var inst = Storage.HANDLER.instance();
-        if (!_index.isEmpty()) {
-            inst.CustomModels = _index.values().stream().flatMap(List::stream).collect(Collectors.toList());
+        var all = getAll();
+        if (!all.isEmpty()) {
+            inst.CustomModels = all;
         } else {
-            // If index is empty, clear storage too
             inst.CustomModels.clear();
         }
 
@@ -50,96 +53,150 @@ public class ModelsIndex {
         initialize();
     }
 
-    public void save() {
-        update_external();
-    }
-
-    public void load() {
-        initialize();
-    }
+    public void save() { update_external(); }
+    public void load() { initialize(); }
 
     public void add(CustomModelDefinition model) {
-        var key = new NamespaceCategory(model.getNamespace(), model.getCategory());
-        _index.computeIfAbsent(key, k -> new ArrayList<>()).add(model);
+        _index
+            .computeIfAbsent(model.getNamespace(), ns -> new PatriciaTrie<>())
+            .computeIfAbsent(model.getCategory(), cat -> new ArrayList<>())
+            .add(model);
     }
 
     public void addAll(List<CustomModelDefinition> models) {
         for (var m : models) add(m);
     }
 
-    // Get models for a namespace+category
+    // --- Read: exact ---
+
+    /** All models at an exact namespace + category path. */
     public List<CustomModelDefinition> get(String namespace, String category) {
-        return _index.getOrDefault(new NamespaceCategory(namespace, category), List.of());
+        var trie = _index.get(namespace);
+        if (trie == null) return List.of();
+        return trie.getOrDefault(NormalizeSlashes(category), List.of());
     }
 
-    public CustomModelDefinition getOldNamespacePath(String namespace, String path) {
-        var fullPath = namespace + ":" + path;
-        for (var model : _index.values()) {
-            return model.stream()
-                    .filter(m -> m.destination.equals(fullPath))
-                    .findFirst()
-                    .orElse(null);
-        }
-        return null;
-    }
-
+    /** Single model by namespace + category + name. */
     public CustomModelDefinition get(String namespace, String category, String name) {
-        var models = _index.getOrDefault(new NamespaceCategory(namespace, category), List.of());
-        return models.stream()
+        return get(namespace, NormalizeSlashes(category)).stream()
                 .filter(m -> m.getName().equals(name))
                 .findFirst()
                 .orElse(null);
     }
 
-    public Set<CustomModelDefinition> getAll(String namespace, String category) {
-        return Set.copyOf(_index.getOrDefault(new NamespaceCategory(namespace, category), List.of()));
+    public Set<CustomModelDefinition> getAllShallow(String namespace, String category) {
+        return Set.copyOf(get(namespace, NormalizeSlashes(category)));
     }
 
-    // List all namespaces
-    public Set<String> namespaces() {
-        return _index.keySet().stream().map(NamespaceCategory::namespace).collect(Collectors.toUnmodifiableSet());
+    // --- Read: prefix (nested categories) ---
+
+    /**
+     * Returns all models whose category path starts with the given prefix.
+     * e.g. subcategories("minecraft", "weapons") returns models in
+     * "weapons", "weapons/swords", "weapons/bows", etc.
+     */
+    public List<CustomModelDefinition> subcategories(String namespace, String categoryPrefix) {
+        var trie = _index.get(namespace);
+        if (trie == null) return List.of();
+
+        // prefixMap returns all entries whose key starts with the given prefix
+        return trie.prefixMap(NormalizeSlashes(categoryPrefix)).values().stream()
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
     }
 
-    public CustomModelDefinition getByDestination(String namespace, String destination) {
-        return _index.entrySet().stream()
-                .filter(e -> e.getKey().namespace().equals(namespace))
-                .flatMap(e -> e.getValue().stream())
-                .filter(m -> m.getDestination().equals(destination))
-                .findFirst()
-                .orElse(null);
+    public Set<CustomModelDefinition> getAllRecursive(NamespaceCategory nsc) {
+        return Set.copyOf(subcategories(nsc.getNamespace(), nsc.getCategory()));
     }
 
-    // List categories within a namespace
-    public Set<String> categories(String namespace) {
-        return _index.keySet().stream()
-                .filter(k -> k.namespace().equals(namespace))
-                .map(NamespaceCategory::category)
+    /**
+     * Returns the immediate child segment names under a parent category.
+     * e.g. for "weapons/swords" and "weapons/bows", calling with "weapons"
+     * returns ["swords", "bows"].
+     */
+    public Set<String> immediateChildren(String namespace, String parentCategory) {
+        var trie = _index.get(namespace);
+        if (trie == null) return Set.of();
+
+        var prefix = parentCategory.isEmpty() ? "" : parentCategory + "/";
+        return trie.prefixMap(prefix).keySet().stream()
+                .map(key -> {
+                    var remainder = key.substring(prefix.length());
+                    var slash = remainder.indexOf('/');
+                    return slash == -1 ? remainder : remainder.substring(0, slash);
+                })
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
+    // --- Read: namespace/category sets ---
+
+    public Set<String> namespaces() {
+        return Collections.unmodifiableSet(_index.keySet());
+    }
+
+    /** All category paths (at any depth) within a namespace. */
+    public Set<String> categories(String namespace) {
+        var trie = _index.get(namespace);
+        if (trie == null) return Set.of();
+        return Collections.unmodifiableSet(trie.keySet());
+    }
+
     public Set<NamespaceCategory> namespaceCategories() {
-        return Set.copyOf(_index.keySet());
+        return _index.entrySet().stream()
+                .flatMap(e -> e.getValue().keySet().stream()
+                        .map(cat -> new NamespaceCategory(e.getKey(), cat)))
+                .collect(Collectors.toUnmodifiableSet());
     }
 
-    // Optional: remove everything under a namespace
+    // --- Legacy compat ---
+
+    public CustomModelDefinition getOldNamespacePath(String namespace, String path) {
+        var fullPath = namespace + ":" + path;
+        var trie = _index.get(namespace);
+        if (trie == null) return null;
+//        return trie.values().stream()
+//                .flatMap(List::stream)
+//                .filter(m -> m.destination.equals(fullPath))
+//                .findFirst()
+//                .orElse(null);
+        throw new NotImplementedException();
+    }
+
+    // --- Remove ---
+
     public OperationResult removeNamespace(String namespace) {
-        var count = _index.keySet().stream()
-                .filter(k -> k.namespace().equals(namespace))
-                .count();
-
-        _index.keySet().removeIf(k -> k.namespace().equals(namespace));
-
-        if (count > 0) {
+        if (_index.remove(namespace) != null) {
             save();
-            return OperationResult.ok("Removed " + count + " models for namespace: " + namespace);
+            return OperationResult.ok("Removed all models for namespace: " + namespace);
         }
-        else
-            return OperationResult.fail("No models found for namespace: " + namespace);
+        return OperationResult.fail("No models found for namespace: " + namespace);
     }
 
-    // Optional: clear all
     public void clear() {
         _index.clear();
         save();
+    }
+
+    // --- Internal helpers ---
+
+    private List<CustomModelDefinition> getAll() {
+        return _index.values().stream()
+                .flatMap(trie -> trie.values().stream())
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+    }
+
+    private String NormalizeSlashes(String s) {
+        // Remove trailing backslashes and whitespace
+        var trimmed = s.trim().endsWith("/") ? s.trim().substring(0, s.trim().length() - 1) : s.trim();
+        return trimmed;
+    }
+
+    public CustomModelDefinition get(NamespaceCategory nsc, String name) {
+        return get(nsc.getNamespace(), nsc.getCategory(), name);
+    }
+
+    public Set<CustomModelDefinition> getAllShallow(NamespaceCategory nsc) {
+        return getAllShallow(nsc.getNamespace(), nsc.getCategory());
     }
 }

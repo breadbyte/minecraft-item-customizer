@@ -3,8 +3,15 @@ package com.github.breadbyte.itemcustomizer.server.data;
 import org.jetbrains.annotations.NotNull;
 
 public record NamespaceCategory(String namespace, String category) {
+
+    public NamespaceCategory {
+        if (category == null) { throw new NullPointerException(); }
+        namespace = namespace;
+        category = TrimTrailingSlash(category);
+    }
+
     public @NotNull String toString() {
-        return namespace + "." + category;
+        return namespace + ":" + category;
     }
     public @NotNull String getNamespace() { return namespace; }
     public @NotNull String getCategory() { return category; }
@@ -25,5 +32,20 @@ public record NamespaceCategory(String namespace, String category) {
 
     public static NamespaceCategory of(String namespace, String category) {
         return new NamespaceCategory(namespace, category);
+    }
+
+    public NamespaceCategory appendCategory(String categoryToAppend) {
+        if (category.isBlank()) return new NamespaceCategory(namespace, categoryToAppend);
+        return new NamespaceCategory(namespace, category + "/" + categoryToAppend);
+    }
+
+    private String TrimTrailingSlash(String str) {
+        var temp = str;
+        // Check for multiple trailing slashes and trim them
+        while (temp.endsWith("/")) {
+            temp = temp.substring(0, temp.length() - 1);
+        }
+
+        return temp;
     }
 }

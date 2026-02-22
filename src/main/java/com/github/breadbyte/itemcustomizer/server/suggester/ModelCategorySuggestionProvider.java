@@ -11,6 +11,7 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.server.command.ServerCommandSource;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -26,6 +27,20 @@ public class ModelCategorySuggestionProvider implements SuggestionProvider<Serve
         var player = context.getSource().getPlayer();
         var categories = ModelsIndex.getInstance().namespaceCategories();
         Set<NamespaceCategory> validItemTypes = null;
+
+        @Nullable
+        String paramNamespace;
+        @Nullable
+        String paramCategory;
+
+        try {
+            paramNamespace = String.valueOf(context.getArgument("namespace", String.class));
+            paramCategory = String.valueOf(context.getArgument("item_category", String.class));
+        } catch (IllegalArgumentException e) {
+            return builder.buildFuture();
+        }
+        if (paramNamespace.isEmpty() || paramCategory.isEmpty())
+            return builder.buildFuture();
 
         // todo: sub categories (add / at the end to suggest sub categories)
 

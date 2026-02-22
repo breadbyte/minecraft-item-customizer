@@ -32,6 +32,13 @@ import static com.github.breadbyte.itemcustomizer.server.util.AccessValidator.Is
 public class ModelOperations {
 
     // todo: split color from apply model (use dye command instead)
+
+    // Todo: ApplyModel needs to combine the namespace and category first.
+    // Delegate the entire operation to a separate method
+    // applyModel must first combine namespace/category into a valid CustomModelDefinition object,
+    // then operate on that.
+
+    // Category could either be an actual category, or a path.
     public static OperationResult applyModel(ServerPlayerEntity player, String namespace, String category, String name, Integer color, Boolean changeEquippableTexture) {
         CustomModelDefinition defs = null;
 
