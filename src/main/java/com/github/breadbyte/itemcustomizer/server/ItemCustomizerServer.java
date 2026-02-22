@@ -12,7 +12,6 @@ public class ItemCustomizerServer implements DedicatedServerModInitializer {
         Helper.tryLoadStorage();
 
         // Initialize the cache
-        ModelsIndex inst = ModelsIndex.getInstance();
-        inst.initialize();
+        ModelsIndex.getInstance();
     }
 }

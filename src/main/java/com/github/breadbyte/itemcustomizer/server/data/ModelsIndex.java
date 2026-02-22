@@ -15,24 +15,30 @@ public class ModelsIndex {
 
     public static ModelsIndex INSTANCE;
 
+    private boolean initialized = false;
+
     private ModelsIndex() { }
-    private ModelsIndex(boolean init) {
-        if (init) initialize();
-    }
 
     public static ModelsIndex testHarness() {
-        return new ModelsIndex(false);
+        return new ModelsIndex();
     }
 
-    public static ModelsIndex getInstance() { if (INSTANCE == null) INSTANCE = new ModelsIndex(true); return INSTANCE; }
+    public static ModelsIndex getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new ModelsIndex();
+            INSTANCE.initialize();
+        }
+        return INSTANCE;
+    }
 
     public void initialize() {
-        if (INSTANCE == null) INSTANCE = new ModelsIndex(true);
+        if (initialized) return;
+        initialized = true;
 
         Helper.tryLoadStorage();
         var inst = Storage.HANDLER.instance();
 
-        if (inst.CustomModels.isEmpty()) return;
+        if (inst.CustomModels == null || inst.CustomModels.isEmpty()) return;
 
         for (var model : inst.CustomModels) {
             add(model);
@@ -44,22 +50,28 @@ public class ModelsIndex {
         var all = getAll();
         if (!all.isEmpty()) {
             inst.CustomModels = all;
-        } else {
+        } else if (inst.CustomModels != null) {
             inst.CustomModels.clear();
         }
 
         Storage.HANDLER.save();
+
         _index.clear();
+        initialized = false;
         initialize();
     }
 
     public void save() { update_external(); }
-    public void load() { initialize(); }
+    public void load() {
+        _index.clear();
+        initialized = false;
+        initialize();
+    }
 
     public void add(CustomModelDefinition model) {
         _index
             .computeIfAbsent(model.getNamespace(), ns -> new PatriciaTrie<>())
-            .computeIfAbsent(model.getCategory(), cat -> new ArrayList<>())
+            .computeIfAbsent(NormalizeSlashes(model.getCategory()), cat -> new ArrayList<>())
             .add(model);
     }
 
@@ -69,14 +81,12 @@ public class ModelsIndex {
 
     // --- Read: exact ---
 
-    /** All models at an exact namespace + category path. */
     public List<CustomModelDefinition> get(String namespace, String category) {
         var trie = _index.get(namespace);
         if (trie == null) return List.of();
         return trie.getOrDefault(NormalizeSlashes(category), List.of());
     }
 
-    /** Single model by namespace + category + name. */
     public CustomModelDefinition get(String namespace, String category, String name) {
         return get(namespace, NormalizeSlashes(category)).stream()
                 .filter(m -> m.getName().equals(name))
@@ -87,8 +97,6 @@ public class ModelsIndex {
     public Set<CustomModelDefinition> getAllShallow(String namespace, String category) {
         return Set.copyOf(get(namespace, NormalizeSlashes(category)));
     }
-
-    // --- Read: prefix (nested categories) ---
 
     /**
      * Returns all models whose category path starts with the given prefix.
@@ -109,6 +117,14 @@ public class ModelsIndex {
         return Set.copyOf(subcategories(nsc.getNamespace(), nsc.getCategory()));
     }
 
+    public CustomModelDefinition get(NamespaceCategory nsc, String name) {
+        return get(nsc.getNamespace(), nsc.getCategory(), name);
+    }
+
+    public Set<CustomModelDefinition> getAllShallow(NamespaceCategory nsc) {
+        return getAllShallow(nsc.getNamespace(), nsc.getCategory());
+    }
+
     /**
      * Returns the immediate child segment names under a parent category.
      * e.g. for "weapons/swords" and "weapons/bows", calling with "weapons"
@@ -118,7 +134,8 @@ public class ModelsIndex {
         var trie = _index.get(namespace);
         if (trie == null) return Set.of();
 
-        var prefix = parentCategory.isEmpty() ? "" : parentCategory + "/";
+        var normalizedParent = NormalizeSlashes(parentCategory);
+        var prefix = normalizedParent.isEmpty() ? "" : normalizedParent + "/";
         return trie.prefixMap(prefix).keySet().stream()
                 .map(key -> {
                     var remainder = key.substring(prefix.length());
@@ -127,8 +144,6 @@ public class ModelsIndex {
                 })
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
-
-    // --- Read: namespace/category sets ---
 
     public Set<String> namespaces() {
         return Collections.unmodifiableSet(_index.keySet());
@@ -150,22 +165,6 @@ public class ModelsIndex {
                 .collect(Collectors.toUnmodifiableSet());
     }
 
-    // --- Legacy compat ---
-
-    public CustomModelDefinition getOldNamespacePath(String namespace, String path) {
-        var fullPath = namespace + ":" + path;
-        var trie = _index.get(namespace);
-        if (trie == null) return null;
-//        return trie.values().stream()
-//                .flatMap(List::stream)
-//                .filter(m -> m.destination.equals(fullPath))
-//                .findFirst()
-//                .orElse(null);
-        throw new NotImplementedException();
-    }
-
-    // --- Remove ---
-
     public OperationResult removeNamespace(String namespace) {
         if (_index.remove(namespace) != null) {
             save();
@@ -179,8 +178,6 @@ public class ModelsIndex {
         save();
     }
 
-    // --- Internal helpers ---
-
     private List<CustomModelDefinition> getAll() {
         return _index.values().stream()
                 .flatMap(trie -> trie.values().stream())
@@ -189,16 +186,11 @@ public class ModelsIndex {
     }
 
     private String NormalizeSlashes(String s) {
-        // Remove trailing backslashes and whitespace
-        var trimmed = s.trim().endsWith("/") ? s.trim().substring(0, s.trim().length() - 1) : s.trim();
-        return trimmed;
-    }
-
-    public CustomModelDefinition get(NamespaceCategory nsc, String name) {
-        return get(nsc.getNamespace(), nsc.getCategory(), name);
-    }
-
-    public Set<CustomModelDefinition> getAllShallow(NamespaceCategory nsc) {
-        return getAllShallow(nsc.getNamespace(), nsc.getCategory());
+        if (s == null) return "";
+        var temp = s.trim();
+        while (temp.endsWith("/")) {
+            temp = temp.substring(0, temp.length() - 1);
+        }
+        return temp;
     }
 }

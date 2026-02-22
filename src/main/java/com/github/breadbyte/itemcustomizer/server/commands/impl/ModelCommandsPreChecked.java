@@ -1,5 +1,6 @@
 package com.github.breadbyte.itemcustomizer.server.commands.impl;
 
+import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import com.github.breadbyte.itemcustomizer.server.data.NamespaceCategory;
 import com.github.breadbyte.itemcustomizer.server.util.Check;
 import com.github.breadbyte.itemcustomizer.server.util.Helper;
@@ -92,6 +93,7 @@ public class ModelCommandsPreChecked {
             return 1;
         }
 
+        Helper.SendError(ctx.getSource(), "Invalid model format. Expected path, but got: " + fullPath);
         return 0;
     }
 
@@ -114,6 +116,7 @@ public class ModelCommandsPreChecked {
         try { color = ctx.getArgument(ModelApplyCommand.COLOR_ARGUMENT, Integer.class); } catch (Exception ignored) {}
         try { changeEquippable = ctx.getArgument(ModelApplyCommand.EQUIPMENT_TEXTURE_ARGUMENT, Boolean.class); } catch (Exception ignored) {}
 
+        // todo: remove since oldFormatApplyModel does this part
         if (itemType.contains("/")) {
             var split = itemType.split("/");
             var res = ModelOperations.applyModel(player.unwrap(), namespace, split[0], split[split.length - 1], color, changeEquippable);
@@ -126,7 +129,13 @@ public class ModelCommandsPreChecked {
         }
 
 
+        // Check if the model actually exists.
         var itemName = String.valueOf(ctx.getArgument(ModelApplyCommand.ITEM_NAME_ARGUMENT, String.class));
+        var tryGetItem = ModelsIndex.INSTANCE.get(namespace, itemType, itemName);
+        if (tryGetItem == null) {
+            Helper.SendError(ctx.getSource(), "Model not found for namespace: " + namespace + ", category: " + itemType + ", name: " + itemName);
+            return 0;
+        }
 
         var res = ModelOperations.applyModel(player.unwrap(), namespace, itemType, itemName, color, changeEquippable);
         if (res.ok()) {
