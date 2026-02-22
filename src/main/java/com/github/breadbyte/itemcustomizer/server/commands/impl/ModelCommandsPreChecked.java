@@ -1,5 +1,6 @@
 package com.github.breadbyte.itemcustomizer.server.commands.impl;
 
+import com.github.breadbyte.itemcustomizer.server.data.NamespaceCategory;
 import com.github.breadbyte.itemcustomizer.server.util.Check;
 import com.github.breadbyte.itemcustomizer.server.util.Helper;
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.commands.model.ModelApplyCommand;
@@ -59,6 +60,39 @@ public class ModelCommandsPreChecked {
             Helper.SendError(ctx.getSource(), retval.details());
 
         return 1;
+    }
+
+    public static int oldFormatApplyModel(CommandContext<ServerCommandSource> ctx) {
+        var player = PreOperations.ValidateStack(ctx, 1, Check.Permission.CUSTOMIZE.getPermission());
+        if (player.isErr()) {
+            player.unwrapErr().BroadcastToPlayer(ctx.getSource());
+            return 0;
+        }
+
+        // Arguments that exist normally
+        var namespace = String.valueOf(ctx.getArgument(ModelApplyCommand.NAMESPACE_ARGUMENT, String.class));
+        var fullPath = String.valueOf(ctx.getArgument(ModelApplyCommand.ITEM_CATEGORY_ARGUMENT, String.class));
+
+        var namespaceCategory = new NamespaceCategory(namespace, fullPath.contains("/") ? fullPath.substring(0, fullPath.lastIndexOf("/")) : fullPath);
+
+        // Arguments that don't necessarily exist
+        Integer color = null;
+        Boolean changeEquippable = null;
+        try { color = ctx.getArgument(ModelApplyCommand.COLOR_ARGUMENT, Integer.class); } catch (Exception ignored) {}
+        try { changeEquippable = ctx.getArgument(ModelApplyCommand.EQUIPMENT_TEXTURE_ARGUMENT, Boolean.class); } catch (Exception ignored) {}
+
+        if (fullPath.contains("/")) {
+            var split = fullPath.split("/");
+            var res = ModelOperations.applyModel(player.unwrap(), namespace, split[0], split[split.length - 1], color, changeEquippable);
+            if (res.ok()) {
+                Helper.SendMessage(ctx.getSource(), res.details());
+                PreOperations.TryApplyCost(player.unwrap(), res.cost());
+            } else
+                Helper.SendError(ctx.getSource(), res.details());
+            return 1;
+        }
+
+        return 0;
     }
 
     public static int applyModel(CommandContext<ServerCommandSource> ctx) {

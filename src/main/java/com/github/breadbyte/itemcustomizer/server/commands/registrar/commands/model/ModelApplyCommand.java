@@ -57,11 +57,11 @@ public class ModelApplyCommand implements BaseCommand {
                 .then(ApplyNode
                 .then(NamespaceNode
                 .then(ItemCategoryNode
-                        .executes(ModelCommandsPreChecked::applyModel)
+                        .executes(ModelCommandsPreChecked::oldFormatApplyModel)
                         .then(ItemEquipmentTextureBooleanNode
-                                .executes(ModelCommandsPreChecked::applyModel)
+                                .executes(ModelCommandsPreChecked::oldFormatApplyModel)
                                 .then(ColorNode
-                                .executes(ModelCommandsPreChecked::applyModel)))
+                                .executes(ModelCommandsPreChecked::oldFormatApplyModel)))
                 .then(ItemNameNode
                       .executes(ModelCommandsPreChecked::applyModel)
                         .then(ItemEquipmentTextureBooleanNode
