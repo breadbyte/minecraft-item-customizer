@@ -95,6 +95,8 @@ public class ModelCommandsPreChecked {
         return 0;
     }
 
+    // todo: ApplyModel must use NamespaceCategory to simplify and typecheck
+    // todo: unify oldFormatApplyModel and applyModel
     public static int applyModel(CommandContext<ServerCommandSource> ctx) {
         var player = PreOperations.ValidateStack(ctx, 1, Check.Permission.CUSTOMIZE.getPermission());
         if (player.isErr()) {
