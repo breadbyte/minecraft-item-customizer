@@ -49,7 +49,7 @@ dependencies {
     modImplementation "dev.isxander:yet-another-config-lib:${yacl_version}"
 
     include(modImplementation('net.luckperms:api:5.4'))
-    implementation 'org.apache.commons:commons-collections4:4.5.0'
+    include(modImplementation('org.apache.commons:commons-collections4:4.5.0'))
 
     testImplementation 'org.junit.jupiter:junit-jupiter:6.0.3'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
