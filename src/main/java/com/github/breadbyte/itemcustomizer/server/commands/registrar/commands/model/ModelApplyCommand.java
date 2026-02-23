@@ -33,7 +33,7 @@ public class ModelApplyCommand implements BaseCommand {
                 .suggests(ModelNamespaceSuggestionProvider.INSTANCE);
 
         var ApplyNode = literal("apply");
-        var ItemCategoryNode = CommandManager.argument(ITEM_CATEGORY_ARGUMENT, StringArgumentType.word())
+        var ItemCategoryNode = CommandManager.argument(ITEM_CATEGORY_ARGUMENT, StringArgumentType.string())
                 .suggests(ModelCategorySuggestionProvider.INSTANCE);
 
         var ItemNameNode = CommandManager.argument(ITEM_NAME_ARGUMENT, StringArgumentType.string())

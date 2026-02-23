@@ -21,18 +21,26 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 
+import javax.xml.stream.events.Namespace;
 import java.util.List;
 
 public class ApplyOperations {
     public static Result<String> applyModelPath(ServerPlayerEntity player, CommandContext<ServerCommandSource> ctx) {
         var namespace = String.valueOf(ctx.getArgument(ModelApplyCommand.NAMESPACE_ARGUMENT, String.class));
         var category = String.valueOf(ctx.getArgument(ModelApplyCommand.ITEM_CATEGORY_ARGUMENT, String.class));
-        //var name = String.valueOf(ctx.getArgument(ModelApplyCommand.ITEM_NAME_ARGUMENT, String.class));
+        String name;
+        NamespaceCategory ns;
 
-        // Get the last item of the path, this is the item name, the rest is the category.
-        // For example, if we have a path of "old/sword/model", the name is "model" and the category is "old/sword".
-        var name = category.split("/")[category.split("/").length - 1];
-        NamespaceCategory ns = new NamespaceCategory(namespace, category);
+        if (!category.contains("/")) {
+            ns = new NamespaceCategory(namespace, "");
+            name = category;
+        } else {
+            // Get the last item of the path, this is the item name, the rest is the category.
+            // For example, if we have a path of "old/sword/model", the name is "model" and the category is "old/sword".
+            if (category.endsWith("/")) category = category.substring(0, category.length() - 1);
+            name = category.split("/")[category.split("/").length - 1];
+            ns = new NamespaceCategory(namespace, category.substring(0, category.lastIndexOf("/")));
+        }
 
         // Arguments that don't necessarily exist
         Integer color = null;
@@ -68,14 +76,24 @@ public class ApplyOperations {
         } catch (Exception ignored) {
         }
 
-        var ns = new NamespaceCategory(namespace, category);
+        NamespaceCategory ns;
+
+        if (name.contains("/")) {
+           var split = name.split("/");
+           category = name.substring(0, name.lastIndexOf("/"));
+           name = split[split.length - 1];
+        }
+
+        ns = new NamespaceCategory(namespace, category);
         CustomModelDefinition m = ModelsIndex.getInstance().get(ns, name);
 
-        // Allow changing to a model that doesn't exist if we are an admin
-        if (!AccessValidator.IsAdmin(player)) {
-            if (m == null) {
-                return Result.err(new Reason.InternalError("No custom model definitions found for item: " + ns.withItemName(name)));
+        if (m == null) {
+            if (!AccessValidator.IsAdmin(player)) {
+                return Result.err(new Reason.InternalError("No custom model definition found for model: " + ns.withItemName(name)));
             }
+
+            // Force anyway if we're admin
+            m = new CustomModelDefinition(ns, name, "");
         }
 
         return applyModel(player, m, color, changeEquippable);
