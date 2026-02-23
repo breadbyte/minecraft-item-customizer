@@ -27,11 +27,11 @@ public class PermissionOperations {
 
         NamespaceCategory ns = new NamespaceCategory(namespace, itemType);
         if (Luckperms.IsLuckpermsPresent()) {
-            Luckperms.GrantPermission(targetPlayer, Permission.CUSTOMIZE.chain(ns.getPermissionNode()).getPermission());
+            Luckperms.GrantPermission(targetPlayer, Permission.CUSTOMIZE.chain(ns.withItemNamePermissionNode(itemName)).getPermission());
             return Result.ok();
         }
         else {
-            return Result.err(new Reason.InternalError("LuckPerms not present, grant manually instead: " + Permission.CUSTOMIZE.chain(ns.getPermissionNode()).getPermission()));
+            return Result.err(new Reason.InternalError("LuckPerms not present, grant manually instead: " + Permission.CUSTOMIZE.chain(ns.withItemNamePermissionNode(itemName)).getPermission()));
         }
     }
 
@@ -51,11 +51,11 @@ public class PermissionOperations {
 
         NamespaceCategory ns = new NamespaceCategory(namespace, itemType);
         if (Luckperms.IsLuckpermsPresent()) {
-            Luckperms.RevokePermission(targetPlayer, Permission.CUSTOMIZE.chain(ns.getPermissionNode()));
+            Luckperms.RevokePermission(targetPlayer, Permission.CUSTOMIZE.chain(ns.withItemNamePermissionNode(itemName)));
             return Result.ok();
         }
         else {
-            return Result.err(new Reason.InternalError("LuckPerms not present, revoke manually instead: " + Permission.CUSTOMIZE.chain(ns.getPermissionNode()).getPermission()));
+            return Result.err(new Reason.InternalError("LuckPerms not present, revoke manually instead: " + Permission.CUSTOMIZE.chain(ns.withItemNamePermissionNode(itemName)).getPermission()));
         }
     }
 
@@ -65,7 +65,7 @@ public class PermissionOperations {
         var itemName = String.valueOf(ctx.getArgument(ModelPermissionCommand.NAME_ARGUMENT, String.class));
 
         var nsc = new NamespaceCategory(namespace, itemType);
-        return Result.err(new Reason.NotAnError(nsc.withItemName(itemName)));
+        return Result.err(new Reason.NotAnError(nsc.withItemNamePermissionNode(itemName)));
     }
 }
 
