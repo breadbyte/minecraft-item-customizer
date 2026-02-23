@@ -95,6 +95,7 @@ public class LockOperations {
             }
         }
 
+        playerItem.remove(DataComponentTypes.LOCK);
         return Result.ok();
     }
 }
