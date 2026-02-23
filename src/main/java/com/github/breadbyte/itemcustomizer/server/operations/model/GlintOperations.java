@@ -25,7 +25,10 @@ public class GlintOperations {
         //  - SET OVERRIDE TO TRUE (ENABLE GLINT)
         var override = playerItem.getComponents().get(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE);
         if (override != null) {
-            playerItem.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, !override);
+            if (override)
+                playerItem.remove(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE);
+            else
+                playerItem.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true);
             return Result.ok();
         }
 
@@ -33,7 +36,7 @@ public class GlintOperations {
             playerItem.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, false);
             return Result.ok();
         } else {
-            playerItem.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true);
+            playerItem.remove(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE);
             return Result.ok();
         }
     }
