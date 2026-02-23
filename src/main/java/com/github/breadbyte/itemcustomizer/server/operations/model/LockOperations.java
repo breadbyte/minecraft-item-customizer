@@ -29,27 +29,18 @@ public class LockOperations {
         var playerUuid = Text.literal(player.getUuidAsString());
 
         if (itemComps.get(DataComponentTypes.LOCK) != null) {
-            var lock = playerItem.getComponents().get(DataComponentTypes.LOCK);
-            var pred = lock.predicate().components().exact();
+            var lock = ReadLockComponent(player);
 
-            // Convert to ComponentChanges to get typed access
-            ComponentChanges changes = pred.toChanges();
-
-            // Read the specific component value
-            Optional<? extends Text> name = changes.get(DataComponentTypes.CUSTOM_NAME);
-            if (name == null) {
-                return Result.err(new Reason.InternalError("Failed to read lock component"));
+            if (lock.isErr()) {
+                return Result.err(lock.unwrapErr());
             }
 
-            if (name.isPresent()) {
-                String uuid = name.get().getString();
-                if (!uuid.equals(player.getUuidAsString())) {
-                    try {
-                        var locker = player.getEntityWorld().getServer().getPlayerManager().getPlayer(uuid).getName();
-                        return Result.err(new Reason.InternalError("This item is locked by + " + locker + " and cannot be modified!"));
-                    } catch (NullPointerException e) {
-                        return Result.err(new Reason.InternalError("This item is locked by another player and cannot be modified!"));
-                    }
+            if (!lock.unwrap().equals(player.getUuidAsString())) {
+                try {
+                    var locker = player.getEntityWorld().getServer().getPlayerManager().getPlayer(lock.unwrap()).getName();
+                    return Result.err(new Reason.InternalError("This item is locked by + " + locker + " and cannot be modified!"));
+                } catch (NullPointerException e) {
+                    return Result.err(new Reason.InternalError("This item is locked by another player and cannot be modified!"));
                 }
             }
         } else {
@@ -68,14 +59,29 @@ public class LockOperations {
         var playerHand = PreOperations.TryGetValidPlayerCurrentHand(player);
         var playerItem = playerHand.unwrap();
 
-        // Get the components for the currently held item
+        var readLock = ReadLockComponent(player);
+        if (readLock.isErr()) {
+            return Result.err(readLock.unwrapErr());
+        }
+
+        if (!readLock.unwrap().equals(player.getUuidAsString())) {
+            return Result.err(new Reason.InternalError("This item is locked by another player and cannot be modified!"));
+        }
+
+        playerItem.remove(DataComponentTypes.LOCK);
+        return Result.ok();
+    }
+
+    static Result<String> ReadLockComponent(ServerPlayerEntity player) {
+        var hand = PreOperations.TryGetValidPlayerCurrentHand(player);
+        var playerItem = hand.unwrap();
         var itemComps = playerItem.getComponents();
-        var playerUuid = Text.literal(player.getUuidAsString());
+
+        if (itemComps.get(DataComponentTypes.LOCK) == null) {
+            return Result.ok("This item is not locked!");
+        }
 
         var lock = itemComps.get(DataComponentTypes.LOCK);
-
-        if (lock == null)
-            return Result.err(new Reason.InternalError("Item is not locked!"));
 
         var pred = lock.predicate().components().exact();
 
@@ -89,13 +95,9 @@ public class LockOperations {
         }
 
         if (name.isPresent()) {
-            String uuid = name.get().getString();
-            if (!uuid.equals(player.getUuidAsString())) {
-                return Result.err(new Reason.InternalError("This item is locked by another player and cannot be modified!"));
-            }
+            return Result.ok(name.get().getString());
+        } else {
+            return Result.ok("This item is locked, but the locker could not be identified!");
         }
-
-        playerItem.remove(DataComponentTypes.LOCK);
-        return Result.ok();
     }
 }
