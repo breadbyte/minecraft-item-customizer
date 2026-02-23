@@ -1,10 +1,10 @@
 package com.github.breadbyte.itemcustomizer.server.suggester;
 
 import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
-import com.github.breadbyte.itemcustomizer.server.util.Check;
 import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import com.github.breadbyte.itemcustomizer.server.data.NamespaceCategory;
 import com.github.breadbyte.itemcustomizer.server.util.AccessValidator;
+import com.github.breadbyte.itemcustomizer.server.util.Permission;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
@@ -51,7 +51,7 @@ public class ModelCategorySuggestionProvider implements SuggestionProvider<Serve
                     .filter(namespace -> {
                         // We have permission for this category, skip
                         for (NamespaceCategory category : categories) {
-                            if (Permissions.check(player, Check.Permission.CUSTOMIZE.chain(category.getPermissionNode()))) {
+                            if (Permissions.check(player, Permission.CUSTOMIZE.chain(category.getPermissionNode()).getPermission())) {
                                 return true;
                             }
 
@@ -71,7 +71,7 @@ public class ModelCategorySuggestionProvider implements SuggestionProvider<Serve
             validItemTypes = categories
                     .stream()
                     .filter(n ->
-                    Permissions.check(player, Check.Permission.CUSTOMIZE.chain(n.getPermissionNode()))
+                    Permissions.check(player, Permission.CUSTOMIZE.chain(n.getPermissionNode()).getPermission())
                     ).collect(Collectors.toSet());
         }
 

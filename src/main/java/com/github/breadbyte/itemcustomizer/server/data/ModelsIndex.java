@@ -1,8 +1,9 @@
 package com.github.breadbyte.itemcustomizer.server.data;
 
 import com.github.breadbyte.itemcustomizer.server.util.Helper;
+import com.github.breadbyte.itemcustomizer.server.util.Reason;
+import com.github.breadbyte.itemcustomizer.server.util.Result;
 import org.apache.commons.collections4.trie.PatriciaTrie;
-import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -165,12 +166,12 @@ public class ModelsIndex {
                 .collect(Collectors.toUnmodifiableSet());
     }
 
-    public OperationResult removeNamespace(String namespace) {
+    public Result<String> removeNamespace(String namespace) {
         if (_index.remove(namespace) != null) {
             save();
-            return OperationResult.ok("Removed all models for namespace: " + namespace);
+            return Result.ok("Removed all models for namespace: " + namespace);
         }
-        return OperationResult.fail("No models found for namespace: " + namespace);
+        return Result.err(new Reason.InternalError("No models found for namespace: " + namespace));
     }
 
     public void clear() {

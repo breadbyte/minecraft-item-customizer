@@ -1,10 +1,10 @@
 package com.github.breadbyte.itemcustomizer.server.commands.registrar.commands;
 
-import com.github.breadbyte.itemcustomizer.server.util.Check;
-import com.github.breadbyte.itemcustomizer.server.commands.impl.RenameCommandsPreChecked;
+import com.github.breadbyte.itemcustomizer.server.commands.dispatcher.RenameCommandDispatcher;
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.BaseCommand;
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.InternalHelper;
 import com.github.breadbyte.itemcustomizer.server.operations.HelpOperations;
+import com.github.breadbyte.itemcustomizer.server.util.Permission;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -16,7 +16,7 @@ import static net.minecraft.server.command.CommandManager.literal;
 public class RenameCommand implements BaseCommand {
     public static final String RENAME_ARGUMENT = "name";
 
-    public void register(Check.Permission grant, String subCommandName, CommandDispatcher<ServerCommandSource> dispatcher, LiteralArgumentBuilder<ServerCommandSource> root) {
+    public void register(Permission grant, String subCommandName, CommandDispatcher<ServerCommandSource> dispatcher, LiteralArgumentBuilder<ServerCommandSource> root) {
         var subCommand = InternalHelper.RequirePermissionFor(literal(subCommandName), grant);
 
         var ArgNodeName = argument(RENAME_ARGUMENT, StringArgumentType.greedyString());
@@ -27,14 +27,14 @@ public class RenameCommand implements BaseCommand {
         dispatcher.register(root
                 .then(subCommand
                 .then(ArgNodeName
-                .executes(RenameCommandsPreChecked::renameItem
+                .executes(RenameCommandDispatcher::renameItem
                 ))));
 
         // model name reset
         dispatcher.register(root
                 .then(subCommand
                 .then(ArgNodeResetName
-                .executes(RenameCommandsPreChecked::resetName
+                .executes(RenameCommandDispatcher::resetName
                 ))));
 
         // model name help

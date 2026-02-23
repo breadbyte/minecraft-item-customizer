@@ -1,6 +1,6 @@
 package com.github.breadbyte.itemcustomizer.server.data;
 
-import com.github.breadbyte.itemcustomizer.server.util.Check;
+import com.github.breadbyte.itemcustomizer.server.util.Permission;
 import dev.isxander.yacl3.config.v2.api.SerialEntry;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -38,7 +38,7 @@ public class CustomModelDefinition {
     public String getPermissionNode() { return namespace + "." + category.replace("/", "."); }
 
     public boolean getPermission(ServerPlayerEntity player) {
-        return Permissions.check(player, Check.Permission.CUSTOMIZE.chain(getPermissionNode()));
+        return Permissions.check(player, Permission.CUSTOMIZE.chain(getPermissionNode()).getPermission());
     }
 
     @Override

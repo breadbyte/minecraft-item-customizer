@@ -1,22 +1,26 @@
 package com.github.breadbyte.itemcustomizer.server.operations;
 
-import com.github.breadbyte.itemcustomizer.server.commands.impl.PreOperations;
-import com.github.breadbyte.itemcustomizer.server.data.OperationResult;
+import com.github.breadbyte.itemcustomizer.server.commands.dispatcher.PreOperations;
+import com.github.breadbyte.itemcustomizer.server.commands.registrar.commands.RenameCommand;
+import com.github.breadbyte.itemcustomizer.server.util.Reason;
+import com.github.breadbyte.itemcustomizer.server.util.Result;
+import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import org.apache.logging.log4j.core.jmx.Server;
 
 import static com.github.breadbyte.itemcustomizer.server.util.Helper.IsValidJson;
 import static com.github.breadbyte.itemcustomizer.server.util.Helper.JsonString2Text;
 
 public class RenameOperations {
-    public static OperationResult renameItem(ServerPlayerEntity player, String input) {
+    public static Result<Void> renameItem(ServerPlayerEntity player, CommandContext<ServerCommandSource> ctx) {
         var getPlayerItem = PreOperations.TryGetValidPlayerCurrentHand(player);
-        if (getPlayerItem.isErr()) {
-            return OperationResult.fail("Player has no valid item in hand");
-        }
         var playerItem = getPlayerItem.unwrap();
+
+        var input = String.valueOf(ctx.getArgument(RenameCommand.RENAME_ARGUMENT, String.class));
 
         Text outputText;
 
@@ -33,17 +37,14 @@ public class RenameOperations {
 
         playerItem.set(DataComponentTypes.CUSTOM_NAME, outputText);
 
-        return OperationResult.ok("Item renamed",1);
+        return Result.ok();
     }
 
-    public static OperationResult resetName(ServerPlayerEntity player) {
+    public static Result<Void> resetName(ServerPlayerEntity player, CommandContext<ServerCommandSource> ctx) {
         var getPlayerItem = PreOperations.TryGetValidPlayerCurrentHand(player);
-        if (getPlayerItem.isErr()) {
-            return OperationResult.fail("Player has no valid item in hand");
-        }
         var playerItem = getPlayerItem.unwrap();
 
         playerItem.set(DataComponentTypes.CUSTOM_NAME, null);
-        return OperationResult.ok("Item name reset to default!");
+        return Result.ok();
     }
 }

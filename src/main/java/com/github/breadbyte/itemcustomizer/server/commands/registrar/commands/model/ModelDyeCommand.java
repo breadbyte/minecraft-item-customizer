@@ -1,9 +1,9 @@
 package com.github.breadbyte.itemcustomizer.server.commands.registrar.commands.model;
 
-import com.github.breadbyte.itemcustomizer.server.util.Check;
-import com.github.breadbyte.itemcustomizer.server.commands.impl.ModelCommandsPreChecked;
+import com.github.breadbyte.itemcustomizer.server.commands.dispatcher.model.DyeCommandDispatcher;
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.BaseCommand;
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.InternalHelper;
+import com.github.breadbyte.itemcustomizer.server.util.Permission;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.minecraft.command.argument.HexColorArgumentType;
@@ -17,7 +17,7 @@ public class ModelDyeCommand implements BaseCommand {
     public static final String COLOR_ARGUMENT = "dye_color";
 
     @Override
-    public void register(Check.Permission permission, String subCommandName, CommandDispatcher<ServerCommandSource> dispatcher, LiteralArgumentBuilder<ServerCommandSource> root) {
+    public void register(Permission permission, String subCommandName, CommandDispatcher<ServerCommandSource> dispatcher, LiteralArgumentBuilder<ServerCommandSource> root) {
         var _root = InternalHelper.RequirePermissionFor(root, permission);
 
         var DyeNode = literal("dye");
@@ -32,11 +32,11 @@ public class ModelDyeCommand implements BaseCommand {
                 .then(DyeNode
                         .then(DyeColorNode
                                 .then(DyeColorNode
-                                        .executes(ModelCommandsPreChecked::dyeModel)))));
+                                        .executes(DyeCommandDispatcher::dyeModel)))));
 
         dispatcher.register(_root
                 .then(DyeNode
                         .then(DyeResetNode
-                                .executes(ModelCommandsPreChecked::dyeReset))));
+                                .executes(DyeCommandDispatcher::dyeReset))));
     }
 }

@@ -1,9 +1,10 @@
 package com.github.breadbyte.itemcustomizer.server.commands.registrar.commands.model;
 
-import com.github.breadbyte.itemcustomizer.server.util.Check;
+import com.github.breadbyte.itemcustomizer.server.commands.dispatcher.model.NamespaceCommandDispatcher;
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.BaseCommand;
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.InternalHelper;
-import com.github.breadbyte.itemcustomizer.server.operations.SuggestionOperations;
+import com.github.breadbyte.itemcustomizer.server.operations.model.NamespaceOperations;
+import com.github.breadbyte.itemcustomizer.server.util.Permission;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -18,7 +19,7 @@ public class ModelNamespaceCommand implements BaseCommand {
     public static final String URL_ARGUMENT = "url";
 
     @Override
-    public void register(Check.Permission permission, String subCommandName, CommandDispatcher<ServerCommandSource> dispatcher, LiteralArgumentBuilder<ServerCommandSource> root) {
+    public void register(Permission permission, String subCommandName, CommandDispatcher<ServerCommandSource> dispatcher, LiteralArgumentBuilder<ServerCommandSource> root) {
         var subCommand = InternalHelper.RequirePermissionFor(literal(subCommandName), permission);
 
         var RegisterNode = literal("register");
@@ -36,20 +37,20 @@ public class ModelNamespaceCommand implements BaseCommand {
                 .then(RegisterNode
                 .then(NamespaceNode
                 .then(UrlNode
-                .executes(SuggestionOperations::registerSuggestions))))));
+                .executes(NamespaceCommandDispatcher::NamespaceRegister))))));
 
         // namespace clear
         dispatcher.register(root
                 .then(subCommand
                 .then(ClearNode
-                .executes(SuggestionOperations::clearSuggestions))));
+                .executes(NamespaceCommandDispatcher::NamespaceClear))));
 
         // namespace remove namespace
         dispatcher.register(root
                 .then(subCommand
                 .then(RemoveNode
                 .then(NamespaceNode
-                .executes(SuggestionOperations::removeNamespace)))));
+                .executes(NamespaceCommandDispatcher::NamespaceRemove)))));
 
     }
 }

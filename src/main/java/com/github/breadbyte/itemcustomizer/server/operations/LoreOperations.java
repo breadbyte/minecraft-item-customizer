@@ -1,9 +1,14 @@
 package com.github.breadbyte.itemcustomizer.server.operations;
 
+import com.github.breadbyte.itemcustomizer.server.commands.dispatcher.PreOperations;
+import com.github.breadbyte.itemcustomizer.server.commands.registrar.commands.LoreCommand;
 import com.github.breadbyte.itemcustomizer.server.util.Helper;
-import com.github.breadbyte.itemcustomizer.server.data.OperationResult;
+import com.github.breadbyte.itemcustomizer.server.util.Reason;
+import com.github.breadbyte.itemcustomizer.server.util.Result;
+import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.LoreComponent;
+import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
@@ -15,9 +20,11 @@ import java.util.Locale;
 public class LoreOperations {
     private static final int MAX_LINE_LENGTH = 50;
 
-    public static OperationResult addLore(ServerPlayerEntity player, String input) {
+    public static Result<Void> add(ServerPlayerEntity player, CommandContext<ServerCommandSource> ctx) {
+        var input = String.valueOf(ctx.getArgument(LoreCommand.LORE_ARGUMENT, String.class));
+
         if (input.isEmpty())
-            return OperationResult.fail("Empty input!");
+            return Result.err(Reason.NO_INPUT);
 
         if (Helper.IsValidJson(input))
             return addLoreSingleLine(player, input);
@@ -28,29 +35,28 @@ public class LoreOperations {
             for (String line : lines) {
                 addLoreSingleLine(player, line);
             }
-            return OperationResult.ok("Lore added", lines.size());
+            return Result.ok();
         }
 
         return addLoreSingleLine(player, input);
     }
 
-    private static OperationResult addLoreSingleLine(ServerPlayerEntity player, String input) {
-        var playerItem = player.getMainHandStack();
-
+    private static Result<Void> addLoreSingleLine(ServerPlayerEntity player, String input) {
+        var playerItem = PreOperations.TryGetValidPlayerCurrentHand(player).unwrap();
         Text text = Helper.JsonString2Text(input);
 
         var currentLore = playerItem.get(DataComponentTypes.LORE);
 
         if (currentLore == null) {
             playerItem.set(DataComponentTypes.LORE, new LoreComponent(new ArrayList<>(List.of(text))));
-            return OperationResult.ok("Lore added", 1);
+            return Result.ok();
         }
 
         var newLines = new ArrayList<>(currentLore.lines());
         newLines.add(text);
         playerItem.set(DataComponentTypes.LORE, new LoreComponent(newLines));
 
-        return OperationResult.ok("Lore added", 1);
+        return Result.ok();
     }
 
     private static ArrayList<String> splitLines(String input) {
@@ -79,7 +85,7 @@ public class LoreOperations {
         return lines;
     }
 
-    public static OperationResult resetLore(ServerPlayerEntity player) {
+    public static Result<Void> reset(ServerPlayerEntity player, CommandContext<ServerCommandSource> ctx) {
         var playerItem = player.getMainHandStack();
 
         // Get the default lore for the item
@@ -93,6 +99,6 @@ public class LoreOperations {
         else
             playerItem.remove(DataComponentTypes.LORE);
 
-        return OperationResult.ok("Lore reset!");
+        return Result.ok();
     }
 }

@@ -13,6 +13,14 @@ public record NamespaceCategory(String namespace, String category) {
     public @NotNull String toString() {
         return namespace + ":" + category;
     }
+    public @NotNull String withItemName(String itemName) {
+        if (category.isBlank()) return namespace + ":" + itemName;
+        return this.toString() + "/" + itemName;
+    }
+    public @NotNull String categoryWithItemName(String itemName) {
+        if (category.isBlank()) return itemName;
+        return category + "/" + itemName;
+    }
     public @NotNull String getNamespace() { return namespace; }
     public @NotNull String getCategory() { return category; }
     public @NotNull String getPermissionNode() {

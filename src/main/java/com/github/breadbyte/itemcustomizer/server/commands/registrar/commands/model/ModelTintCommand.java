@@ -1,9 +1,9 @@
 package com.github.breadbyte.itemcustomizer.server.commands.registrar.commands.model;
 
-import com.github.breadbyte.itemcustomizer.server.util.Check;
-import com.github.breadbyte.itemcustomizer.server.commands.impl.ModelCommandsPreChecked;
+import com.github.breadbyte.itemcustomizer.server.commands.dispatcher.model.TintCommandDispatcher;
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.BaseCommand;
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.InternalHelper;
+import com.github.breadbyte.itemcustomizer.server.util.Permission;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -19,7 +19,7 @@ public class ModelTintCommand implements BaseCommand {
     public static final String TINT_COLOR_ARGUMENT = "tint_color";
 
     @Override
-    public void register(Check.Permission permission, String subCommandName, CommandDispatcher<ServerCommandSource> dispatcher, LiteralArgumentBuilder<ServerCommandSource> root) {
+    public void register(Permission permission, String subCommandName, CommandDispatcher<ServerCommandSource> dispatcher, LiteralArgumentBuilder<ServerCommandSource> root) {
         var _root = InternalHelper.RequirePermissionFor(root, permission);
 
         var TintNode = literal("tint");
@@ -35,11 +35,11 @@ public class ModelTintCommand implements BaseCommand {
                 .then(TintNode
                 .then(TintIndexNode
                 .then(TintColorNode
-                .executes(ModelCommandsPreChecked::tintModel)))));
+                .executes(TintCommandDispatcher::tintModel)))));
 
         dispatcher.register(_root
                 .then(TintNode
                 .then(TintResetNode
-                .executes(ModelCommandsPreChecked::tintReset))));
+                .executes(TintCommandDispatcher::tintReset))));
     }
 }

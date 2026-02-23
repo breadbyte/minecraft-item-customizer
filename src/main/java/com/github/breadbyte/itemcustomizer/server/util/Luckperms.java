@@ -19,7 +19,7 @@ public class Luckperms {
         return serve.isPresent();
     }
 
-    public static boolean CheckPermission(ServerPlayerEntity player, String node) {
+    public static boolean CheckPermission(ServerPlayerEntity player, Permission node) {
         if (!IsLuckpermsPresent()) return false;
 
         LuckPerms l = LuckPermsProvider.get();
@@ -27,7 +27,7 @@ public class Luckperms {
         PlayerAdapter<ServerPlayerEntity> adapter = l.getPlayerAdapter(ServerPlayerEntity.class);
         CachedPermissionData permissionData = adapter.getPermissionData(player);
 
-        Tristate checkResult = permissionData.checkPermission(node);
+        Tristate checkResult = permissionData.checkPermission(node.getPermission());
         return checkResult.asBoolean();
     }
 
@@ -39,6 +39,18 @@ public class Luckperms {
             user.data().add(Node.builder(node).build());
             l.getUserManager().saveUser(user);
         });
+        return true;
+    }
+
+    public static boolean RevokePermission(ServerPlayerEntity targetPlayer, Permission node) {
+        if (!IsLuckpermsPresent()) return false;
+
+        LuckPerms l = LuckPermsProvider.get();
+        l.getUserManager().loadUser(targetPlayer.getUuid()).thenAccept(user -> {
+            user.data().remove(Node.builder(node.getPermission()).build());
+            l.getUserManager().saveUser(user);
+        });
+
         return true;
     }
 }

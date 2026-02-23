@@ -1,33 +1,37 @@
-package com.github.breadbyte.itemcustomizer.server.operations;
+package com.github.breadbyte.itemcustomizer.server.operations.model;
 
-import com.github.breadbyte.itemcustomizer.server.util.Helper;
 import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
 import com.github.breadbyte.itemcustomizer.server.internal.CSVFetcher;
+import com.github.breadbyte.itemcustomizer.server.util.Helper;
+import com.github.breadbyte.itemcustomizer.server.util.Postmaster;
+import com.github.breadbyte.itemcustomizer.server.util.Result;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
 
-public class SuggestionOperations {
-    public static int registerSuggestions(CommandContext<ServerCommandSource> context) {
-        var paramUrl = String.valueOf(context.getArgument("url", String.class));
-        var paramNamespace = String.valueOf(context.getArgument("namespace", String.class));
+public class NamespaceOperations {
+    public static Result<String> registerSuggestions(ServerPlayerEntity player, CommandContext<ServerCommandSource> ctx) {
+        var paramUrl = String.valueOf(ctx.getArgument("url", String.class));
+        var paramNamespace = String.valueOf(ctx.getArgument("namespace", String.class));
 
-        var source = context.getSource();
+        var src = ctx.getSource();
 
         // Start async fetch to avoid blocking the server thread.
+        // The message sending mechanism inside /must/ use Postmaster to ensure thread safety.
         CSVFetcher.fetchAsync(paramNamespace, paramUrl).whenComplete((suggests, throwable) -> {
             if (throwable != null) {
                 // Post back to the server thread to interact with player safely.
-                source.getServer().execute(() -> {
+                src.getServer().execute(() -> {
                     try {
-                        Helper.SendMessage(source, "Failed to fetch suggestions: " + throwable.getMessage());
+                        Postmaster.Hud_SendMessage_No(src, "Failed to fetch suggestions: " + throwable.getMessage());
                     } catch (Exception ignored) {}
                 });
                 return;
             }
 
             // Apply results on the server thread.
-            source.getServer().execute(() -> {
+            src.getServer().execute(() -> {
                 try {
                     // Load an instance of the storage cache
                     var storeInst = ModelsIndex.getInstance();
@@ -45,44 +49,33 @@ public class SuggestionOperations {
                     storeInst.save();
 
                     // Send the suggestions to the player
-                    Helper.SendMessage(source, "Suggestions updated");
+                    Postmaster.Hud_SendMessage_Yes(src, "Suggestions updated");
                 } catch (Exception ignored) {
                     throw ignored;
                 }
             });
         });
 
-        // Immediate feedback and return without blocking.
-        try {
-            Helper.SendMessage(source, "Fetching suggestions...");
-        } catch (Exception ignored) {}
-        return 1;
+
+        return Result.ok("Fetching suggestions...");
     }
 
-    public static int clearSuggestions(CommandContext<ServerCommandSource> context) {
+    public static Result<Void> clearSuggestions(ServerPlayerEntity player, CommandContext<ServerCommandSource> ctx) {
         Helper.tryLoadStorage();
 
         var inst = ModelsIndex.getInstance();
         inst.clear();
         inst.save();
 
-        Helper.SendMessage(context.getSource(), "All custom model data suggestions cleared!");
-        return 1;
+        return Result.ok();
     }
 
-    public static int removeNamespace(CommandContext<ServerCommandSource> context) {
-        var paramNamespace = String.valueOf(context.getArgument("namespace", String.class));
+    public static Result<String> removeNamespace(ServerPlayerEntity player, CommandContext<ServerCommandSource> ctx) {
+        var paramNamespace = String.valueOf(ctx.getArgument("namespace", String.class));
         Helper.tryLoadStorage();
 
         var inst = ModelsIndex.getInstance();
-        var result = inst.removeNamespace(paramNamespace);
-
-        if (result.ok())
-            Helper.SendMessage(context.getSource(), result.details());
-        else
-            Helper.SendError(context.getSource(), result.details());
-
-        return 1;
+        return inst.removeNamespace(paramNamespace);
     }
 
 }

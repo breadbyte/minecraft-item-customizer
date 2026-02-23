@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 public class AccessValidator {
-    public static boolean HasPermissionFor(String permission, ServerPlayerEntity player)
+    public static boolean HasPermissionFor(Permission permission, ServerPlayerEntity player)
     {
         // Allow all functions if we're running on a singleplayer logical server
         if (player.getEntityWorld().getServer().isSingleplayer())

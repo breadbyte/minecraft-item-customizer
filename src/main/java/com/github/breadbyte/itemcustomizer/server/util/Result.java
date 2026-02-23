@@ -1,12 +1,10 @@
 package com.github.breadbyte.itemcustomizer.server.util;
 
-import java.util.function.Function;
-
 // Can be either a Success<T> or a Failure<E>
-public sealed class Result<T, E> {
+public sealed class Result<T> {
 
     // Success Type of Result<T,E>
-    public static final class Success<T, E> extends Result<T, E> {
+    public static final class Success<T> extends Result<T> {
         public final T value;
         
         public Success(T value) {
@@ -15,19 +13,23 @@ public sealed class Result<T, E> {
     }
 
     // Failure Type of Result<T,E>
-    public static final class Failure<T, E> extends Result<T, E> {
-        public final E error;
+    public static final class Failure<T> extends Result<T> {
+        public final Reason reason;
         
-        public Failure(E error) {
-            this.error = error;
+        public Failure(Reason reason) {
+            this.reason = reason;
         }
     }
     
-    public static <T, E> Result<T, E> ok(T value) {
+    public static <T> Result<T> ok(T value) {
         return new Success<>(value);
     }
+
+    public static <T> Result<T> ok() {
+        return new Success<>(null);
+    }
     
-    public static <T, E> Result<T, E> err(E error) {
+    public static <T> Result<T> err(Reason error) {
         return new Failure<>(error);
     }
 
@@ -40,19 +42,19 @@ public sealed class Result<T, E> {
     }
 
     public T unwrap() throws IllegalStateException {
-        if (this instanceof Success<T, E> s) {
+        if (this instanceof Success<T> s) {
             return s.value;
-        } else if (this instanceof Failure<T, E> f) {
-            throw new IllegalStateException("Attempted to unwrap a Failure: " + f.error);
+        } else if (this instanceof Failure<T> f) {
+            throw new IllegalStateException("Attempted to unwrap a Failure: " + f.reason);
         } else {
             throw new IllegalStateException("Unexpected value: " + this);
         }
     }
 
-    public E unwrapErr() throws IllegalStateException {
-        if (this instanceof Failure<T, E> f) {
-            return f.error;
-        } else if (this instanceof Success<T, E> s) {
+    public Reason unwrapErr() throws IllegalStateException {
+        if (this instanceof Failure<T> f) {
+            return f.reason;
+        } else if (this instanceof Success<T> s) {
             throw new IllegalStateException("Attempted to unwrapErr a Success: " + s.value);
         } else {
             throw new IllegalStateException("Unexpected value: " + this);

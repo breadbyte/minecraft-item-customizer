@@ -1,12 +1,12 @@
 package com.github.breadbyte.itemcustomizer.server.commands.registrar.commands.model;
 
-import com.github.breadbyte.itemcustomizer.server.util.Check;
-import com.github.breadbyte.itemcustomizer.server.commands.impl.ModelCommandsPreChecked;
+import com.github.breadbyte.itemcustomizer.server.commands.dispatcher.model.ApplyCommandDispatcher;
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.BaseCommand;
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.InternalHelper;
 import com.github.breadbyte.itemcustomizer.server.suggester.ModelCategorySuggestionProvider;
 import com.github.breadbyte.itemcustomizer.server.suggester.ModelNamespaceSuggestionProvider;
 import com.github.breadbyte.itemcustomizer.server.suggester.ModelSuggestionProvider;
+import com.github.breadbyte.itemcustomizer.server.util.Permission;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -26,7 +26,7 @@ public class ModelApplyCommand implements BaseCommand {
     public static final String COLOR_ARGUMENT = "color";
 
     @Override
-    public void register(Check.Permission permission, String subCommandName, CommandDispatcher<ServerCommandSource> dispatcher, LiteralArgumentBuilder<ServerCommandSource> root) {
+    public void register(Permission permission, String subCommandName, CommandDispatcher<ServerCommandSource> dispatcher, LiteralArgumentBuilder<ServerCommandSource> root) {
         var _root = InternalHelper.RequirePermissionFor(root, permission);
 
         var NamespaceNode = CommandManager.argument(NAMESPACE_ARGUMENT, StringArgumentType.string())
@@ -57,21 +57,21 @@ public class ModelApplyCommand implements BaseCommand {
                 .then(ApplyNode
                 .then(NamespaceNode
                 .then(ItemCategoryNode
-                        .executes(ModelCommandsPreChecked::oldFormatApplyModel)
+                        .executes(ApplyCommandDispatcher::applyModelPath)
                         .then(ItemEquipmentTextureBooleanNode
-                                .executes(ModelCommandsPreChecked::oldFormatApplyModel)
+                                .executes(ApplyCommandDispatcher::applyModelPath)
                                 .then(ColorNode
-                                .executes(ModelCommandsPreChecked::oldFormatApplyModel)))
+                                .executes(ApplyCommandDispatcher::applyModelPath)))
                 .then(ItemNameNode
-                      .executes(ModelCommandsPreChecked::applyModel)
+                      .executes(ApplyCommandDispatcher::applyModelModern)
                         .then(ItemEquipmentTextureBooleanNode
-                            .executes(ModelCommandsPreChecked::applyModel))
+                            .executes(ApplyCommandDispatcher::applyModelModern))
                 .then(ColorNode
-                .executes(ModelCommandsPreChecked::applyModel)))))));
+                .executes(ApplyCommandDispatcher::applyModelModern)))))));
 
         // model reset
         dispatcher.register(_root
                 .then(ResetNode
-                .executes(ModelCommandsPreChecked::resetModel)));
+                .executes(ApplyCommandDispatcher::resetModel)));
     }
 }

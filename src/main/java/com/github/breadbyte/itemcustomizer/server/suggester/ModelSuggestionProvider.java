@@ -1,10 +1,10 @@
 package com.github.breadbyte.itemcustomizer.server.suggester;
 
 import com.github.breadbyte.itemcustomizer.server.data.NamespaceCategory;
-import com.github.breadbyte.itemcustomizer.server.util.Check;
 import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
 import com.github.breadbyte.itemcustomizer.server.util.AccessValidator;
+import com.github.breadbyte.itemcustomizer.server.util.Permission;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
@@ -14,8 +14,6 @@ import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.server.command.ServerCommandSource;
 import org.jetbrains.annotations.Nullable;
 
-import javax.naming.Name;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -50,7 +48,7 @@ public class ModelSuggestionProvider implements SuggestionProvider<ServerCommand
             validItems = items
                     .stream()
                     .filter(n ->
-                            Permissions.check(player, Check.Permission.CUSTOMIZE.chain(n.getPermissionNode()))
+                            Permissions.check(player, Permission.CUSTOMIZE.chain(n.getPermissionNode()).getPermission())
                     ).collect(Collectors.toUnmodifiableSet());
         }
 

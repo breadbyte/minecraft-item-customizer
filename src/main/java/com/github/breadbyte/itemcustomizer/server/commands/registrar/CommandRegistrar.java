@@ -1,17 +1,17 @@
 package com.github.breadbyte.itemcustomizer.server.commands.registrar;
 
-import com.github.breadbyte.itemcustomizer.server.util.Check;
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.commands.LoreCommand;
-import com.github.breadbyte.itemcustomizer.server.commands.registrar.commands.PermissionCommand;
+import com.github.breadbyte.itemcustomizer.server.commands.registrar.commands.model.ModelPermissionCommand;
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.commands.RenameCommand;
 import com.github.breadbyte.itemcustomizer.server.commands.registrar.commands.model.*;
+import com.github.breadbyte.itemcustomizer.server.util.Permission;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.minecraft.server.command.ServerCommandSource;
 
 public class CommandRegistrar {
     // Setup
-    PermissionCommand permissionCommand = new PermissionCommand();
+    ModelPermissionCommand modelPermissionCommand = new ModelPermissionCommand();
     RenameCommand renameCommand = new RenameCommand();
     LoreCommand loreCommand = new LoreCommand();
 
@@ -23,15 +23,15 @@ public class CommandRegistrar {
     ModelDyeCommand modelDyeCommand = new ModelDyeCommand();
     ModelLockCommand modelLockCommand = new ModelLockCommand();
 
-    Check.Permission modelsPermission = Check.Permission.CUSTOMIZE;
+    Permission modelsPermission = Permission.CUSTOMIZE;
 
     // Register to Brigadier
     public void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher, LiteralArgumentBuilder<ServerCommandSource> root) {
-        permissionCommand.register(Check.Permission.GRANT, "permission", dispatcher, root);
-        renameCommand.register(Check.Permission.RENAME, "name", dispatcher, root);
-        loreCommand.register(Check.Permission.LORE,"lore", dispatcher, root);
-        modelNamespaceCommand.register(Check.Permission.ADMIN, "namespace", dispatcher, root);
+        renameCommand.register(Permission.RENAME, "name", dispatcher, root);
+        loreCommand.register(Permission.LORE,"lore", dispatcher, root);
 
+        modelPermissionCommand.register(Permission.GRANT, "permission", dispatcher, root);
+        modelNamespaceCommand.register(Permission.ADMIN, "namespace", dispatcher, root);
 
         // internally, model _is_ the root command, so we don't use the subCommandName
         modelApplyCommand.register(modelsPermission, "", dispatcher, root);

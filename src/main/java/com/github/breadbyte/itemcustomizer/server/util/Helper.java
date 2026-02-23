@@ -1,5 +1,6 @@
 package com.github.breadbyte.itemcustomizer.server.util;
 
+import com.github.breadbyte.itemcustomizer.server.data.NamespaceCategory;
 import com.github.breadbyte.itemcustomizer.server.data.Storage;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -54,8 +55,8 @@ public class Helper {
         }
     }
 
-    public static Identifier String2Identifier(String namespace, String... path) {
-        return Identifier.of(namespace, String.join("/", path));
+    public static Identifier NamespaceCategoryToIdentifier(NamespaceCategory nsc, String itemName) {
+        return Identifier.of(nsc.namespace(), nsc.categoryWithItemName(itemName));
     }
 
     public static void tryLoadStorage() {
@@ -87,11 +88,7 @@ public class Helper {
         player.getEntityWorld().playSoundClient(player.getX(), player.getY(), player.getZ(), soundEventReference.value(), SoundCategory.MASTER, 1.0F, 1.0F, false);
     }
 
-    @Deprecated
-    public static void SendMessageNo(ServerPlayerEntity player, String message) {
-        player.sendMessage(Text.of(message), true);
-        player.getEntityWorld().playSoundClient(player.getX(), player.getY(), player.getZ(), SoundEvents.ENTITY_VILLAGER_NO, SoundCategory.MASTER, 1.0F, 1.0F, false);
-    }
+
 
     @Deprecated
     public static void SendMessageYes(ServerPlayerEntity player, String message) {
@@ -99,18 +96,4 @@ public class Helper {
         player.getEntityWorld().playSoundClient(player.getX(), player.getY(), player.getZ(), SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, 1.0F, 1.0F, false);
     }
 
-    public static void SendError(ServerCommandSource src, String message) {
-        src.sendError(literal(message));
-        src.getPlayer().getEntityWorld().playSoundClient(src.getPlayer().getX(), src.getPlayer().getY(), src.getPlayer().getZ(), SoundEvents.ENTITY_VILLAGER_NO, SoundCategory.MASTER, 1.0F, 1.0F, false);
-    }
-
-    public static void SendMessage(ServerCommandSource src, String message) {
-        src.sendFeedback(() -> Text.literal(message), false);
-        src.getPlayer().getEntityWorld().playSoundClient(src.getPlayer().getX(), src.getPlayer().getY(), src.getPlayer().getZ(), SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, 1.0F, 1.0F, false);
-    }
-
-    public static void SendMessage(ServerCommandSource src, MutableText textObj) {
-        src.sendFeedback(() -> textObj, false);
-        src.getPlayer().getEntityWorld().playSoundClient(src.getPlayer().getX(), src.getPlayer().getY(), src.getPlayer().getZ(), SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, 1.0F, 1.0F, false);
-    }
 }
