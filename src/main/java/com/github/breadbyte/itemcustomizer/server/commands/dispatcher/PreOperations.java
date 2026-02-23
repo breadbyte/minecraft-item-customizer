@@ -36,6 +36,18 @@ public class PreOperations {
                     Postmaster.Hud_SendMessage_No(ctxSrc, hand.unwrapErr().getMessage());
                     return 0;
                 }
+
+                var validateOwnership = AccessValidator.IsModelOwner(player.unwrap());
+                if (!validateOwnership) {
+                    Postmaster.Hud_SendMessage_No(ctxSrc, Reason.WRONG_OWNERSHIP.getMessage());
+                    return 0;
+                }
+
+                if (AccessValidator.IsModelLocked(player.unwrap())) {
+                    Postmaster.Hud_SendMessage_No(ctxSrc, Reason.ITEM_LOCKED_OWNER.getMessage());
+                    return 0;
+                }
+
                 break;
             }
         }
@@ -91,15 +103,6 @@ public class PreOperations {
         var validatePlayer = TryReturnValidPlayer(ctx);
         if (validatePlayer.isErr()) {
             return validatePlayer;
-        }
-
-        var validateOwnership = AccessValidator.IsModelOwner(validatePlayer.unwrap());
-        if (!validateOwnership) {
-            return Result.err(Reason.WRONG_OWNERSHIP);
-        }
-
-        if (AccessValidator.IsModelLocked(validatePlayer.unwrap())) {
-            return Result.err(new Reason.InternalError("Unlock the item first before modifying it!"));
         }
 
         var validateCost = ValidateCost(validatePlayer.unwrap(), cost);

@@ -62,8 +62,9 @@ public class ModelPermissionCommand implements BaseCommand {
                 .then(ArgNodeItemNamespace
                 .then(ArgNodeItemCategory
                 .then(ArgNodeItemName
+                .then(ArgNodePlayer
                 .executes(PermissionCommandDispatcher::revokeModelPerm
-                )))))));
+                ))))))));
 
         // model permission get namespace category name
         dispatcher.register(root

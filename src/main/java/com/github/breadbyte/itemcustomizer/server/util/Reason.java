@@ -18,6 +18,7 @@ public sealed interface Reason {
             case InvalidInput i -> "Invalid input!";
             case NoInput i -> "No input provided!";
             case InternalError i -> "An internal error occurred while executing this command!";
+            case ItemLockedOwner i -> "Unlock the item before modifying it!";
             default -> throw new IllegalStateException("Unexpected value: " + this);
         };
     }
@@ -25,6 +26,7 @@ public sealed interface Reason {
     record InvalidPlayer(String message)                    implements Reason { public InvalidPlayer() { this(null); } }
     record NoPermission(String message)                     implements Reason { public NoPermission() { this(null); } }
     record NoItem(String message)                           implements Reason { public NoItem() { this(null); } }
+    record ItemLockedOwner(String message)                  implements Reason { public ItemLockedOwner() { this(null); } }
     record NoExp(String message, int required, int actual)  implements Reason { public NoExp(int required, int actual) { this(null, required, actual); } }
     record WrongOwnership(String message)                   implements Reason { public WrongOwnership() { this(null); } }
     record InvalidInput(String message)                     implements Reason { public InvalidInput() { this(null); } }
@@ -36,5 +38,6 @@ public sealed interface Reason {
     Reason NO_PERMISSION = new NoPermission();
     Reason NO_ITEM = new NoItem();
     Reason WRONG_OWNERSHIP = new WrongOwnership();
+    Reason ITEM_LOCKED_OWNER = new ItemLockedOwner();
     Reason NO_INPUT = new NoInput();
 }
