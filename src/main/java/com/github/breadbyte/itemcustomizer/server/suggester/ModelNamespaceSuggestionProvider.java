@@ -34,24 +34,7 @@ public class ModelNamespaceSuggestionProvider implements SuggestionProvider<Serv
             validNamespaces = allNamespaces.stream()
                 .filter(namespace -> {
                     // We have permission for this namespace, skip
-                    if (Permissions.check(player, Permission.CUSTOMIZE.chain(namespace).getPermission())) {
-                        return true;
-                    }
-
-                    // We have permission for this category, skip
-                    for (NamespaceCategory category : index.categories(namespace)) {
-                        if (Permissions.check(player, Permission.CUSTOMIZE.chain(category.getPermissionNode()).getPermission())) {
-                            return true;
-                        }
-
-                        // We have permission for this model, continue
-                        for (CustomModelDefinition model : index.getAllRecursive(category)) {
-                            if (model.getPermission(player)) {
-                                return true;
-                            }
-                        }
-                    }
-                    return false;
+                    return Permissions.check(player, Permission.CUSTOMIZE.chain(namespace).getPermission());
                 })
                 .collect(Collectors.toSet());
         }

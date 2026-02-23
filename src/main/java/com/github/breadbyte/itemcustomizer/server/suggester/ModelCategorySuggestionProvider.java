@@ -35,8 +35,6 @@ public class ModelCategorySuggestionProvider implements SuggestionProvider<Serve
         } catch (IllegalArgumentException e) {
             return builder.buildFuture();
         }
-        if (paramNamespace.isEmpty() || paramCategory.isEmpty())
-            return builder.buildFuture();
 
         // Get all models, and check if we have CUSTOMIZE.<namespace>.<item_name> permission for it.
         var player = context.getSource().getPlayer();

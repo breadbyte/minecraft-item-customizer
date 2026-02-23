@@ -13,10 +13,10 @@ public class PermissionCommandDispatcher {
     }
 
     public static int grantModelPerm(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-        return PreOperations.executeOperation(ctx, PermissionOperations::GrantPermission, StackRequirement.NONE,"Permission granted!");
+        return PreOperations.executeOperation(ctx, PermissionOperations::GrantPermission, StackRequirement.NONE,"");
     }
 
     public static int revokeModelPerm(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-        return PreOperations.executeOperation(ctx, PermissionOperations::RevokePermission, StackRequirement.NONE,"Permission revoked!");
+        return PreOperations.executeOperation(ctx, PermissionOperations::RevokePermission, StackRequirement.NONE,"");
     }
 }
