@@ -14,7 +14,7 @@ import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
 public class RenameCommand implements BaseCommand {
-    public static final String RENAME_ARGUMENT = "name";
+    public static final String RENAME_ARGUMENT = "rename";
 
     public void register(Permission grant, String subCommandName, CommandDispatcher<ServerCommandSource> dispatcher, LiteralArgumentBuilder<ServerCommandSource> root) {
         var subCommand = InternalHelper.RequirePermissionFor(literal(subCommandName), grant);
