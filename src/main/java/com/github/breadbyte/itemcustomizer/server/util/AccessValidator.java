@@ -27,6 +27,23 @@ public class AccessValidator {
         return server.getPlayerManager().isOperator(player.getPlayerConfigEntry());
     }
 
+    public static boolean IsModelLocked(ServerPlayerEntity player) {
+        if (player == null) {
+            return false;
+        }
+
+        var playerItem = player.getMainHandStack();
+
+        // Get the components for the currently held item
+        var itemComps = playerItem.getComponents();
+
+        if (playerItem.isEmpty()) {
+            return false;
+        }
+
+        return itemComps.get(DataComponentTypes.LOCK) != null;
+    }
+
     public static boolean IsModelOwner(ServerPlayerEntity player) {
         if (player == null) {
             return false;

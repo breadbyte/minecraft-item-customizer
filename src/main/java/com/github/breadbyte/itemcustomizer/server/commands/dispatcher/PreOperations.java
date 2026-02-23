@@ -98,6 +98,10 @@ public class PreOperations {
             return Result.err(Reason.WRONG_OWNERSHIP);
         }
 
+        if (AccessValidator.IsModelLocked(validatePlayer.unwrap())) {
+            return Result.err(new Reason.InternalError("Unlock the item first before modifying it!"));
+        }
+
         var validateCost = ValidateCost(validatePlayer.unwrap(), cost);
         if (validateCost.isErr()) {
             return Result.err(validateCost.unwrapErr());
