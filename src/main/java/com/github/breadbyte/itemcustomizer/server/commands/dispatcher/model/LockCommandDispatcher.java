@@ -12,6 +12,6 @@ public class LockCommandDispatcher {
     }
 
     public static int unlockModel(CommandContext<ServerCommandSource> ctx) {
-        return PreOperations.executeOperation(ctx, LockOperations::unlockModel, StackRequirement.REQUIRED_MAINHAND,"Model unlocked!");
+        return PreOperations.executeOperation(ctx, LockOperations::unlockModel, StackRequirement.SPECIAL_UNLOCK,"Model unlocked!");
     }
 }

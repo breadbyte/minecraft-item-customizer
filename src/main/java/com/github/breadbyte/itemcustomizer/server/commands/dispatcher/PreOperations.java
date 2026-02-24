@@ -27,6 +27,7 @@ public class PreOperations {
         switch (orientation) {
             case NONE:
                 break;
+            case SPECIAL_UNLOCK:
             case REQUIRED_MAINHAND:
             case REQUIRED_OFFHAND:
             default: {
@@ -43,12 +44,12 @@ public class PreOperations {
                     return 0;
                 }
 
-                if (AccessValidator.IsModelLocked(player.unwrap())) {
-                    Postmaster.Hud_SendMessage_No(ctxSrc, Reason.ITEM_LOCKED_OWNER.getMessage());
-                    return 0;
+                if (orientation != StackRequirement.SPECIAL_UNLOCK) {
+                    if (AccessValidator.IsModelLocked(player.unwrap())) {
+                        Postmaster.Hud_SendMessage_No(ctxSrc, Reason.ITEM_LOCKED_OWNER.getMessage());
+                        return 0;
+                    }
                 }
-
-                break;
             }
         }
 
