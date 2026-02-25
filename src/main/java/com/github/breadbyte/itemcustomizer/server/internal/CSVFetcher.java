@@ -59,9 +59,9 @@ public class CSVFetcher {
 
                         var removeStartingBackslash = itemType.startsWith("/") ? itemType.substring(1) : itemType;
                         var removeEndingBackslash = removeStartingBackslash.endsWith("/") ? removeStartingBackslash.substring(0, removeStartingBackslash.length() - 1) : removeStartingBackslash;
-                        var nc = new NamespaceCategory(namespace, removeEndingBackslash);
+                        var nc = new NamespaceCategory(namespace, removeEndingBackslash, itemName);
 
-                        suggestions.add(new CustomModelDefinition(nc, itemName, madeBy));
+                        suggestions.add(new CustomModelDefinition(nc, madeBy));
                     } else {
                         ItemCustomizer.LOGGER.warn("CSV line does not contain enough parts: {}", line);
                     }

@@ -1,5 +1,11 @@
 package com.github.breadbyte.itemcustomizer.tests.server;
 
+import com.github.breadbyte.itemcustomizer.server.commands.defs.model.apply.ModelApplyParams;
+import com.github.breadbyte.itemcustomizer.server.commands.impl.model.apply.ModelApplyAdapter;
+import com.github.breadbyte.itemcustomizer.server.commands.impl.model.apply.ModelApplyOperations;
+import com.github.breadbyte.itemcustomizer.server.commands.impl.model.apply.ModelApplyRunner;
+import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
+import com.github.breadbyte.itemcustomizer.server.data.NamespaceCategory;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.LiteralMessage;
@@ -19,6 +25,7 @@ import net.minecraft.test.TestContext;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.GameMode;
 
 import java.lang.reflect.Method;
@@ -28,28 +35,27 @@ import java.util.UUID;
 public class ItemCustomizerServer implements CustomTestMethodInvoker {
     @Override
     public void invokeTestMethod(TestContext testContext, Method method) throws ReflectiveOperationException {
-        method.invoke(this, testContext);
+        var player = testContext.createMockPlayer(GameMode.CREATIVE);
+        player.setStackInHand(Hand.MAIN_HAND, Items.DIAMOND_SWORD.getDefaultStack());
+        player.addCommandTag("InGameTest");
+        testContext.getWorld().setMobSpawnOptions(false);
+        testContext.getWorld().getServer().getPlayerManager().addToOperators(player.getPlayerConfigEntry());
+
+        method.invoke(this, testContext, player);
     }
 
     @GameTest
-    public void TestApplyModel(TestContext context) throws CommandSyntaxException {
-        var player = preinit(context);
-        executeCommand(context, player, "model apply minecraft stone");
+    public void TestApplyModel(TestContext context, PlayerEntity player) {
+        var playerHand = player.getMainHandStack();
+        var targetModel = new NamespaceCategory("minecraft", "", "stone");
+        var cmd = new CustomModelDefinition(targetModel, "");
+        var modelApply = new ModelApplyOperations();
+        var params = new ModelApplyParams(playerHand, targetModel, cmd);
+        modelApply.apply(params);
+
         context.assertEquals(
                 Identifier.of("minecraft", "stone"),
-                player.getMainHandStack().getComponents().get(DataComponentTypes.ITEM_MODEL),
-                Text.empty());
-    }
-    private PlayerEntity preinit(TestContext context) {
-        GameProfile profile = new GameProfile(UUID.randomUUID(), "TestPlayer");
-        ServerPlayerEntity s = new ServerPlayerEntity(context.getWorld().getServer(), context.getWorld(), profile, SyncedClientOptions.createDefault());
-        s.setStackInHand(Hand.MAIN_HAND, Items.DIAMOND_SWORD.getDefaultStack());
-        s.addCommandTag("InGameTest");
-        return s;
-    }
-
-    private void executeCommand(TestContext testContext, PlayerEntity player, String command) throws CommandSyntaxException {
-        var scs = player.getCommandSource(testContext.getWorld());
-        scs.getDispatcher().execute(command, scs);
+                playerHand.getComponents().get(DataComponentTypes.ITEM_MODEL),
+                "item model");
     }
 }

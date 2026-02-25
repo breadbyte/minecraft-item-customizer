@@ -6,9 +6,16 @@ public sealed class Result<T> {
     // Success Type of Result<T,E>
     public static final class Success<T> extends Result<T> {
         public final T value;
-        
+        public final String message;
+
+        public Success(T value, String message) {
+            this.value = value;
+            this.message = message;
+        }
+
         public Success(T value) {
             this.value = value;
+            this.message = null;
         }
     }
 
@@ -21,6 +28,10 @@ public sealed class Result<T> {
         }
     }
     
+    public static <T> Result<T> ok(T value, String message) {
+        return new Success<>(value, message);
+    }
+
     public static <T> Result<T> ok(T value) {
         return new Success<>(value);
     }
@@ -31,6 +42,14 @@ public sealed class Result<T> {
     
     public static <T> Result<T> err(Reason error) {
         return new Failure<>(error);
+    }
+
+    public String getMessage() {
+        if (this instanceof Success) {
+            return ((Success<T>) this).message;
+        } else {
+            return ((Failure<T>) this).reason.getMessage();
+        }
     }
 
     public boolean isOk() {

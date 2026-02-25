@@ -14,11 +14,8 @@ public record NamespaceCategory(String namespace, String category, String itemNa
     }
 
     public @NotNull String toString() {
-        return namespace + ":" + category;
-    }
-    public @NotNull String withItemName(String itemName) {
         if (category.isBlank()) return namespace + ":" + itemName;
-        return this.toString() + "/" + itemName;
+        return namespace + ":" + category;
     }
     public @NotNull String withItemNamePermissionNode(String itemName) {
         if (category.isBlank()) return namespace + "." + itemName;

@@ -1,6 +1,6 @@
 package com.github.breadbyte.itemcustomizer.server;
 
-import com.github.breadbyte.itemcustomizer.server.commands.registrar.CommandRegistrar;
+import com.github.breadbyte.itemcustomizer.server.commands.registry.CommandRegistrar;
 //import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.server.command.CommandManager;
