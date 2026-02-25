@@ -2,12 +2,15 @@ package com.github.breadbyte.itemcustomizer.server.data;
 
 import org.jetbrains.annotations.NotNull;
 
-public record NamespaceCategory(String namespace, String category) {
+public record NamespaceCategory(String namespace, String category, String itemName) {
 
     public NamespaceCategory {
         if (category == null) { throw new NullPointerException(); }
-        namespace = namespace;
         category = TrimTrailingSlash(category);
+    }
+
+    public NamespaceCategory(String namespace, String category) {
+        this(namespace, category, null);
     }
 
     public @NotNull String toString() {
