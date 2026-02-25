@@ -6,6 +6,7 @@ import com.github.breadbyte.itemcustomizer.server.util.Reason;
 import com.github.breadbyte.itemcustomizer.server.util.Result;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Style;
@@ -16,7 +17,7 @@ import static com.github.breadbyte.itemcustomizer.server.util.Helper.IsValidJson
 import static com.github.breadbyte.itemcustomizer.server.util.Helper.JsonString2Text;
 
 public class RenameOperations {
-    public static Result<Void> renameItem(ServerPlayerEntity player, CommandContext<ServerCommandSource> ctx) {
+    public static Result<Void> renameItem(PlayerEntity player, CommandContext<ServerCommandSource> ctx) {
         var getPlayerItem = PreOperations.TryGetValidPlayerCurrentHand(player);
         var playerItem = getPlayerItem.unwrap();
 
@@ -40,7 +41,7 @@ public class RenameOperations {
         return Result.ok();
     }
 
-    public static Result<Void> resetName(ServerPlayerEntity player, CommandContext<ServerCommandSource> ctx) {
+    public static Result<Void> resetName(PlayerEntity player, CommandContext<ServerCommandSource> ctx) {
         var getPlayerItem = PreOperations.TryGetValidPlayerCurrentHand(player);
         var playerItem = getPlayerItem.unwrap();
 

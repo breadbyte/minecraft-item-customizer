@@ -6,11 +6,12 @@ import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.EquippableComponent;
 import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 public class WearOperations {
-    public static Result<String> ToggleWearable(ServerPlayerEntity player, CommandContext<ServerCommandSource> ctx) {
+    public static Result<String> ToggleWearable(PlayerEntity player, CommandContext<ServerCommandSource> ctx) {
         var playerItem = PreOperations.TryGetValidPlayerCurrentHand(player).unwrap();
 
         // Get the components for the currently held item

@@ -16,6 +16,7 @@ import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.CustomModelDataComponent;
 import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.component.type.EquippableComponent;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.equipment.EquipmentAssetKeys;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.command.ServerCommandSource;
@@ -25,7 +26,7 @@ import javax.xml.stream.events.Namespace;
 import java.util.List;
 
 public class ApplyOperations {
-    public static Result<String> applyModelPath(ServerPlayerEntity player, CommandContext<ServerCommandSource> ctx) {
+    public static Result<String> applyModelPath(PlayerEntity player, CommandContext<ServerCommandSource> ctx) {
         var namespace = String.valueOf(ctx.getArgument(ModelApplyCommand.NAMESPACE_ARGUMENT, String.class));
         var category = String.valueOf(ctx.getArgument(ModelApplyCommand.ITEM_CATEGORY_ARGUMENT, String.class));
         String name;
@@ -59,7 +60,7 @@ public class ApplyOperations {
         return applyModel(player, m, color, changeEquippable);
     }
 
-    public static Result<String> applyModelModern(ServerPlayerEntity player, CommandContext<ServerCommandSource> ctx) {
+    public static Result<String> applyModelModern(PlayerEntity player, CommandContext<ServerCommandSource> ctx) {
         var namespace = String.valueOf(ctx.getArgument(ModelApplyCommand.NAMESPACE_ARGUMENT, String.class));
         var category = String.valueOf(ctx.getArgument(ModelApplyCommand.ITEM_CATEGORY_ARGUMENT, String.class));
         var name = String.valueOf(ctx.getArgument(ModelApplyCommand.ITEM_NAME_ARGUMENT, String.class));
@@ -99,7 +100,7 @@ public class ApplyOperations {
         return applyModel(player, m, color, changeEquippable);
     }
 
-    static Result<String> applyModel(ServerPlayerEntity player, CustomModelDefinition model, Integer color, Boolean changeEquippable) {
+    static Result<String> applyModel(PlayerEntity player, CustomModelDefinition model, Integer color, Boolean changeEquippable) {
         var ns = model.getNamespaceCategory();
         var name = model.getName();
         var playerItem = PreOperations.TryGetValidPlayerCurrentHand(player).unwrap();
@@ -156,7 +157,7 @@ public class ApplyOperations {
         return Result.ok("Model " + model.getName() + " made by " + model.getMadeBy() + " applied!");
     }
 
-    public static Result<Void> resetModel(ServerPlayerEntity player, CommandContext<ServerCommandSource> ctx) {
+    public static Result<Void> resetModel(PlayerEntity player, CommandContext<ServerCommandSource> ctx) {
         var getPlayerItem = PreOperations.TryGetValidPlayerCurrentHand(player);
         var playerItem = getPlayerItem.unwrap();
 

@@ -8,6 +8,7 @@ import com.github.breadbyte.itemcustomizer.server.util.Result;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.LoreComponent;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -20,7 +21,7 @@ import java.util.Locale;
 public class LoreOperations {
     private static final int MAX_LINE_LENGTH = 50;
 
-    public static Result<Void> add(ServerPlayerEntity player, CommandContext<ServerCommandSource> ctx) {
+    public static Result<Void> add(PlayerEntity player, CommandContext<ServerCommandSource> ctx) {
         var input = String.valueOf(ctx.getArgument(LoreCommand.LORE_ARGUMENT, String.class));
 
         if (input.isEmpty())
@@ -41,7 +42,7 @@ public class LoreOperations {
         return addLoreSingleLine(player, input);
     }
 
-    private static Result<Void> addLoreSingleLine(ServerPlayerEntity player, String input) {
+    private static Result<Void> addLoreSingleLine(PlayerEntity player, String input) {
         var playerItem = PreOperations.TryGetValidPlayerCurrentHand(player).unwrap();
         Text text = Helper.JsonString2Text(input);
 
@@ -85,7 +86,7 @@ public class LoreOperations {
         return lines;
     }
 
-    public static Result<Void> reset(ServerPlayerEntity player, CommandContext<ServerCommandSource> ctx) {
+    public static Result<Void> reset(PlayerEntity player, CommandContext<ServerCommandSource> ctx) {
         var playerItem = player.getMainHandStack();
 
         // Get the default lore for the item

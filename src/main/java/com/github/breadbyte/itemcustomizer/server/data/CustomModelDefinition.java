@@ -3,6 +3,7 @@ package com.github.breadbyte.itemcustomizer.server.data;
 import com.github.breadbyte.itemcustomizer.server.util.Permission;
 import dev.isxander.yacl3.config.v2.api.SerialEntry;
 import me.lucko.fabric.api.permissions.v0.Permissions;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 public class CustomModelDefinition {
@@ -37,7 +38,7 @@ public class CustomModelDefinition {
     public NamespaceCategory getNamespaceCategory() { return new NamespaceCategory(namespace, category); }
     public String getPermissionNode() { return namespace + "." + category.replace("/", "."); }
 
-    public boolean getPermission(ServerPlayerEntity player) {
+    public boolean getPermission(PlayerEntity player) {
         return Permissions.check(player, Permission.CUSTOMIZE.chain(getPermissionNode()).getPermission());
     }
 

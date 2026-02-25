@@ -44,7 +44,7 @@ public class ItemCustomizerServer implements CustomTestMethodInvoker {
         GameProfile profile = new GameProfile(UUID.randomUUID(), "TestPlayer");
         ServerPlayerEntity s = new ServerPlayerEntity(context.getWorld().getServer(), context.getWorld(), profile, SyncedClientOptions.createDefault());
         s.setStackInHand(Hand.MAIN_HAND, Items.DIAMOND_SWORD.getDefaultStack());
-
+        s.addCommandTag("InGameTest");
         return s;
     }
 

@@ -2,6 +2,7 @@ package com.github.breadbyte.itemcustomizer.server.util;
 
 import net.minecraft.component.ComponentChanges;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
@@ -9,7 +10,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 public class AccessValidator {
-    public static boolean HasPermissionFor(Permission permission, ServerPlayerEntity player)
+    public static boolean HasPermissionFor(Permission permission, PlayerEntity player)
     {
         // Allow all functions if we're running on a singleplayer logical server
         if (player.getEntityWorld().getServer().isSingleplayer())
@@ -22,12 +23,12 @@ public class AccessValidator {
         return false;
     }
 
-    public static boolean IsAdmin(ServerPlayerEntity player) {
+    public static boolean IsAdmin(PlayerEntity player) {
         var server = Objects.requireNonNull(player.getEntityWorld().getServer());
         return server.getPlayerManager().isOperator(player.getPlayerConfigEntry());
     }
 
-    public static boolean IsModelLocked(ServerPlayerEntity player) {
+    public static boolean IsModelLocked(PlayerEntity player) {
         if (player == null) {
             return false;
         }
@@ -44,7 +45,7 @@ public class AccessValidator {
         return itemComps.get(DataComponentTypes.LOCK) != null;
     }
 
-    public static boolean IsModelOwner(ServerPlayerEntity player) {
+    public static boolean IsModelOwner(PlayerEntity player) {
         if (player == null) {
             return false;
         }

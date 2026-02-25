@@ -5,11 +5,12 @@ import com.github.breadbyte.itemcustomizer.server.util.Reason;
 import com.github.breadbyte.itemcustomizer.server.util.Result;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 public class GlintOperations {
-    public static Result<Void> toggleGlint(ServerPlayerEntity player, CommandContext<ServerCommandSource> ctx) {
+    public static Result<Void> toggleGlint(PlayerEntity player, CommandContext<ServerCommandSource> ctx) {
         var getPlayerItem = PreOperations.TryGetValidPlayerCurrentHand(player);
         if (getPlayerItem.isErr()) {
             return Result.err(new Reason.NoItem());

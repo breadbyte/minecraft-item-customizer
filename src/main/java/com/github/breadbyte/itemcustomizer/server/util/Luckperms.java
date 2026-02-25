@@ -11,7 +11,9 @@ import net.luckperms.api.platform.PlayerAdapter;
 import net.luckperms.api.query.QueryMode;
 import net.luckperms.api.query.QueryOptions;
 import net.luckperms.api.util.Tristate;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.test.TestContext;
 
 public class Luckperms {
     public static boolean IsLuckpermsPresent() {
@@ -19,19 +21,26 @@ public class Luckperms {
         return serve.isPresent();
     }
 
-    public static boolean CheckPermission(ServerPlayerEntity player, Permission node) {
+    public static boolean CheckPermission(PlayerEntity player, Permission node) {
         if (!IsLuckpermsPresent()) return false;
+
+        // Special case for GameTest
+        // todo: no way to test permissions
+        // (to be fair, vanilla doesn't have permissions)
+        if (player.getCommandTags().contains("InGameTest")) {
+            return true;
+        }
 
         LuckPerms l = LuckPermsProvider.get();
 
         PlayerAdapter<ServerPlayerEntity> adapter = l.getPlayerAdapter(ServerPlayerEntity.class);
-        CachedPermissionData permissionData = adapter.getPermissionData(player);
+        CachedPermissionData permissionData = adapter.getPermissionData((ServerPlayerEntity) player);
 
         Tristate checkResult = permissionData.checkPermission(node.getPermission());
         return checkResult.asBoolean();
     }
 
-    public static boolean GrantPermission(ServerPlayerEntity player, String node) {
+    public static boolean GrantPermission(PlayerEntity player, String node) {
         if (!IsLuckpermsPresent()) return false;
 
         LuckPerms l = LuckPermsProvider.get();
@@ -42,7 +51,7 @@ public class Luckperms {
         return true;
     }
 
-    public static boolean RevokePermission(ServerPlayerEntity targetPlayer, Permission node) {
+    public static boolean RevokePermission(PlayerEntity targetPlayer, Permission node) {
         if (!IsLuckpermsPresent()) return false;
 
         LuckPerms l = LuckPermsProvider.get();

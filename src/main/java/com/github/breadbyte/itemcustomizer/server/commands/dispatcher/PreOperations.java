@@ -2,6 +2,7 @@ package com.github.breadbyte.itemcustomizer.server.commands.dispatcher;
 
 import com.github.breadbyte.itemcustomizer.server.util.*;
 import com.mojang.brigadier.context.CommandContext;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -68,7 +69,7 @@ public class PreOperations {
         return 1;
     }
 
-    private static Result<Void> ValidateCost(ServerPlayerEntity player, int cost) {
+    private static Result<Void> ValidateCost(PlayerEntity player, int cost) {
         if (player.isCreative())
             return Result.ok();
 
@@ -79,7 +80,7 @@ public class PreOperations {
         return Result.ok();
     }
 
-    public static Result<ServerPlayerEntity> TryReturnValidPlayer(CommandContext<ServerCommandSource> context) {
+    public static Result<PlayerEntity> TryReturnValidPlayer(CommandContext<ServerCommandSource> context) {
         // Is the player a null object?
         if (Objects.isNull(context.getSource().getPlayer())) {
             return Result.err(Reason.INVALID_PLAYER);
@@ -89,18 +90,18 @@ public class PreOperations {
         return Result.ok(player);
     }
 
-    public static Result<Void> TryApplyCost(ServerPlayerEntity player, int cost) {
+    public static Result<Void> TryApplyCost(PlayerEntity player, int cost) {
         var validate = ValidateCost(player, cost);
         if (validate.isErr()) {
             return validate;
         }
 
-        player.setExperienceLevel(player.experienceLevel - cost);
+        player.addExperienceLevels(-cost);
         return validate;
     }
 
     // TODO: We shouldn't need to validate permission here since we're gated by Brigadier already?
-    public static Result<ServerPlayerEntity> ValidateStack(CommandContext<ServerCommandSource> ctx, int cost) {
+    public static Result<PlayerEntity> ValidateStack(CommandContext<ServerCommandSource> ctx, int cost) {
         var validatePlayer = TryReturnValidPlayer(ctx);
         if (validatePlayer.isErr()) {
             return validatePlayer;
@@ -123,7 +124,7 @@ public class PreOperations {
         return Result.ok();
     }
 
-    public static Result<ItemStack> TryGetValidPlayerCurrentHand(ServerPlayerEntity player) {
+    public static Result<ItemStack> TryGetValidPlayerCurrentHand(PlayerEntity player) {
         var stack = player.getMainHandStack();
         if (stack.isEmpty()) {
             return Result.err(Reason.NO_ITEM);

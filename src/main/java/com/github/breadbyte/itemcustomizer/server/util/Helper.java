@@ -5,6 +5,7 @@ import com.github.breadbyte.itemcustomizer.server.data.Storage;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.JsonOps;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -66,7 +67,7 @@ public class Helper {
     }
 
     @Deprecated
-    public static void SendMessage(ServerPlayerEntity player, String message, net.minecraft.sound.SoundEvent sound) {
+    public static void SendMessage(PlayerEntity player, String message, net.minecraft.sound.SoundEvent sound) {
         player.sendMessage(Text.of(message), true);
         if (sound != null) {
             player.getEntityWorld().playSoundClient(player.getX(), player.getY(), player.getZ(), sound, SoundCategory.MASTER, 1.0F, 1.0F, false);
@@ -74,7 +75,7 @@ public class Helper {
     }
 
     @Deprecated
-    public static void SendMessage(ServerPlayerEntity player, Text message, net.minecraft.sound.SoundEvent sound) {
+    public static void SendMessage(PlayerEntity player, Text message, net.minecraft.sound.SoundEvent sound) {
         player.sendMessage(message, true);
         if (sound != null) {
             player.getEntityWorld().playSoundClient(player.getX(), player.getY(), player.getZ(), sound, SoundCategory.MASTER, 1.0F, 1.0F, false);
@@ -83,7 +84,7 @@ public class Helper {
 
     // Some events are apparently wrapped in a Reference
     @Deprecated
-    public static void SendMessage(ServerPlayerEntity player, String suggestionsUpdated, RegistryEntry.Reference<SoundEvent> soundEventReference) {
+    public static void SendMessage(PlayerEntity player, String suggestionsUpdated, RegistryEntry.Reference<SoundEvent> soundEventReference) {
         player.sendMessage(Text.of(suggestionsUpdated), true);
         player.getEntityWorld().playSoundClient(player.getX(), player.getY(), player.getZ(), soundEventReference.value(), SoundCategory.MASTER, 1.0F, 1.0F, false);
     }
@@ -91,7 +92,7 @@ public class Helper {
 
 
     @Deprecated
-    public static void SendMessageYes(ServerPlayerEntity player, String message) {
+    public static void SendMessageYes(PlayerEntity player, String message) {
         player.sendMessage(Text.of(message), true);
         player.getEntityWorld().playSoundClient(player.getX(), player.getY(), player.getZ(), SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, 1.0F, 1.0F, false);
     }

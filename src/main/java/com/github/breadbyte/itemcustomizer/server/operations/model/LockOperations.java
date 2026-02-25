@@ -6,6 +6,7 @@ import com.github.breadbyte.itemcustomizer.server.util.Result;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.component.ComponentChanges;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.ContainerLock;
 import net.minecraft.predicate.component.ComponentMapPredicate;
 import net.minecraft.predicate.component.ComponentsPredicate;
@@ -17,7 +18,7 @@ import net.minecraft.text.Text;
 import java.util.Optional;
 
 public class LockOperations {
-    public static Result<Void> lockModel(ServerPlayerEntity player, CommandContext<ServerCommandSource> ctx) {
+    public static Result<Void> lockModel(PlayerEntity player, CommandContext<ServerCommandSource> ctx) {
         var playerHand = PreOperations.TryGetValidPlayerCurrentHand(player);
         if (playerHand.isErr()) {
             return Result.err(playerHand.unwrapErr());
@@ -55,7 +56,7 @@ public class LockOperations {
         return Result.ok();
     }
 
-    public static Result<Void> unlockModel(ServerPlayerEntity player, CommandContext<ServerCommandSource> ctx) {
+    public static Result<Void> unlockModel(PlayerEntity player, CommandContext<ServerCommandSource> ctx) {
         var playerHand = PreOperations.TryGetValidPlayerCurrentHand(player);
         var playerItem = playerHand.unwrap();
 
@@ -72,7 +73,7 @@ public class LockOperations {
         return Result.ok();
     }
 
-    static Result<String> ReadLockComponent(ServerPlayerEntity player) {
+    static Result<String> ReadLockComponent(PlayerEntity player) {
         var hand = PreOperations.TryGetValidPlayerCurrentHand(player);
         var playerItem = hand.unwrap();
         var itemComps = playerItem.getComponents();

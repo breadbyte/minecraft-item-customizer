@@ -7,11 +7,12 @@ import com.github.breadbyte.itemcustomizer.server.util.Helper;
 import com.github.breadbyte.itemcustomizer.server.util.Postmaster;
 import com.github.breadbyte.itemcustomizer.server.util.Result;
 import com.mojang.brigadier.context.CommandContext;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 public class NamespaceOperations {
-    public static Result<String> registerSuggestions(ServerPlayerEntity player, CommandContext<ServerCommandSource> ctx) {
+    public static Result<String> registerSuggestions(PlayerEntity player, CommandContext<ServerCommandSource> ctx) {
         var paramUrl = String.valueOf(ctx.getArgument("url", String.class));
         var paramNamespace = String.valueOf(ctx.getArgument("namespace", String.class));
 
@@ -60,7 +61,7 @@ public class NamespaceOperations {
         return Result.ok("Fetching suggestions...");
     }
 
-    public static Result<Void> clearSuggestions(ServerPlayerEntity player, CommandContext<ServerCommandSource> ctx) {
+    public static Result<Void> clearSuggestions(PlayerEntity player, CommandContext<ServerCommandSource> ctx) {
         Helper.tryLoadStorage();
 
         var inst = ModelsIndex.getInstance();
@@ -70,7 +71,7 @@ public class NamespaceOperations {
         return Result.ok();
     }
 
-    public static Result<String> removeNamespace(ServerPlayerEntity player, CommandContext<ServerCommandSource> ctx) {
+    public static Result<String> removeNamespace(PlayerEntity player, CommandContext<ServerCommandSource> ctx) {
         var paramNamespace = String.valueOf(ctx.getArgument("namespace", String.class));
         Helper.tryLoadStorage();
 

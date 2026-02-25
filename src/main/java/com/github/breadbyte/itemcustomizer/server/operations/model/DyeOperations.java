@@ -6,12 +6,13 @@ import com.github.breadbyte.itemcustomizer.server.util.Result;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.DyedColorComponent;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 public class DyeOperations {
 
-    public static Result<Void> DyeModel(ServerPlayerEntity player, CommandContext<ServerCommandSource> ctx) {
+    public static Result<Void> DyeModel(PlayerEntity player, CommandContext<ServerCommandSource> ctx) {
         var playerItem = PreOperations.TryGetValidPlayerCurrentHand(player).unwrap();
         var colorClass = ctx.getArgument(ModelDyeCommand.COLOR_ARGUMENT, Integer.class);
 
@@ -25,7 +26,7 @@ public class DyeOperations {
         return Result.ok();
     }
 
-    public static Result<Void> ResetDye(ServerPlayerEntity player, CommandContext<ServerCommandSource> ctx) {
+    public static Result<Void> ResetDye(PlayerEntity player, CommandContext<ServerCommandSource> ctx) {
         var playerItem = PreOperations.TryGetValidPlayerCurrentHand(player).unwrap();
         playerItem.remove(DataComponentTypes.DYED_COLOR);
 

@@ -6,12 +6,13 @@ import com.github.breadbyte.itemcustomizer.server.util.*;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.command.EntitySelector;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 public class PermissionOperations {
 
-    public static Result<String> GrantPermission(ServerPlayerEntity player, CommandContext<ServerCommandSource> ctx) {
+    public static Result<String> GrantPermission(PlayerEntity player, CommandContext<ServerCommandSource> ctx) {
         var namespace = String.valueOf(ctx.getArgument(ModelPermissionCommand.NAMESPACE_ARGUMENT, String.class));
         var itemType = String.valueOf(ctx.getArgument(ModelPermissionCommand.CATEGORY_ARGUMENT, String.class));
         var itemName = String.valueOf(ctx.getArgument(ModelPermissionCommand.NAME_ARGUMENT, String.class));
@@ -35,7 +36,7 @@ public class PermissionOperations {
         }
     }
 
-    public static Result<String> RevokePermission(ServerPlayerEntity player, CommandContext<ServerCommandSource> ctx) {
+    public static Result<String> RevokePermission(PlayerEntity player, CommandContext<ServerCommandSource> ctx) {
         var namespace = String.valueOf(ctx.getArgument(ModelPermissionCommand.NAMESPACE_ARGUMENT, String.class));
         var itemType = String.valueOf(ctx.getArgument(ModelPermissionCommand.CATEGORY_ARGUMENT, String.class));
         var itemName = String.valueOf(ctx.getArgument(ModelPermissionCommand.NAME_ARGUMENT, String.class));
@@ -59,7 +60,7 @@ public class PermissionOperations {
         }
     }
 
-    public static Result<String> GetPermissionNode(ServerPlayerEntity player, CommandContext<ServerCommandSource> ctx) {
+    public static Result<String> GetPermissionNode(PlayerEntity player, CommandContext<ServerCommandSource> ctx) {
         var namespace = String.valueOf(ctx.getArgument(ModelPermissionCommand.NAMESPACE_ARGUMENT, String.class));
         var itemType = String.valueOf(ctx.getArgument(ModelPermissionCommand.CATEGORY_ARGUMENT, String.class));
         var itemName = String.valueOf(ctx.getArgument(ModelPermissionCommand.NAME_ARGUMENT, String.class));

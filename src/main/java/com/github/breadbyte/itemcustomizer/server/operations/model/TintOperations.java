@@ -6,13 +6,14 @@ import com.github.breadbyte.itemcustomizer.server.util.Result;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.CustomModelDataComponent;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 import java.util.List;
 
 public class TintOperations {
-    public static Result<String> TintModel(ServerPlayerEntity player, CommandContext<ServerCommandSource> ctx) {
+    public static Result<String> TintModel(PlayerEntity player, CommandContext<ServerCommandSource> ctx) {
         var index = ctx.getArgument(ModelTintCommand.TINT_INDEX_ARGUMENT, Integer.class);
         var color = ctx.getArgument(ModelTintCommand.TINT_COLOR_ARGUMENT, Integer.class);
         // color is hex color
@@ -64,7 +65,7 @@ public class TintOperations {
         return Result.ok(value);
     }
 
-    public static Result<?> TintReset(ServerPlayerEntity player, CommandContext<ServerCommandSource> ctx) {
+    public static Result<?> TintReset(PlayerEntity player, CommandContext<ServerCommandSource> ctx) {
         var playerItem = PreOperations.TryGetValidPlayerCurrentHand(player).unwrap();
 
         // Get the components for the currently held item
