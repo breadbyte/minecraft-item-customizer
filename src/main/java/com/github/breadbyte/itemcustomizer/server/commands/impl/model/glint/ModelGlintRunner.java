@@ -23,6 +23,6 @@ public class ModelGlintRunner implements IModelGlintRunner {
     @Override
     public int toggleGlint(CommandContext<ServerCommandSource> ctx) {
         var params = adapter.getParams(ctx);
-        return PreOperations.executeOperation(ctx, operations::toggle, params, StackRequirement.REQUIRED_MAINHAND, "", 1);
+        return PreOperations.executeOperation(ctx, operations::toggle, params, StackRequirement.REQUIRED_MAINHAND, "", 0);
     }
 }

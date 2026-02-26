@@ -19,18 +19,18 @@ public class ModelNamespaceRunner implements IModelNamespaceRunner {
     @Override
     public int addNamespace(CommandContext<ServerCommandSource> ctx) {
         var params = adapter.getParams(ctx);
-        return PreOperations.executeOperation(ctx, operations::addNamespace, params, StackRequirement.NONE, "", 1);
+        return PreOperations.executeOperation(ctx, operations::addNamespace, params, StackRequirement.NONE, "", 0);
     }
 
     @Override
     public int removeNamespace(CommandContext<ServerCommandSource> ctx) {
         var params = adapter.getParams(ctx);
-        return PreOperations.executeOperation(ctx, operations::removeNamespace, params, StackRequirement.NONE, "", 1);
+        return PreOperations.executeOperation(ctx, operations::removeNamespace, params, StackRequirement.NONE, "", 0);
     }
 
     @Override
     public int clearAll(CommandContext<ServerCommandSource> ctx) {
         var params = adapter.getParams(ctx);
-        return PreOperations.executeOperation(ctx, operations::clearAll, params, StackRequirement.NONE, "", 1);
+        return PreOperations.executeOperation(ctx, operations::clearAll, params, StackRequirement.NONE, "", 0);
     }
 }

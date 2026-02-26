@@ -19,12 +19,12 @@ public class ModelEquipmentRunner implements IModelEquipmentRunner {
     @Override
     public int setEquipmentTexture(CommandContext<ServerCommandSource> ctx) {
         var params = adapter.getParams(ctx);
-        return PreOperations.executeOperation(ctx, operations::toggle, params, StackRequirement.REQUIRED_MAINHAND, "", 1);
+        return PreOperations.executeOperation(ctx, operations::toggle, params, StackRequirement.REQUIRED_MAINHAND, "", 0);
     }
 
     @Override
     public int resetEquipmentTexture(CommandContext<ServerCommandSource> ctx) {
         var params = adapter.getParams(ctx);
-        return PreOperations.executeOperation(ctx, operations::reset, params, StackRequirement.REQUIRED_MAINHAND, "", 1);
+        return PreOperations.executeOperation(ctx, operations::reset, params, StackRequirement.REQUIRED_MAINHAND, "", 0);
     }
 }
