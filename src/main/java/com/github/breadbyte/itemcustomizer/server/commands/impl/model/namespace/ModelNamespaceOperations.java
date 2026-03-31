@@ -7,14 +7,23 @@ import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import com.github.breadbyte.itemcustomizer.server.internal.CSVFetcher;
 import com.github.breadbyte.itemcustomizer.server.util.Helper;
 import com.github.breadbyte.itemcustomizer.server.util.Postmaster;
+import com.github.breadbyte.itemcustomizer.server.util.Reason;
 import com.github.breadbyte.itemcustomizer.server.util.Result;
+
+import java.net.URI;
+import java.net.URL;
 
 public class ModelNamespaceOperations implements IModelNamespaceOperations {
 
     @Override
     public Result<String> addNamespace(ModelNamespaceParams params) {
         var paramNamespace = params.namespace();
-        var paramUrl = params.url();
+        URL paramUrl;
+        try {
+            paramUrl = params.url();
+        } catch (Exception e) {
+            return Result.err(new Reason.InternalError("Invalid URL: " + e.getMessage() + " " + params.url()));
+        }
         var src = params.server();
 
         // Start async fetch to avoid blocking the server thread.
