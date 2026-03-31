@@ -30,7 +30,9 @@ public class ModelApplyAdapter implements Adapter<ModelApplyParams> {
             return Result.err(new Reason.InternalError("Missing arguments"));
         }
 
-        var item = PreOperations.TryGetValidPlayerCurrentHand(player).unwrap();
+        var itemResult = PreOperations.TryGetValidPlayerCurrentHand(player);
+        if (itemResult.isErr()) return Result.err(itemResult.unwrapErr());
+        var item = itemResult.unwrap();
 
         ModelPath ns = ModelPath.fromNamespaceAndPath(namespace, path);
         CustomModelDefinition m = ModelsIndex.getInstance().get(ns, ns.itemName());
