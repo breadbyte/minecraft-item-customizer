@@ -59,8 +59,7 @@ public class CSVFetcher {
                             continue;
                         }
 
-                        // HACK: Prepend custom/ because the damn csv doesn't have it, but the actual path in the resource pack has it
-                        ModelPath nc = ModelPath.fromDestination(namespace, itemCategory, itemName, "custom/" + destination);
+                        ModelPath nc = ModelPath.fromDestination(namespace, itemCategory, itemName, destination, true);
                         suggestions.add(new CustomModelDefinition(nc, madeBy));
                     } else {
                         ItemCustomizer.LOGGER.warn("CSV line does not contain enough parts: {}", line);

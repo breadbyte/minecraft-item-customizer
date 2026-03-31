@@ -23,11 +23,14 @@ public class ModelApplyOperations implements IModelApplyOperations {
         var item = params.item();
 
         // Set it to the new model
-        item.set(DataComponentTypes.ITEM_MODEL, Identifier.of(ns.namespace(), ns.getFullPath()));
+        if (params.identifier().__internalPrependCustom())
+            item.set(DataComponentTypes.ITEM_MODEL, Identifier.of(ns.namespace(), "custom/" + ns.getFullPath()));
+        else
+            item.set(DataComponentTypes.ITEM_MODEL, Identifier.of(ns.namespace(), ns.getFullPath()));
         var model = ModelsIndex.INSTANCE.get(ns, name);
 
         if (model == null)
-            return Result.ok("Model " + ns + ":" + name + "applied!");
+            return Result.ok("Model " + ns + "applied!");
 
         if (model.madeBy() == null || model.madeBy().isBlank()) {
             return Result.ok("Model " + model.getName() + " applied!");

@@ -8,7 +8,7 @@ import java.util.Objects;
  * Format: [namespace]:[category/subPath/itemName]
  * Only namespace, category, and itemName are visible to the end user.
  */
-public record ModelPath(@NotNull String namespace, @NotNull String category, @NotNull String subPath, @NotNull String itemName) {
+public record ModelPath(@NotNull String namespace, @NotNull String category, @NotNull String subPath, @NotNull String itemName, @NotNull Boolean __internalPrependCustom) {
 
     public ModelPath {
         Objects.requireNonNull(namespace, "namespace cannot be null");
@@ -26,14 +26,14 @@ public record ModelPath(@NotNull String namespace, @NotNull String category, @No
      * Creates a ModelPath representing a category (with an empty itemName).
      */
     public ModelPath(String namespace, String category) {
-        this(namespace, category, "", "");
+        this(namespace, category, "", "", false);
     }
 
     /**
      * Creates a ModelPath without a hidden subPath.
      */
     public ModelPath(String namespace, String category, String itemName) {
-        this(namespace, category, "", itemName);
+        this(namespace, category, "", itemName, false);
     }
 
     /**
@@ -41,9 +41,9 @@ public record ModelPath(@NotNull String namespace, @NotNull String category, @No
      * The destination path always starts with the category and ends with the itemName.
      * The parts in between are treated as the hidden subPath.
      */
-    public static @NotNull ModelPath fromDestination(@NotNull String namespace, @NotNull String category, @NotNull String itemName, String destination) {
+    public static @NotNull ModelPath fromDestination(@NotNull String namespace, @NotNull String category, @NotNull String itemName, String destination, Boolean __internalPrependCustom) {
         if (destination == null || destination.isBlank()) {
-            return new ModelPath(namespace, category, "", itemName);
+            return new ModelPath(namespace, category, "", itemName, __internalPrependCustom);
         }
 
         String cleanDest = trimLeadingSlash(trimTrailingSlash(destination.trim()));
@@ -67,7 +67,7 @@ public record ModelPath(@NotNull String namespace, @NotNull String category, @No
             }
         }
 
-        return new ModelPath(namespace, category, subPath, itemName);
+        return new ModelPath(namespace, category, subPath, itemName, __internalPrependCustom);
     }
 
     /**
@@ -76,7 +76,7 @@ public record ModelPath(@NotNull String namespace, @NotNull String category, @No
      * Note: This does not support parsing hidden subpaths from a string.
      */
     public static @NotNull ModelPath of(String fullId) {
-        if (fullId == null || fullId.isBlank()) return new ModelPath("minecraft", "", "", "");
+        if (fullId == null || fullId.isBlank()) return new ModelPath("minecraft", "", "", "", false);
         
         String namespace = "minecraft";
         String path = fullId;
@@ -96,15 +96,15 @@ public record ModelPath(@NotNull String namespace, @NotNull String category, @No
      * subPath is left empty.
      */
     public static @NotNull ModelPath fromNamespaceAndPath(String namespace, String path) {
-        if (path == null) return new ModelPath(namespace, "", "", "");
+        if (path == null) return new ModelPath(namespace, "", "", "", false);
         
         path = trimLeadingSlash(trimTrailingSlash(path.trim()));
         
         int lastSlash = path.lastIndexOf('/');
         if (lastSlash == -1) {
-            return new ModelPath(namespace, "", "", path);
+            return new ModelPath(namespace, "", "", path, false);
         } else {
-            return new ModelPath(namespace, path.substring(0, lastSlash), "", path.substring(lastSlash + 1));
+            return new ModelPath(namespace, path.substring(0, lastSlash), "", path.substring(lastSlash + 1), false);
         }
     }
 
@@ -174,7 +174,7 @@ public record ModelPath(@NotNull String namespace, @NotNull String category, @No
 
     public ModelPath appendCategory(String categoryToAppend) {
         String newCategory = category.isEmpty() ? categoryToAppend : category + "/" + categoryToAppend;
-        return new ModelPath(namespace, newCategory, subPath, itemName);
+        return new ModelPath(namespace, newCategory, subPath, itemName, false);
     }
 
     // Getters for compatibility

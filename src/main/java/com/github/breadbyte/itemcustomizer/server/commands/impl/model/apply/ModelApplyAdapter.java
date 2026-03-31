@@ -37,12 +37,15 @@ public class ModelApplyAdapter implements Adapter<ModelApplyParams> {
 
         if (m == null) {
             if (!AccessValidator.IsAdmin(player)) {
-                return Result.err(new Reason.InternalError("No custom model definition found for model: " + ns));
+                return Result.err(new Reason.InternalError("No custom model definition found for model: " + namespace + ":" + path));
             }
 
             // Force anyway if we're admin
             m = new CustomModelDefinition(ns, "");
         }
+
+        // Get the actual model path, which may be different
+        ns = m.getModelPath();
 
         return Result.ok(new ModelApplyParams(item, ns, m));
     }
