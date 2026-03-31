@@ -4,9 +4,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 
 /**
- * Represents a path to a model, consisting of a namespace, a category path, an optional hidden subpath, and an item name.
+ * Represents a path to a model, consisting of a namespace, a category path, a subpath, and an item name.
  * Format: [namespace]:[category/subPath/itemName]
- * Only namespace, category, and itemName are visible to the end user.
+ * All segments of the path are visible to the end user and subject to permission checks.
  */
 public record ModelPath(@NotNull String namespace, @NotNull String category, @NotNull String subPath, @NotNull String itemName, @NotNull Boolean __internalPrependCustom) {
 
@@ -37,9 +37,9 @@ public record ModelPath(@NotNull String namespace, @NotNull String category, @No
     }
 
     /**
-     * Creates a ModelPath from its components and a destination path that may contain hidden subpaths.
+     * Creates a ModelPath from its components and a destination path that may contain subpaths.
      * The destination path always starts with the category and ends with the itemName.
-     * The parts in between are treated as the hidden subPath.
+     * The parts in between are treated as the subPath.
      */
     public static @NotNull ModelPath fromDestination(@NotNull String namespace, @NotNull String category, @NotNull String itemName, String destination, Boolean __internalPrependCustom) {
         if (destination == null || destination.isBlank()) {
@@ -73,7 +73,6 @@ public record ModelPath(@NotNull String namespace, @NotNull String category, @No
     /**
      * Parses a string of format "namespace:category/item" or "item".
      * If no namespace is present, "minecraft" is assumed.
-     * Note: This does not support parsing hidden subpaths from a string.
      */
     public static @NotNull ModelPath of(String fullId) {
         if (fullId == null || fullId.isBlank()) return new ModelPath("minecraft", "", "", "", false);
@@ -130,32 +129,37 @@ public record ModelPath(@NotNull String namespace, @NotNull String category, @No
     }
 
     /**
-     * Returns the full path representation including namespace and hidden subpaths.
+     * Returns the full path representation including namespace and subpaths.
      */
     public @NotNull String toFullId() {
         return namespace + ":" + getFullPath();
     }
 
     public @NotNull String getFullPath() {
-        String path = category;
-        if (!subPath.isEmpty()) {
-            path = path.isEmpty() ? subPath : path + "/" + subPath;
-        }
+        String path = getFullCategoryPath();
         if (!itemName.isEmpty()) {
             path = path.isEmpty() ? itemName : path + "/" + itemName;
         }
         return path;
     }
 
+    /**
+     * Returns the combined category and subPath.
+     */
+    public @NotNull String getFullCategoryPath() {
+        if (category.isEmpty()) return subPath;
+        if (subPath.isEmpty()) return category;
+        return category + "/" + subPath;
+    }
+
     public @NotNull String getVisiblePath() {
-        if (category.isEmpty()) return itemName;
-        if (itemName.isEmpty()) return category;
-        return category + "/" + itemName;
+        return getFullPath();
     }
 
     public @NotNull String getPermissionNode() {
-        if (category.isEmpty()) return namespace;
-        return namespace + "." + category.replace("/", ".");
+        String fullCategory = getFullCategoryPath();
+        if (fullCategory.isEmpty()) return namespace;
+        return namespace + "." + fullCategory.replace("/", ".");
     }
 
     public @NotNull String getItemPermissionNode() {
@@ -168,8 +172,9 @@ public record ModelPath(@NotNull String namespace, @NotNull String category, @No
     }
 
     public @NotNull String categoryWithItemName(String otherItemName) {
-        if (category.isEmpty()) return otherItemName;
-        return category + "/" + otherItemName;
+        String fullCategory = getFullCategoryPath();
+        if (fullCategory.isEmpty()) return otherItemName;
+        return fullCategory + "/" + otherItemName;
     }
 
     public ModelPath appendCategory(String categoryToAppend) {
@@ -188,13 +193,12 @@ public record ModelPath(@NotNull String namespace, @NotNull String category, @No
         if (this == obj) return true;
         if (!(obj instanceof ModelPath that)) return false;
         return namespace.equalsIgnoreCase(that.namespace) &&
-               category.equalsIgnoreCase(that.category) &&
-               subPath.equalsIgnoreCase(that.subPath) &&
+               getFullCategoryPath().equalsIgnoreCase(that.getFullCategoryPath()) &&
                itemName.equalsIgnoreCase(that.itemName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(namespace.toLowerCase(), category.toLowerCase(), subPath.toLowerCase(), itemName.toLowerCase());
+        return Objects.hash(namespace.toLowerCase(), getFullCategoryPath().toLowerCase(), itemName.toLowerCase());
     }
 }

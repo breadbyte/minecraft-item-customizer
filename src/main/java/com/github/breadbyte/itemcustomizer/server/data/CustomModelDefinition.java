@@ -22,7 +22,7 @@ public record CustomModelDefinition(@SerialEntry ModelPath modelPath, @SerialEnt
     }
 
     public String getCategory() {
-        return modelPath.category();
+        return modelPath.getFullCategoryPath();
     }
 
     public String getName() {

@@ -42,7 +42,10 @@ public class ModelTraverseSuggestionProvider implements SuggestionProvider<Serve
         for (String child : index.immediateChildren(namespace, currentPath)) {
             if (child.startsWith(prefix)) {
                 String suggestion = currentPath.isEmpty() ? child : currentPath + "/" + child;
-                if (hasPermissionForPath(player, index, new ModelPath(namespace, suggestion))) {
+                // When creating a ModelPath for permission checking, we need to ensure the suggestion
+                // is correctly parsed into category and subPath.
+                // ModelPath.fromNamespaceAndPath will handle this correctly now.
+                if (hasPermissionForPath(player, index, ModelPath.fromNamespaceAndPath(namespace, suggestion))) {
                     builder.suggest(suggestion + "/");
                 }
             }
@@ -64,7 +67,7 @@ public class ModelTraverseSuggestionProvider implements SuggestionProvider<Serve
     private boolean hasPermissionForPath(ServerPlayerEntity player, ModelsIndex index, ModelPath path) {
         if (AccessValidator.IsAdmin(player)) return true;
         
-        // Direct permission for category
+        // Direct permission for category (all segments of the path must be allowed)
         if (Permissions.check(player, Permission.CUSTOMIZE.chain(path.getPermissionNode()).getPermission())) {
             return true;
         }
