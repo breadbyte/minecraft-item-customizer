@@ -1,23 +1,18 @@
 package com.github.breadbyte.itemcustomizer.server.util;
 
-import com.github.breadbyte.itemcustomizer.server.data.NamespaceCategory;
+import com.github.breadbyte.itemcustomizer.server.data.ModelPath;
 import com.github.breadbyte.itemcustomizer.server.data.Storage;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextCodecs;
 import net.minecraft.util.Identifier;
-
-import static net.minecraft.text.Text.literal;
 
 public class Helper {
 
@@ -56,7 +51,7 @@ public class Helper {
         }
     }
 
-    public static Identifier NamespaceCategoryToIdentifier(NamespaceCategory nsc, String itemName) {
+    public static Identifier NamespaceCategoryToIdentifier(ModelPath nsc, String itemName) {
         return Identifier.of(nsc.namespace(), nsc.categoryWithItemName(itemName));
     }
 

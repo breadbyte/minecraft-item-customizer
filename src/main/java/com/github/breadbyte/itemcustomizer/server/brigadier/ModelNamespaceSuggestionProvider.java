@@ -31,8 +31,14 @@ public class ModelNamespaceSuggestionProvider implements SuggestionProvider<Serv
         } else {
             validNamespaces = allNamespaces.stream()
                 .filter(namespace -> {
-                    // We have permission for this namespace, skip
-                    return Permissions.check(player, Permission.CUSTOMIZE.chain(namespace).getPermission());
+                    // Check direct permission for namespace
+                    if (Permissions.check(player, Permission.CUSTOMIZE.chain(namespace).getPermission())) {
+                        return true;
+                    }
+                    // Check if any model in the namespace is accessible
+                    return index.categories(namespace).stream()
+                            .anyMatch(path -> index.getAllRecursive(path).stream()
+                                    .anyMatch(model -> Permissions.check(player, model.getPermissionNode())));
                 })
                 .collect(Collectors.toSet());
         }

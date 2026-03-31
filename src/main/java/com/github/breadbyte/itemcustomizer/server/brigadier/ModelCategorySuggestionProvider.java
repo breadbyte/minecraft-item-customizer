@@ -1,8 +1,8 @@
 package com.github.breadbyte.itemcustomizer.server.brigadier;
 
 import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
+import com.github.breadbyte.itemcustomizer.server.data.ModelPath;
 import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
-import com.github.breadbyte.itemcustomizer.server.data.NamespaceCategory;
 import com.github.breadbyte.itemcustomizer.server.util.AccessValidator;
 import com.github.breadbyte.itemcustomizer.server.util.Permission;
 import com.mojang.brigadier.context.CommandContext;
@@ -40,7 +40,7 @@ public class ModelCategorySuggestionProvider implements SuggestionProvider<Serve
         var player = context.getSource().getPlayer();
         var instance = ModelsIndex.getInstance();
         var categories = instance.categories(paramNamespace);
-        Set<NamespaceCategory> validItemTypes = null;
+        Set<ModelPath> validItemTypes = null;
 
         if (AccessValidator.IsAdmin(player)) {
             validItemTypes = categories;
@@ -49,7 +49,7 @@ public class ModelCategorySuggestionProvider implements SuggestionProvider<Serve
                     .filter(namespace -> {
                         // We have permission for this category, skip
                         // todo: don't use permissions api directly, use AccessValidator to guard
-                        for (NamespaceCategory category : categories) {
+                        for (ModelPath category : categories) {
                             if (Permissions.check(player, Permission.CUSTOMIZE.chain(category.getPermissionNode()).getPermission())) {
                                 return true;
                             }
@@ -74,7 +74,7 @@ public class ModelCategorySuggestionProvider implements SuggestionProvider<Serve
                     ).collect(Collectors.toSet());
         }
 
-        for (NamespaceCategory itemType : validItemTypes) {
+        for (ModelPath itemType : validItemTypes) {
             builder.suggest(itemType.getCategory());
         }
 

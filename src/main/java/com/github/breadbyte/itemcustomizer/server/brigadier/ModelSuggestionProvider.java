@@ -1,6 +1,6 @@
 package com.github.breadbyte.itemcustomizer.server.brigadier;
 
-import com.github.breadbyte.itemcustomizer.server.data.NamespaceCategory;
+import com.github.breadbyte.itemcustomizer.server.data.ModelPath;
 import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
 import com.github.breadbyte.itemcustomizer.server.util.AccessValidator;
@@ -39,7 +39,7 @@ public class ModelSuggestionProvider implements SuggestionProvider<ServerCommand
         }
 
         var player = context.getSource().getPlayer();
-        var items = ModelsIndex.getInstance().getAllRecursive(new NamespaceCategory(paramNamespace, paramCategory));
+        var items = ModelsIndex.getInstance().getAllRecursive(new ModelPath(paramNamespace, paramCategory));
         Set<CustomModelDefinition> validItems;
 
         if (AccessValidator.IsAdmin(player)) {

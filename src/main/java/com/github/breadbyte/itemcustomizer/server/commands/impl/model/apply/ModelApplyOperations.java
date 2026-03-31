@@ -9,6 +9,7 @@ import com.github.breadbyte.itemcustomizer.server.util.Reason;
 import com.github.breadbyte.itemcustomizer.server.util.Result;
 import net.minecraft.component.ComponentMap;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.util.Identifier;
 
 public class ModelApplyOperations implements IModelApplyOperations {
 
@@ -22,7 +23,7 @@ public class ModelApplyOperations implements IModelApplyOperations {
         var item = params.item();
 
         // Set it to the new model
-        item.set(DataComponentTypes.ITEM_MODEL, Helper.NamespaceCategoryToIdentifier(ns, name));
+        item.set(DataComponentTypes.ITEM_MODEL, Identifier.of(ns.namespace(), ns.getFullPath()));
         var model = ModelsIndex.INSTANCE.get(ns, name);
 
         if (model == null)

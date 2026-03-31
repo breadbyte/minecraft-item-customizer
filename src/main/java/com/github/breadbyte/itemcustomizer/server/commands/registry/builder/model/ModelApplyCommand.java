@@ -3,9 +3,8 @@ package com.github.breadbyte.itemcustomizer.server.commands.registry.builder.mod
 import com.github.breadbyte.itemcustomizer.server.commands.impl.model.apply.ModelApplyRunner;
 import com.github.breadbyte.itemcustomizer.server.commands.registry.BaseCommand;
 import com.github.breadbyte.itemcustomizer.server.commands.registry.InternalHelper;
-import com.github.breadbyte.itemcustomizer.server.brigadier.ModelCategorySuggestionProvider;
 import com.github.breadbyte.itemcustomizer.server.brigadier.ModelNamespaceSuggestionProvider;
-import com.github.breadbyte.itemcustomizer.server.brigadier.ModelSuggestionProvider;
+import com.github.breadbyte.itemcustomizer.server.brigadier.ModelTraverseSuggestionProvider;
 import com.github.breadbyte.itemcustomizer.server.util.Permission;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -18,8 +17,7 @@ import static net.minecraft.server.command.CommandManager.literal;
 public class ModelApplyCommand implements BaseCommand {
 
     public static final String NAMESPACE_ARGUMENT = "namespace";
-    public static final String ITEM_CATEGORY_ARGUMENT = "item_category";
-    public static final String ITEM_NAME_ARGUMENT = "item_name";
+    public static final String ITEM_PATH_ARGUMENT = "item_path";
     public static final String EQUIPMENT_TEXTURE_ARGUMENT = "change_equippable_texture";
     public static final String COLOR_ARGUMENT = "color";
 
@@ -37,23 +35,17 @@ public class ModelApplyCommand implements BaseCommand {
                 .suggests(ModelNamespaceSuggestionProvider.INSTANCE);
 
         var ApplyNode = literal("apply");
-        var ItemCategoryNode = CommandManager.argument(ITEM_CATEGORY_ARGUMENT, StringArgumentType.string())
-                .suggests(ModelCategorySuggestionProvider.INSTANCE);
-
-        var ItemNameNode = CommandManager.argument(ITEM_NAME_ARGUMENT, StringArgumentType.string())
-                .suggests(ModelSuggestionProvider.INSTANCE);
+        var ItemPathNode = CommandManager.argument(ITEM_PATH_ARGUMENT, StringArgumentType.greedyString())
+                .suggests(ModelTraverseSuggestionProvider.INSTANCE);
 
         var ResetNode = literal("reset");
 
-        // model apply item_namespace item_category item_name
-        // model apply item_namespace old/item/format
+        // model apply item_namespace item/path/to/model
         dispatcher.register(_root
                 .then(ApplyNode
                 .then(NamespaceNode
-                .then(ItemCategoryNode
-                        .executes(RUNNER::applyModel)
-                .then(ItemNameNode
-                        .executes(RUNNER::applyModel))))));
+                .then(ItemPathNode
+                        .executes(RUNNER::applyModel)))));
 
         // model reset
         dispatcher.register(_root

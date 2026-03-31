@@ -72,7 +72,7 @@ public class ModelsIndex {
     public void add(CustomModelDefinition model) {
         _index
             .computeIfAbsent(model.getNamespace(), ns -> new PatriciaTrie<>())
-            .computeIfAbsent(NormalizeSlashes(model.getCategory()), cat -> new ArrayList<>())
+            .computeIfAbsent(model.getCategory(), cat -> new ArrayList<>())
             .add(model);
     }
 
@@ -85,18 +85,18 @@ public class ModelsIndex {
     public List<CustomModelDefinition> get(String namespace, String category) {
         var trie = _index.get(namespace);
         if (trie == null) return List.of();
-        return trie.getOrDefault(NormalizeSlashes(category), List.of());
+        return trie.getOrDefault(category, List.of());
     }
 
     public CustomModelDefinition get(String namespace, String category, String name) {
-        return get(namespace, NormalizeSlashes(category)).stream()
+        return get(namespace, category).stream()
                 .filter(m -> m.getName().equals(name))
                 .findFirst()
                 .orElse(null);
     }
 
     public Set<CustomModelDefinition> getAllShallow(String namespace, String category) {
-        return Set.copyOf(get(namespace, NormalizeSlashes(category)));
+        return Set.copyOf(get(namespace, category));
     }
 
     /**
@@ -109,20 +109,20 @@ public class ModelsIndex {
         if (trie == null) return List.of();
 
         // prefixMap returns all entries whose key starts with the given prefix
-        return trie.prefixMap(NormalizeSlashes(categoryPrefix)).values().stream()
+        return trie.prefixMap(categoryPrefix).values().stream()
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
     }
 
-    public Set<CustomModelDefinition> getAllRecursive(NamespaceCategory nsc) {
+    public Set<CustomModelDefinition> getAllRecursive(ModelPath nsc) {
         return Set.copyOf(subcategories(nsc.getNamespace(), nsc.getCategory()));
     }
 
-    public CustomModelDefinition get(NamespaceCategory nsc, String name) {
+    public CustomModelDefinition get(ModelPath nsc, String name) {
         return get(nsc.getNamespace(), nsc.getCategory(), name);
     }
 
-    public Set<CustomModelDefinition> getAllShallow(NamespaceCategory nsc) {
+    public Set<CustomModelDefinition> getAllShallow(ModelPath nsc) {
         return getAllShallow(nsc.getNamespace(), nsc.getCategory());
     }
 
@@ -135,8 +135,7 @@ public class ModelsIndex {
         var trie = _index.get(namespace);
         if (trie == null) return Set.of();
 
-        var normalizedParent = NormalizeSlashes(parentCategory);
-        var prefix = normalizedParent.isEmpty() ? "" : normalizedParent + "/";
+        var prefix = parentCategory.isEmpty() ? "" : parentCategory + "/";
         return trie.prefixMap(prefix).keySet().stream()
                 .map(key -> {
                     var remainder = key.substring(prefix.length());
@@ -151,18 +150,18 @@ public class ModelsIndex {
     }
 
     /** All category paths (at any depth) within a namespace. */
-    public Set<NamespaceCategory> categories(String namespace) {
+    public Set<ModelPath> categories(String namespace) {
         var trie = _index.get(namespace);
         if (trie == null) return Set.of();
         return trie.keySet().stream()
-                .map(cat -> new NamespaceCategory(namespace, cat))
+                .map(cat -> new ModelPath(namespace, cat))
                 .collect(Collectors.toUnmodifiableSet());
     }
 
-    public Set<NamespaceCategory> namespaceCategories() {
+    public Set<ModelPath> namespaceCategories() {
         return _index.entrySet().stream()
                 .flatMap(e -> e.getValue().keySet().stream()
-                        .map(cat -> new NamespaceCategory(e.getKey(), cat)))
+                        .map(cat -> new ModelPath(e.getKey(), cat)))
                 .collect(Collectors.toUnmodifiableSet());
     }
 
@@ -184,14 +183,5 @@ public class ModelsIndex {
                 .flatMap(trie -> trie.values().stream())
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
-    }
-
-    private String NormalizeSlashes(String s) {
-        if (s == null) return "";
-        var temp = s.trim();
-        while (temp.endsWith("/")) {
-            temp = temp.substring(0, temp.length() - 1);
-        }
-        return temp;
     }
 }
