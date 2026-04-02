@@ -22,10 +22,12 @@ public class ModelApplyAdapter implements Adapter<ModelApplyParams> {
         var player = playerResult.unwrap();
 
         String namespace;
+        String category;
         String path;
         try {
-            namespace = String.valueOf(ctx.getArgument(ModelApplyCommand.NAMESPACE_ARGUMENT, String.class));
-            path = String.valueOf(ctx.getArgument(ModelApplyCommand.ITEM_PATH_ARGUMENT, String.class));
+            namespace = ctx.getArgument(ModelApplyCommand.NAMESPACE_ARGUMENT, String.class);
+            category = ctx.getArgument(ModelApplyCommand.ITEM_CATEGORY_ARGUMENT, String.class);
+            path = ctx.getArgument(ModelApplyCommand.ITEM_PATH_ARGUMENT, String.class);
         } catch (IllegalArgumentException e) {
             return Result.err(new Reason.InternalError("Missing arguments"));
         }
@@ -34,12 +36,16 @@ public class ModelApplyAdapter implements Adapter<ModelApplyParams> {
         if (itemResult.isErr()) return Result.err(itemResult.unwrapErr());
         var item = itemResult.unwrap();
 
-        ModelPath ns = ModelPath.fromNamespaceAndPath(namespace, path);
+        // The user specifies: /model apply <namespace> <category> <subpath/item>
+        // ModelPath.fromNamespaceAndPath expects "namespace" and "category/subpath/item"
+        String fullPath = category + (path.isEmpty() ? "" : "/" + path);
+        ModelPath ns = ModelPath.fromNamespaceAndPath(namespace, fullPath);
+        
         CustomModelDefinition m = ModelsIndex.getInstance().get(ns, ns.itemName());
 
         if (m == null) {
             if (!AccessValidator.IsAdmin(player)) {
-                return Result.err(new Reason.InternalError("No custom model definition found for model: " + namespace + ":" + path));
+                return Result.err(new Reason.InternalError("No custom model definition found for model: " + namespace + ":" + fullPath));
             }
 
             // Force anyway if we're admin

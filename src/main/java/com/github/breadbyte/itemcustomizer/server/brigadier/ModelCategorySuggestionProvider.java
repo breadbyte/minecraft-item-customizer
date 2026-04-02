@@ -24,61 +24,40 @@ public class ModelCategorySuggestionProvider implements SuggestionProvider<Serve
 
     @Override
     public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) throws CommandSyntaxException {
-        @Nullable
         String paramNamespace;
-        @Nullable
-        String paramCategory;
 
         try {
-            paramNamespace = String.valueOf(context.getArgument("namespace", String.class));
-            paramCategory = String.valueOf(context.getArgument("item_category", String.class));
+            paramNamespace = context.getArgument("namespace", String.class);
         } catch (IllegalArgumentException e) {
             return builder.buildFuture();
         }
 
-        // Get all models, and check if we have CUSTOMIZE.<namespace>.<item_name> permission for it.
         var player = context.getSource().getPlayer();
         var instance = ModelsIndex.getInstance();
-        var categories = instance.categories(paramNamespace);
-        Set<ModelPath> validItemTypes = null;
+        var allCategories = instance.categories(paramNamespace);
+        Set<ModelPath> validCategories;
 
         if (AccessValidator.IsAdmin(player)) {
-            validItemTypes = categories;
+            validCategories = allCategories;
         } else {
-            validItemTypes = categories.stream()
-                    .filter(namespace -> {
-                        // We have permission for this category, skip
-                        // todo: don't use permissions api directly, use AccessValidator to guard
-                        for (ModelPath category : categories) {
-                            if (Permissions.check(player, Permission.CUSTOMIZE.chain(category.getPermissionNode()).getPermission())) {
-                                return true;
-                            }
-
-                            // We have permission for this model, continue
-                            for (CustomModelDefinition model : instance.getAllRecursive(category)) {
-                                if (Permissions.check(player, model.getPermissionNode())) {
-                                    return true;
-                                }
-                            }
+            validCategories = allCategories.stream()
+                    .filter(path -> {
+                        // Check if we have permission for this category
+                        if (Permissions.check(player, Permission.CUSTOMIZE.chain(path.getPermissionNode()).getPermission())) {
+                            return true;
                         }
-                        return false;
+
+                        // Check if we have permission for any model in this category
+                        return instance.getAllRecursive(path).stream()
+                                .anyMatch(model -> Permissions.check(player, model.getPermissionNode()));
                     })
                     .collect(Collectors.toSet());
         }
 
-        {
-            validItemTypes = categories
-                    .stream()
-                    .filter(n ->
-                    Permissions.check(player, Permission.CUSTOMIZE.chain(n.getPermissionNode()).getPermission())
-                    ).collect(Collectors.toSet());
+        for (ModelPath categoryPath : validCategories) {
+            builder.suggest(categoryPath.getCategory());
         }
 
-        for (ModelPath itemType : validItemTypes) {
-            builder.suggest(itemType.getCategory());
-        }
-
-        // Lock the suggestions after we've modified them.
         return builder.buildFuture();
     }
 }
