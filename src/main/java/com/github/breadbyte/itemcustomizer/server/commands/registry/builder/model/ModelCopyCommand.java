@@ -22,10 +22,16 @@ public class ModelCopyCommand implements BaseCommand {
         var _root = InternalHelper.RequirePermissionFor(root, permission);
 
         var CopyNode = literal("copy");
+        var NameNode = literal("name");
+        var LoreNode = literal("lore");
+        var ModelNode = literal("model");
 
         // model copy
         dispatcher.register(_root
                 .then(CopyNode
-                .executes(RUNNER::copyOffhandToMainhand)));
+                .executes(RUNNER::copyAll)
+                .then(NameNode.executes(RUNNER::copyName))
+                .then(LoreNode.executes(RUNNER::copyLore))
+                .then(ModelNode.executes(RUNNER::copyModel))));
     }
 }
