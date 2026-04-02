@@ -10,7 +10,6 @@ import com.github.breadbyte.itemcustomizer.server.util.Postmaster;
 import com.github.breadbyte.itemcustomizer.server.util.Reason;
 import com.github.breadbyte.itemcustomizer.server.util.Result;
 
-import java.net.URI;
 import java.net.URL;
 
 public class ModelNamespaceOperations implements IModelNamespaceOperations {
@@ -25,6 +24,9 @@ public class ModelNamespaceOperations implements IModelNamespaceOperations {
             return Result.err(new Reason.InternalError("Invalid URL: " + e.getMessage() + " " + params.url()));
         }
         var src = params.server();
+
+        // Store the URL
+        ModelsIndex.getInstance().setNamespaceUrl(paramNamespace, paramUrl.toString());
 
         // Start async fetch to avoid blocking the server thread.
         // The message sending mechanism inside /must/ use Postmaster to ensure thread safety.
@@ -48,9 +50,6 @@ public class ModelNamespaceOperations implements IModelNamespaceOperations {
 
                     // Convert the model data to a list of suggestions
                     for (CustomModelDefinition defs : suggests) {
-                        if (storeInst.get(defs.getNamespace(), defs.getCategory()) == null) {
-                            continue;
-                        }
                         storeInst.add(defs);
                     }
 
@@ -58,9 +57,8 @@ public class ModelNamespaceOperations implements IModelNamespaceOperations {
                     storeInst.save();
 
                     // Send the suggestions to the player
-                    Postmaster.Hud_SendMessage_Yes(params.source(), "Suggestions updated");
+                    Postmaster.Hud_SendMessage_Yes(params.source(), "Suggestions updated for " + paramNamespace);
                 } catch (Exception ignored) {
-                    throw ignored;
                 }
             });
         });
@@ -87,5 +85,66 @@ public class ModelNamespaceOperations implements IModelNamespaceOperations {
         inst.save();
 
         return Result.ok();
+    }
+
+    public Result<String> refreshNamespace(ModelNamespaceParams params) {
+        var paramNamespace = params.namespace();
+        var urlStr = ModelsIndex.getInstance().getNamespaceUrl(paramNamespace);
+        if (urlStr == null) {
+            return Result.err(new Reason.InternalError("No URL stored for namespace: " + paramNamespace));
+        }
+
+        try {
+            URL url = new URL(urlStr);
+            // Re-using addNamespace logic via a helper or direct call if params can be constructed
+            // But we can just call addNamespace with new params if we had the URL.
+            // Since we're in Operations, we can just trigger the fetch.
+            
+            var src = params.server();
+            CSVFetcher.fetchAsync(paramNamespace, url).whenComplete((suggests, throwable) -> {
+                if (throwable != null) {
+                    src.execute(() -> {
+                        try {
+                            Postmaster.Hud_SendMessage_No(params.source(), "Failed to refresh " + paramNamespace + ": " + throwable.getMessage());
+                        } catch (Exception ignored) {}
+                    });
+                    return;
+                }
+
+                src.execute(() -> {
+                    try {
+                        var storeInst = ModelsIndex.getInstance();
+                        // Optional: clear existing models for this namespace before refreshing?
+                        // The user said "refresh and reload", which usually means replace.
+                        storeInst.removeNamespace(paramNamespace);
+                        storeInst.setNamespaceUrl(paramNamespace, urlStr); // Restore URL since removeNamespace clears it
+
+                        for (CustomModelDefinition defs : suggests) {
+                            storeInst.add(defs);
+                        }
+                        storeInst.save();
+                        Postmaster.Hud_SendMessage_Yes(params.source(), "Namespace " + paramNamespace + " refreshed.");
+                    } catch (Exception ignored) {}
+                });
+            });
+            return Result.ok("Refreshing " + paramNamespace + "...");
+        } catch (Exception e) {
+            return Result.err(new Reason.InternalError("Stored URL is invalid: " + urlStr));
+        }
+    }
+
+    public Result<String> viewUrl(ModelNamespaceParams params) {
+        var paramNamespace = params.namespace();
+        var urlStr = ModelsIndex.getInstance().getNamespaceUrl(paramNamespace);
+        if (urlStr == null) {
+            return Result.ok("No URL stored for namespace: " + paramNamespace);
+        }
+        return Result.ok("URL for " + paramNamespace + ": " + urlStr);
+    }
+
+    public Result<String> clearUrl(ModelNamespaceParams params) {
+        var paramNamespace = params.namespace();
+        ModelsIndex.getInstance().clearNamespaceUrl(paramNamespace);
+        return Result.ok("Cleared URL for namespace: " + paramNamespace);
     }
 }

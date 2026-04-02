@@ -13,6 +13,7 @@ public class ModelsIndex {
 
     // namespace -> PatriciaTrie<category path -> models>
     private final Map<String, PatriciaTrie<List<CustomModelDefinition>>> _index = new HashMap<>();
+    private final Map<String, String> _namespaceUrls = new HashMap<>();
 
     public static ModelsIndex INSTANCE;
 
@@ -39,6 +40,10 @@ public class ModelsIndex {
         Helper.tryLoadStorage();
         var inst = Storage.HANDLER.instance();
 
+        if (inst.NamespaceUrls != null) {
+            _namespaceUrls.putAll(inst.NamespaceUrls);
+        }
+
         if (inst.CustomModels == null || inst.CustomModels.isEmpty()) return;
 
         for (var model : inst.CustomModels) {
@@ -55,9 +60,12 @@ public class ModelsIndex {
             inst.CustomModels.clear();
         }
 
+        inst.NamespaceUrls = new HashMap<>(_namespaceUrls);
+
         Storage.HANDLER.save();
 
         _index.clear();
+        _namespaceUrls.clear();
         initialized = false;
         initialize();
     }
@@ -65,6 +73,7 @@ public class ModelsIndex {
     public void save() { update_external(); }
     public void load() {
         _index.clear();
+        _namespaceUrls.clear();
         initialized = false;
         initialize();
     }
@@ -78,6 +87,24 @@ public class ModelsIndex {
 
     public void addAll(List<CustomModelDefinition> models) {
         for (var m : models) add(m);
+    }
+
+    public void setNamespaceUrl(String namespace, String url) {
+        _namespaceUrls.put(namespace, url);
+        save();
+    }
+
+    public String getNamespaceUrl(String namespace) {
+        return _namespaceUrls.get(namespace);
+    }
+
+    public void clearNamespaceUrl(String namespace) {
+        _namespaceUrls.remove(namespace);
+        save();
+    }
+
+    public Map<String, String> getNamespaceUrls() {
+        return Collections.unmodifiableMap(_namespaceUrls);
     }
 
     // --- Read: exact ---
@@ -166,7 +193,9 @@ public class ModelsIndex {
     }
 
     public Result<String> removeNamespace(String namespace) {
-        if (_index.remove(namespace) != null) {
+        boolean removedIndex = _index.remove(namespace) != null;
+        boolean removedUrl = _namespaceUrls.remove(namespace) != null;
+        if (removedIndex || removedUrl) {
             save();
             return Result.ok("Removed all models for namespace: " + namespace);
         }
@@ -175,6 +204,7 @@ public class ModelsIndex {
 
     public void clear() {
         _index.clear();
+        _namespaceUrls.clear();
         save();
     }
 

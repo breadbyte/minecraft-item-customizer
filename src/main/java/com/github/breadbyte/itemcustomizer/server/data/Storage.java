@@ -9,7 +9,9 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Storage {
 
@@ -27,4 +29,7 @@ public class Storage {
 
     @SerialEntry
     public List<CustomModelDefinition> CustomModels = new ArrayList<>();
+
+    @SerialEntry
+    public Map<String, String> NamespaceUrls = new HashMap<>();
 }
