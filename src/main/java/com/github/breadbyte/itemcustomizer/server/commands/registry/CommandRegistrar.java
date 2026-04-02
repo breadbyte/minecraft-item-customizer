@@ -3,6 +3,9 @@ package com.github.breadbyte.itemcustomizer.server.commands.registry;
 import com.github.breadbyte.itemcustomizer.server.commands.impl.model.apply.ModelApplyAdapter;
 import com.github.breadbyte.itemcustomizer.server.commands.impl.model.apply.ModelApplyOperations;
 import com.github.breadbyte.itemcustomizer.server.commands.impl.model.apply.ModelApplyRunner;
+import com.github.breadbyte.itemcustomizer.server.commands.impl.model.copy.ModelCopyAdapter;
+import com.github.breadbyte.itemcustomizer.server.commands.impl.model.copy.ModelCopyOperations;
+import com.github.breadbyte.itemcustomizer.server.commands.impl.model.copy.ModelCopyRunner;
 import com.github.breadbyte.itemcustomizer.server.commands.impl.model.dye.ModelDyeAdapter;
 import com.github.breadbyte.itemcustomizer.server.commands.impl.model.dye.ModelDyeOperations;
 import com.github.breadbyte.itemcustomizer.server.commands.impl.model.dye.ModelDyeRunner;
@@ -56,6 +59,7 @@ public class CommandRegistrar {
     ModelDyeCommand modelDyeCommand = new ModelDyeCommand(new ModelDyeRunner(new ModelDyeAdapter(), new ModelDyeOperations()));
     ModelLockCommand modelLockCommand = new ModelLockCommand(new ModelLockRunner(new ModelLockAdapter(), new ModelLockOperations()));
     ModelEquipmentCommand modelEquipmentCommand = new ModelEquipmentCommand(new ModelEquipmentRunner(new ModelEquipmentAdapter(), new ModelEquipmentOperations()));
+    ModelCopyCommand modelCopyCommand = new ModelCopyCommand(new ModelCopyRunner(new ModelCopyAdapter(), new ModelCopyOperations()));
 
     Permission modelsPermission = Permission.CUSTOMIZE;
 
@@ -75,5 +79,6 @@ public class CommandRegistrar {
         modelDyeCommand.register(modelsPermission, "", dispatcher, root);
         modelLockCommand.register(modelsPermission, "", dispatcher, root);
         modelEquipmentCommand.register(modelsPermission, "", dispatcher, root);
+        modelCopyCommand.register(modelsPermission, "", dispatcher, root);
     }
 }
