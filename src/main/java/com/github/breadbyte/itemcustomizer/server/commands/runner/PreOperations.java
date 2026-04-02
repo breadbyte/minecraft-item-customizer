@@ -20,12 +20,13 @@ public class PreOperations {
             Integer operationCost) {
 
         var ctxSrc = ctx.getSource();
-        var player = PreOperations.ValidateStack(ctx, 1);
+        var playerResult = PreOperations.ValidateStack(ctx, 1);
 
-        if (player.isErr()) {
-            Postmaster.Hud_SendMessage_No(ctxSrc, player.unwrapErr().getMessage());
+        if (playerResult.isErr()) {
+            Postmaster.Hud_SendMessage_No(ctxSrc, playerResult.unwrapErr().getMessage());
             return 0;
         }
+        var player = playerResult.unwrap();
 
         if (paramsResult.isErr()) {
             Postmaster.Chat_SendError(ctxSrc, paramsResult.unwrapErr().getMessage());
@@ -40,21 +41,21 @@ public class PreOperations {
             case REQUIRED_MAINHAND:
             case REQUIRED_OFFHAND:
             default: {
-                var hand = TryGetValidPlayerCurrentHand(player.unwrap());
+                var hand = TryGetValidPlayerCurrentHand(player);
 
                 if (hand.isErr()) {
                     Postmaster.Hud_SendMessage_No(ctxSrc, hand.unwrapErr().getMessage());
                     return 0;
                 }
 
-                var validateOwnership = AccessValidator.IsModelOwner(player.unwrap());
+                var validateOwnership = AccessValidator.IsModelOwner(player);
                 if (!validateOwnership) {
                     Postmaster.Hud_SendMessage_No(ctxSrc, Reason.WRONG_OWNERSHIP.getMessage());
                     return 0;
                 }
 
                 if (orientation != StackRequirement.SPECIAL_UNLOCK) {
-                    if (AccessValidator.IsModelLocked(player.unwrap())) {
+                    if (AccessValidator.IsModelLocked(player)) {
                         Postmaster.Hud_SendMessage_No(ctxSrc, Reason.ITEM_LOCKED_OWNER.getMessage());
                         return 0;
                     }
@@ -65,11 +66,11 @@ public class PreOperations {
         var retval = operation.run(params);
 
         if (retval.isOk()) {
-            if (retval.unwrap() instanceof String message) {
+            if (retval.unwrap() instanceof String message && !message.isBlank()) {
                 Postmaster.Hud_SendMessage_Yes(ctxSrc, message);
             }
             else { Postmaster.Hud_SendMessage_Yes(ctxSrc, successMessage); }
-            PreOperations.TryApplyCost(player.unwrap(), operationCost);
+            PreOperations.TryApplyCost(player, operationCost);
         } else {
             Postmaster.Chat_SendError(ctxSrc, retval.unwrapErr().getMessage());
         }

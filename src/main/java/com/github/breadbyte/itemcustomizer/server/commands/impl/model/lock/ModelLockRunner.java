@@ -19,12 +19,12 @@ public class ModelLockRunner implements IModelLockRunner {
     @Override
     public int lockModel(CommandContext<ServerCommandSource> ctx) {
         var params = adapter.getParams(ctx);
-        return PreOperations.executeOperation(ctx, operations::lock, params, StackRequirement.REQUIRED_MAINHAND, "", 1);
+        return PreOperations.executeOperation(ctx, operations::lock, params, StackRequirement.SPECIAL_UNLOCK, "Item locked!", 1);
     }
 
     @Override
     public int unlockModel(CommandContext<ServerCommandSource> ctx) {
         var params = adapter.getParams(ctx);
-        return PreOperations.executeOperation(ctx, operations::unlock, params, StackRequirement.REQUIRED_MAINHAND, "", 1);
+        return PreOperations.executeOperation(ctx, operations::unlock, params, StackRequirement.SPECIAL_UNLOCK, "Item unlocked!", 1);
     }
 }
