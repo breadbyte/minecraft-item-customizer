@@ -71,6 +71,6 @@ public class ModelApplyOperations implements IModelApplyOperations {
             }
         }
 
-        return Result.ok();
+        return Result.ok("Model reset!");
     }
 }
