@@ -18,7 +18,11 @@ public class ModelRenameAdapter implements Adapter<ModelRenameParams> {
         var item = PreOperations.TryGetValidPlayerCurrentHand(player.unwrap());
         if (item.isErr()) return Result.err(item.unwrapErr());
 
-        var input = String.valueOf(ctx.getArgument(RenameCommand.RENAME_ARGUMENT, String.class));
-        return Result.ok(new ModelRenameParams(item.unwrap(), input));
+        try {
+            var input = String.valueOf(ctx.getArgument(RenameCommand.RENAME_ARGUMENT, String.class));
+            return Result.ok(new ModelRenameParams(item.unwrap(), input));
+        } catch (Exception e) {
+            return Result.ok(new ModelRenameParams(item.unwrap(), ""));
+        }
     }
 }
