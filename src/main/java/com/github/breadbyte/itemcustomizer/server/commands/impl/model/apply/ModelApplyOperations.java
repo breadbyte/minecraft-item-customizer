@@ -23,10 +23,7 @@ public class ModelApplyOperations implements IModelApplyOperations {
         var item = params.item();
 
         // Set it to the new model
-        if (params.identifier().__internalPrependCustom())
-            item.set(DataComponentTypes.ITEM_MODEL, Identifier.of(ns.namespace(), "custom/" + ns.getFullPath()));
-        else
-            item.set(DataComponentTypes.ITEM_MODEL, Identifier.of(ns.namespace(), ns.getFullPath()));
+        item.set(DataComponentTypes.ITEM_MODEL, Identifier.of(ns.namespace(), ns.getFullPath()));
         var model = ModelsIndex.INSTANCE.get(ns, name);
 
         if (model == null)

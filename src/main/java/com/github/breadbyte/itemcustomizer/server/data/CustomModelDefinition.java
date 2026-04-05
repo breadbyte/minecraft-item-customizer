@@ -29,10 +29,6 @@ public record CustomModelDefinition(@SerialEntry ModelPath modelPath, @SerialEnt
         return modelPath.itemName();
     }
 
-    public Boolean __internalGetPrependCustom() {
-        return modelPath.__internalPrependCustom();
-    }
-
     public ModelPath getModelPath() { return modelPath; }
 
     public String getPermissionNode() {
