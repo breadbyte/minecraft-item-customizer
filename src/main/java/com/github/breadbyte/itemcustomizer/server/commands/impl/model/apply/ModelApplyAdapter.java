@@ -13,6 +13,11 @@ import com.github.breadbyte.itemcustomizer.server.util.Result;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.server.command.ServerCommandSource;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.github.breadbyte.itemcustomizer.server.commands.registry.builder.model.ModelApplyCommand.*;
+
 public class ModelApplyAdapter implements Adapter<ModelApplyParams> {
 
     @Override
@@ -23,22 +28,30 @@ public class ModelApplyAdapter implements Adapter<ModelApplyParams> {
 
         String namespace;
         String category;
-        String path;
+        List<String> nodes = new ArrayList<>();
         try {
-            namespace = ctx.getArgument(ModelApplyCommand.NAMESPACE_ARGUMENT, String.class);
-            category = ctx.getArgument(ModelApplyCommand.ITEM_CATEGORY_ARGUMENT, String.class);
-            path = ctx.getArgument(ModelApplyCommand.ITEM_PATH_ARGUMENT, String.class);
+            namespace = ctx.getArgument(NAMESPACE_ARGUMENT, String.class);
+            category = ctx.getArgument(ITEM_CATEGORY_ARGUMENT, String.class);
+            for (int i = 1; i <= MAX_AUTOCOMPLETE_NODES; i++) {
+                try {
+                    nodes.add(ctx.getArgument(NODE_PREFIX + i, String.class));
+                } catch (IllegalArgumentException e) {
+                    break;
+                }
+            }
         } catch (IllegalArgumentException e) {
             return Result.err(new Reason.InternalError("Missing arguments"));
+        }
+
+        if (nodes.isEmpty()) {
+            return Result.err(new Reason.InternalError("Missing item path"));
         }
 
         var itemResult = PreOperations.TryGetValidPlayerCurrentHand(player);
         if (itemResult.isErr()) return Result.err(itemResult.unwrapErr());
         var item = itemResult.unwrap();
 
-        // The user specifies: /model apply <namespace> <category> <subpath/item>
-        // ModelPath.fromNamespaceAndPath expects "namespace" and "category/subpath/item"
-        String fullPath = category + (path.isEmpty() ? "" : "/" + path);
+        String fullPath = category + "/" + String.join("/", nodes);
         ModelPath ns = ModelPath.fromNamespaceAndPath(namespace, fullPath);
         
         CustomModelDefinition m = ModelsIndex.getInstance().get(ns, ns.itemName());

@@ -22,7 +22,8 @@ public class ModelLoreAdapter implements Adapter<ModelLoreParams> {
         try {
             var input = String.valueOf(ctx.getArgument(LoreCommand.LORE_ARGUMENT, String.class));
             return Result.ok(new ModelLoreParams(hand.unwrap(), input));
-        } catch (Exception e)
+        } catch (Exception e) {
             return Result.ok(new ModelLoreParams(hand.unwrap(), ""));
+        }
     }
 }

@@ -5,11 +5,12 @@ import com.github.breadbyte.itemcustomizer.server.commands.registry.BaseCommand;
 import com.github.breadbyte.itemcustomizer.server.commands.registry.InternalHelper;
 import com.github.breadbyte.itemcustomizer.server.brigadier.ModelNamespaceSuggestionProvider;
 import com.github.breadbyte.itemcustomizer.server.brigadier.ModelCategorySuggestionProvider;
-import com.github.breadbyte.itemcustomizer.server.brigadier.ModelInSubpathSuggestionProvider;
+import com.github.breadbyte.itemcustomizer.server.brigadier.ModelNodeSuggestionProvider;
 import com.github.breadbyte.itemcustomizer.server.util.Permission;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 
@@ -20,6 +21,8 @@ public class ModelApplyCommand implements BaseCommand {
     public static final String NAMESPACE_ARGUMENT = "namespace";
     public static final String ITEM_CATEGORY_ARGUMENT = "item_category";
     public static final String ITEM_PATH_ARGUMENT = "item_path";
+    public static final String NODE_PREFIX = "node";
+    public static final int MAX_AUTOCOMPLETE_NODES = 6;
     public static final String EQUIPMENT_TEXTURE_ARGUMENT = "change_equippable_texture";
     public static final String COLOR_ARGUMENT = "color";
 
@@ -40,17 +43,26 @@ public class ModelApplyCommand implements BaseCommand {
                 .suggests(ModelCategorySuggestionProvider.INSTANCE);
 
         var ApplyNode = literal("apply");
-        var ItemPathNode = CommandManager.argument(ITEM_PATH_ARGUMENT, StringArgumentType.greedyString())
-                .suggests(ModelInSubpathSuggestionProvider.INSTANCE);
-
         var ResetNode = literal("reset");
 
-        // model apply itemNamespace itemCategory path/to/item
+        // Build the dynamic node chain
+        RequiredArgumentBuilder<ServerCommandSource, String> lastNode = null;
+        for (int i = MAX_AUTOCOMPLETE_NODES; i >= 1; i--) {
+            var node = CommandManager.argument(NODE_PREFIX + i, StringArgumentType.string())
+                    .suggests(ModelNodeSuggestionProvider.INSTANCE)
+                    .executes(RUNNER::applyModel);
+            if (lastNode != null) {
+                node.then(lastNode);
+            }
+            lastNode = node;
+        }
+
+        // model apply itemNamespace itemCategory node1 [node2] ... [node6]
         dispatcher.register(_root
                 .then(ApplyNode
                 .then(NamespaceNode
                 .then(CategoryNode
-                .then(ItemPathNode
+                .then(lastNode
                         .executes(RUNNER::applyModel))))));
 
         // model reset

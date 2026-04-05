@@ -5,7 +5,9 @@ import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
+import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.option.Perspective;
+import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.world.GeneratorOptionsHolder;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -14,6 +16,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.gen.GeneratorOptions;
 import net.minecraft.world.rule.GameRules;
+
 
 @SuppressWarnings("UnstableApiUsage")
 public class ItemCustomizerClient implements FabricClientGameTest {
@@ -36,9 +39,16 @@ public class ItemCustomizerClient implements FabricClientGameTest {
             TestServerContext serverContext = singleplayer.getServer();
             setup(serverContext, singleplayer);
             singleplayer.getClientWorld().waitForChunksRender();
+
+            serverContext.runCommand("op Player0");
+
+            // Test namespaces
+//            TestHelper.SendCommand(ctx, "model namespace register test");
+            TestHelper.SendCommand(ctx, "give @s diamond_sword 1");
         }
     }
 
     public void setup(TestServerContext serverContext, TestSingleplayerContext singleplayerContext) {
     }
+
 }

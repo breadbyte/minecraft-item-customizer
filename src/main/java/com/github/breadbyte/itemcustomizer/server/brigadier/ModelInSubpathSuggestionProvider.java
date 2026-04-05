@@ -1,10 +1,8 @@
 package com.github.breadbyte.itemcustomizer.server.brigadier;
 
 import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
-import com.github.breadbyte.itemcustomizer.server.data.ModelPath;
 import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import com.github.breadbyte.itemcustomizer.server.util.AccessValidator;
-import com.github.breadbyte.itemcustomizer.server.util.Permission;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
@@ -31,60 +29,17 @@ public class ModelInSubpathSuggestionProvider implements SuggestionProvider<Serv
             return builder.buildFuture();
         }
 
-        String remaining = builder.getRemaining();
-        int lastSlash = remaining.lastIndexOf('/');
-        String currentSubPath = lastSlash == -1 ? "" : remaining.substring(0, lastSlash);
-        String prefix = lastSlash == -1 ? remaining : remaining.substring(lastSlash + 1);
-
-        // Offset the builder to the start of the current segment (after the last slash)
-        SuggestionsBuilder subBuilder = builder.createOffset(builder.getStart() + lastSlash + 1);
-
         var player = context.getSource().getPlayer();
         var index = ModelsIndex.getInstance();
 
-        // category and subPath are both parts of the "category" in ModelsIndex.
-        String fullCategoryPath = category;
-        if (!currentSubPath.isEmpty()) {
-            fullCategoryPath = category + "/" + currentSubPath;
-        }
-
-        // 1. Suggest immediate sub-categories
-        for (String child : index.immediateChildren(namespace, fullCategoryPath)) {
-            if (child.startsWith(prefix)) {
-                String fullPathToChild = fullCategoryPath.isEmpty() ? child : fullCategoryPath + "/" + child;
-
-                if (hasPermissionForPath(player, index, ModelPath.fromNamespaceAndPath(namespace, fullPathToChild))) {
-                    subBuilder.suggest(child + "/");
-                }
-            }
-        }
-
-        // Suggest items in the current category
-        for (CustomModelDefinition model : index.get(namespace, fullCategoryPath)) {
-            if (model.getName().startsWith(prefix)) {
-                if (hasPermissionForModel(player, model)) {
-                    subBuilder.suggest(model.getName());
-                }
-            }
-        }
-
-        return subBuilder.buildFuture();
-    }
-
-    private boolean hasPermissionForPath(ServerPlayerEntity player, ModelsIndex index, ModelPath path) {
-        if (AccessValidator.IsAdmin(player)) return true;
-        
-        if (Permissions.check(player, Permission.CUSTOMIZE.chain(path.getPermissionNode()).getPermission())) {
-            return true;
-        }
-
-        for (CustomModelDefinition model : index.getAllRecursive(path)) {
+        // Suggest only items in the current exact category
+        for (CustomModelDefinition model : index.get(namespace, category)) {
             if (hasPermissionForModel(player, model)) {
-                return true;
+                builder.suggest(model.getName());
             }
         }
 
-        return false;
+        return builder.buildFuture();
     }
 
     private boolean hasPermissionForModel(ServerPlayerEntity player, CustomModelDefinition model) {

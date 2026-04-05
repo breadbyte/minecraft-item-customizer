@@ -9,6 +9,7 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import me.lucko.fabric.api.permissions.v0.Permissions;
+import net.minecraft.command.CommandSource;
 import net.minecraft.server.command.ServerCommandSource;
 
 import java.util.Set;
@@ -43,10 +44,6 @@ public class ModelNamespaceSuggestionProvider implements SuggestionProvider<Serv
                 .collect(Collectors.toSet());
         }
 
-        for (String namespace : validNamespaces) {
-            builder.suggest(namespace);
-        }
-
-        return builder.buildFuture();
+        return CommandSource.suggestMatching(validNamespaces, builder);
     }
 }

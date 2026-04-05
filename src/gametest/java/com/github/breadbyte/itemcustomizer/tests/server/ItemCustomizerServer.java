@@ -4,6 +4,7 @@ import com.github.breadbyte.itemcustomizer.server.commands.defs.model.apply.Mode
 import com.github.breadbyte.itemcustomizer.server.commands.impl.model.apply.ModelApplyOperations;
 import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
 import com.github.breadbyte.itemcustomizer.server.data.ModelPath;
+import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import net.fabricmc.fabric.api.gametest.v1.CustomTestMethodInvoker;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.component.DataComponentTypes;
@@ -30,6 +31,7 @@ public class ItemCustomizerServer implements CustomTestMethodInvoker {
 
     @GameTest
     public void TestApplyModel(TestContext context, PlayerEntity player) {
+        ModelsIndex i = ModelsIndex.getInstance();
         var playerHand = player.getMainHandStack();
         var targetModel = new ModelPath("minecraft", "", "stone");
         var cmd = new CustomModelDefinition(targetModel, "");
