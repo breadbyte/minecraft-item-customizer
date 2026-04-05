@@ -19,7 +19,10 @@ public class ModelLoreAdapter implements Adapter<ModelLoreParams> {
         var hand = PreOperations.TryGetValidPlayerCurrentHand(player.unwrap());
         if (hand.isErr()) return Result.err(hand.unwrapErr());
 
-        var input = String.valueOf(ctx.getArgument(LoreCommand.LORE_ARGUMENT, String.class));
-        return Result.ok(new ModelLoreParams(hand.unwrap(), input));
+        try {
+            var input = String.valueOf(ctx.getArgument(LoreCommand.LORE_ARGUMENT, String.class));
+            return Result.ok(new ModelLoreParams(hand.unwrap(), input));
+        } catch (Exception e)
+            return Result.ok(new ModelLoreParams(hand.unwrap(), ""));
     }
 }
