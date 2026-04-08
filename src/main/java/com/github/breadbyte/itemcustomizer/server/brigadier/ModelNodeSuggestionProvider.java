@@ -35,43 +35,15 @@ public class ModelNodeSuggestionProvider implements SuggestionProvider<ServerCom
         }
 
         List<String> previousNodes = new ArrayList<>();
-        // In Brigadier, the SuggestionProvider is called for the current argument.
-        // We can determine which node we are currently at by counting how many
-        // node arguments are already present in the context and finished.
+        // Collect all fully parsed node arguments that precede the current one.
         for (int i = 1; i <= MAX_AUTOCOMPLETE_NODES; i++) {
             String nodeName = NODE_PREFIX + i;
             try {
                 String value = context.getArgument(nodeName, String.class);
-                
-                // If the user is typing nodeX, nodeX might already be in the context
-                // if it's been partially parsed. However, we want 'previousNodes' to
-                // only contain the fully completed path BEFORE the current node.
-                
-                // We can check if this argument's value is what's being suggested for
-                // by seeing if it's the last thing in the input and matches what's 
-                // currently being typed.
-                
-                int cursor = builder.getStart();
-                String input = context.getInput();
-                // Find if the argument value starts at or after the cursor.
-                // If it does, then it's the argument we are currently typing.
-                
-                // Simplified approach: Brigadier calls the provider for the 'active' node.
-                // All nodes in the path before it should be fully present.
-                // If node i is present, let's see if its end index in the input 
-                // is before or at the start of the current suggestions builder.
-                
-                // Since we don't have getArguments().get(nodeName).getRange(), we can
-                // use lastIndexOf to guess where it is, or just assume the one that
-                // triggers IllegalArgumentException or matches builder.getRemaining()
-                // is the current one.
-                
-                if (input.substring(0, cursor).trim().endsWith(value)) {
-                    previousNodes.add(value);
-                } else {
-                    break;
-                }
+                previousNodes.add(value);
             } catch (IllegalArgumentException e) {
+                // This means nodeName (or a later node) has not been fully parsed yet.
+                // So, all arguments up to nodeName-1 are in previousNodes.
                 break;
             }
         }
@@ -85,7 +57,7 @@ public class ModelNodeSuggestionProvider implements SuggestionProvider<ServerCom
         var index = ModelsIndex.getInstance();
 
         List<String> suggestions = new ArrayList<>();
-        
+
         // Add sub-categories
         suggestions.addAll(index.immediateChildren(namespace, currentPath));
 

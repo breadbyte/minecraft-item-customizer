@@ -33,8 +33,6 @@ public class ModelNamespaceCommand implements BaseCommand {
         var ClearNode = literal("clear");
         var RemoveNode = literal("remove");
         var RefreshNode = literal("refresh");
-        var ViewUrlNode = literal("viewUrl");
-        var ClearUrlNode = literal("clearUrl");
 
         // namespace register namespace url
         dispatcher.register(root
@@ -63,20 +61,5 @@ public class ModelNamespaceCommand implements BaseCommand {
                 .then(RefreshNode
                 .then(NamespaceNode
                 .executes(RUNNER::refreshNamespace)))));
-
-        // namespace viewUrl namespace
-        dispatcher.register(root
-                .then(subCommand
-                .then(ViewUrlNode
-                .then(NamespaceNode
-                .executes(RUNNER::viewUrl)))));
-
-        // namespace clearUrl namespace
-        dispatcher.register(root
-                .then(subCommand
-                .then(ClearUrlNode
-                .then(NamespaceNode
-                .executes(RUNNER::clearUrl)))));
-
     }
 }
