@@ -3,8 +3,9 @@ package com.github.breadbyte.itemcustomizer.server.commands.impl.model.apply;
 import com.github.breadbyte.itemcustomizer.main.ItemCustomizer;
 import com.github.breadbyte.itemcustomizer.server.commands.defs.model.apply.IModelApplyOperations;
 import com.github.breadbyte.itemcustomizer.server.commands.defs.model.apply.ModelApplyParams;
+import com.github.breadbyte.itemcustomizer.server.commands.defs.model.equipment.ModelEquipmentParams;
+import com.github.breadbyte.itemcustomizer.server.commands.impl.model.equipment.ModelEquipmentOperations;
 import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
-import com.github.breadbyte.itemcustomizer.server.util.Helper;
 import com.github.breadbyte.itemcustomizer.server.util.Reason;
 import com.github.breadbyte.itemcustomizer.server.util.Result;
 import net.minecraft.component.ComponentMap;
@@ -13,17 +14,27 @@ import net.minecraft.util.Identifier;
 
 public class ModelApplyOperations implements IModelApplyOperations {
 
+    private final ModelEquipmentOperations equipmentOperations = new ModelEquipmentOperations();
+    private boolean applyEquipmentTexture = true;
+
     @Override
     public Result<String> apply(ModelApplyParams params) {
         var ns = params.identifier();
         var name = params.identifier().itemName();
 
         // Get the components for the currently held item
-        var itemComps = params.item().getComponents();
         var item = params.item();
 
         // Set it to the new model
         item.set(DataComponentTypes.ITEM_MODEL, Identifier.of(ns.namespace(), ns.getFullPath()));
+
+        if (applyEquipmentTexture) {
+            var category = ns.category();
+            if (category.equalsIgnoreCase("armor") || category.equalsIgnoreCase("elytra")) {
+                equipmentOperations.toggle(new ModelEquipmentParams(item));
+            }
+        }
+
         var model = ModelsIndex.INSTANCE.get(ns, name);
 
         if (model == null)
