@@ -6,6 +6,7 @@ import com.github.breadbyte.itemcustomizer.server.commands.runner.PreOperations;
 import com.github.breadbyte.itemcustomizer.server.util.Reason;
 import com.github.breadbyte.itemcustomizer.server.util.Result;
 import com.mojang.brigadier.context.CommandContext;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.server.command.ServerCommandSource;
 
 public class ModelCopyAdapter implements Adapter<ModelCopyParams> {
@@ -20,6 +21,11 @@ public class ModelCopyAdapter implements Adapter<ModelCopyParams> {
 
         if (mainHand.isEmpty() || offHand.isEmpty()) {
             return Result.err(Reason.NO_ITEM);
+        }
+
+        var itemComps = mainHand.getComponents();
+        if (itemComps.get(DataComponentTypes.LOCK) != null) {
+            return Result.err(new Reason.InternalError("Item is locked!"));
         }
 
         return Result.ok(new ModelCopyParams(mainHand, offHand));
