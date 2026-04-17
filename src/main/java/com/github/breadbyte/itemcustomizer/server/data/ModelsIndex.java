@@ -81,11 +81,32 @@ public class ModelsIndex {
         initialize();
     }
 
+    /**
+     * Customizes how the namespace is stored as a key in the outer map.
+     */
+    private String toNamespaceKey(String namespace) {
+        return namespace.toLowerCase(Locale.ROOT);
+    }
+
+    /**
+     * Customizes how the category path is stored as a key in the PatriciaTrie.
+     */
+    private String toCategoryKey(String category) {
+        return category.toLowerCase(Locale.ROOT);
+    }
+
+    /**
+     * Combines category and name into a single trie key.
+     */
+    private String toPathKey(String category, String name) {
+        String normalizedCat = toCategoryKey(category);
+        if (normalizedCat.isEmpty()) return name.toLowerCase(Locale.ROOT);
+        return normalizedCat + "/" + name.toLowerCase(Locale.ROOT);
+    }
+
     public void add(CustomModelDefinition model) {
-        // Normalize namespace and category to lowercase when adding
-        _index
-                .computeIfAbsent(model.getNamespace().toLowerCase(), ns -> new PatriciaTrie<>())
-                .computeIfAbsent(model.getCategory().toLowerCase(), cat -> new ArrayList<>())
+        _index.computeIfAbsent(toNamespaceKey(model.getNamespace()), ns -> new PatriciaTrie<>())
+                .computeIfAbsent(toPathKey(model.getCategory(), model.getName()), k -> new ArrayList<>())
                 .add(model);
     }
 
@@ -94,16 +115,16 @@ public class ModelsIndex {
     }
 
     public void setNamespaceUrl(String namespace, String url) {
-        _namespaceUrls.put(namespace.toLowerCase(), url); // Normalize namespace
+        _namespaceUrls.put(toNamespaceKey(namespace), url);
         save();
     }
 
     public String getNamespaceUrl(String namespace) {
-        return _namespaceUrls.get(namespace.toLowerCase()); // Normalize namespace
+        return _namespaceUrls.get(toNamespaceKey(namespace));
     }
 
     public void clearNamespaceUrl(String namespace) {
-        _namespaceUrls.remove(namespace.toLowerCase()); // Normalize namespace
+        _namespaceUrls.remove(toNamespaceKey(namespace));
         save();
     }
 
@@ -113,37 +134,50 @@ public class ModelsIndex {
 
     // --- Read: exact ---
 
-    public List<CustomModelDefinition> get(String namespace, String category) {
-        var trie = _index.get(namespace.toLowerCase()); // Normalize namespace
+    /**
+     * Queries the trie using the combined "category/path/to/item" string.
+     */
+    public List<CustomModelDefinition> getByPath(String namespace, String fullPath) {
+        var trie = _index.get(toNamespaceKey(namespace));
         if (trie == null) return List.of();
-        return trie.getOrDefault(category.toLowerCase(), List.of()); // Normalize category
+        return trie.getOrDefault(fullPath.toLowerCase(Locale.ROOT), List.of());
+    }
+
+    public List<CustomModelDefinition> get(String namespace, String category) {
+        var trie = _index.get(toNamespaceKey(namespace));
+        if (trie == null) return List.of();
+
+        String prefix = toCategoryKey(category) + "/";
+        return trie.prefixMap(prefix).entrySet().stream()
+                .filter(e -> !e.getKey().substring(prefix.length()).contains("/"))
+                .flatMap(e -> e.getValue().stream())
+                .collect(Collectors.toList());
     }
 
     public List<CustomModelDefinition> getPartialCategoryMatch(String namespace, String category) {
-        return subcategories(namespace.toLowerCase(), category.toLowerCase()); // Normalize
+        return subcategories(namespace, category);
     }
 
     public List<CustomModelDefinition> getPartialMatch(String namespace, String category, String name) {
-        return get(namespace.toLowerCase(), category.toLowerCase()).stream()
+        return get(namespace, category).stream()
                 .filter(m -> m.getName().toLowerCase().startsWith(name.toLowerCase()))
                 .collect(Collectors.toList());
     }
 
     public List<CustomModelDefinition> getPartialPathMatch(String namespace, String categoryPrefix, String name) {
-        return subcategories(namespace.toLowerCase(), categoryPrefix.toLowerCase()).stream()
+        return subcategories(namespace, categoryPrefix).stream()
                 .filter(m -> m.getModelPath().getFullPath().toLowerCase().startsWith(categoryPrefix + "/" + name.toLowerCase()))
                 .collect(Collectors.toList());
     }
 
     public CustomModelDefinition get(String namespace, String category, String name) {
-        return get(namespace.toLowerCase(), category.toLowerCase()).stream() // Normalize
-                .filter(m -> m.getName().equals(name))
-                .findFirst()
-                .orElse(null);
+        var list = getByPath(namespace, toPathKey(category, name));
+        if (list.isEmpty()) return null;
+        return list.get(0);
     }
 
     public Set<CustomModelDefinition> getAllShallow(String namespace, String category) {
-        return Set.copyOf(get(namespace.toLowerCase(), category.toLowerCase())); // Normalize
+        return Set.copyOf(get(namespace, category));
     }
 
     /**
@@ -152,10 +186,10 @@ public class ModelsIndex {
      * "weapons", "weapons/swords", "weapons/bows", etc.
      */
     public List<CustomModelDefinition> subcategories(String namespace, String categoryPrefix) {
-        var trie = _index.get(namespace.toLowerCase()); // Normalize namespace
+        var trie = _index.get(toNamespaceKey(namespace));
         if (trie == null) return List.of();
 
-        var prefix = categoryPrefix.toLowerCase(); // Normalize category prefix
+        var prefix = toCategoryKey(categoryPrefix);
         prefix = prefix.isEmpty() ? "" : prefix + "/";
         return trie.prefixMap(prefix).values().stream()
                 .flatMap(List::stream)
@@ -163,18 +197,15 @@ public class ModelsIndex {
     }
 
     public Set<CustomModelDefinition> getAllRecursive(ModelPath nsc) {
-        // Assuming ModelPath's getters return normalized values or are handled by the caller
-        return Set.copyOf(subcategories(nsc.getNamespace().toLowerCase(), nsc.getCategory().toLowerCase()));
+        return Set.copyOf(subcategories(nsc.getNamespace(), nsc.getCategory()));
     }
 
     public CustomModelDefinition get(ModelPath nsc, String name) {
-        // Assuming ModelPath's getters return normalized values or are handled by the caller
-        return get(nsc.getNamespace().toLowerCase(), nsc.getCategory().toLowerCase(), name);
+        return get(nsc.getNamespace(), nsc.getCategory(), name);
     }
 
     public Set<CustomModelDefinition> getAllShallow(ModelPath nsc) {
-        // Assuming ModelPath's getters return normalized values or are handled by the caller
-        return getAllShallow(nsc.getNamespace().toLowerCase(), nsc.getCategory().toLowerCase());
+        return getAllShallow(nsc.getNamespace(), nsc.getCategory());
     }
 
     /**
@@ -183,10 +214,10 @@ public class ModelsIndex {
      * returns ["swords", "bows"].
      */
     public Set<String> immediateChildren(String namespace, String parentCategory) {
-        var trie = _index.get(namespace.toLowerCase()); // Normalize namespace
+        var trie = _index.get(toNamespaceKey(namespace));
         if (trie == null) return Set.of();
 
-        var prefix = parentCategory.toLowerCase(); // Normalize parent category
+        var prefix = toCategoryKey(parentCategory);
         prefix = prefix.isEmpty() ? "" : prefix + "/";
         String finalPrefix = prefix;
         return trie.prefixMap(prefix).keySet().stream()
@@ -200,20 +231,23 @@ public class ModelsIndex {
     }
 
     public Set<String> partialChildren(String namespace, String parentCategory, String partial) {
-        var trie = _index.get(namespace.toLowerCase()); // Normalize namespace
+        var trie = _index.get(toNamespaceKey(namespace));
         if (trie == null) return Set.of();
 
-        var prefix = parentCategory.toLowerCase(); // Normalize parent category
-        prefix = prefix.isEmpty() ? "" : prefix + "/";
-        String finalPrefix = prefix;
-        return trie.prefixMap(prefix).keySet().stream()
-                .map(key -> {
-                    var remainder = key.substring(finalPrefix.length());
-                    var slash = remainder.indexOf('/');
-                    return slash == -1 ? remainder : remainder.substring(0, slash);
-                })
-                .filter(s -> !s.isEmpty() && s.toLowerCase().startsWith(partial.toLowerCase())) // Normalize partial
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+        return trie.prefixMap(toCategoryKey(parentCategory) + "/" + partial.toLowerCase(Locale.ROOT)).keySet();
+
+
+//        var prefix = parentCategory.toLowerCase(); // Normalize parent category
+//        prefix = prefix.isEmpty() ? "" : prefix + "/";
+//        String finalPrefix = prefix;
+//        return trie.prefixMap(prefix).keySet().stream()
+//                .map(key -> {
+//                    var remainder = key.substring(finalPrefix.length());
+//                    var slash = remainder.indexOf('/');
+//                    return slash == -1 ? remainder : remainder.substring(0, slash);
+//                })
+//                .filter(s -> !s.isEmpty() && s.toLowerCase().startsWith(partial.toLowerCase())) // Normalize partial
+//                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public Set<String> namespaces() {
@@ -222,10 +256,11 @@ public class ModelsIndex {
 
     /** All category paths (at any depth) within a namespace. */
     public Set<ModelPath> categories(String namespace) {
-        var trie = _index.get(namespace.toLowerCase()); // Normalize namespace
+        var trie = _index.get(toNamespaceKey(namespace));
         if (trie == null) return Set.of();
-        return trie.keySet().stream()
-                .map(cat -> new ModelPath(namespace.toLowerCase(), cat)) // Ensure ModelPath is created with normalized namespace
+        return trie.values().stream()
+                .flatMap(List::stream)
+                .map(m -> new ModelPath(toNamespaceKey(m.getNamespace()), m.getCategory()))
                 .collect(Collectors.toUnmodifiableSet());
     }
 
@@ -237,8 +272,8 @@ public class ModelsIndex {
     }
 
     public Result<String> removeNamespace(String namespace) {
-        boolean removedIndex = _index.remove(namespace.toLowerCase()) != null; // Normalize namespace
-        boolean removedUrl = _namespaceUrls.remove(namespace.toLowerCase()) != null; // Normalize namespace
+        boolean removedIndex = _index.remove(toNamespaceKey(namespace)) != null;
+        boolean removedUrl = _namespaceUrls.remove(toNamespaceKey(namespace)) != null;
         if (removedIndex || removedUrl) {
             save();
             return Result.ok("Removed all models for namespace: " + namespace);
