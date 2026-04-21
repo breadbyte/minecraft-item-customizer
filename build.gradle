@@ -122,13 +122,3 @@ publishing {
 tasks.named('test', Test) {
     useJUnitPlatform()
 }
-
-fabricApi {
-    configureTests {
-        createSourceSet = true
-        modId = "itemcustomizer-TEST-${project.name}"
-        enableGameTests = true
-        enableClientGameTests = true
-        eula = true
-    }
-}
