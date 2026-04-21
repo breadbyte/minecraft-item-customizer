@@ -7,6 +7,4 @@ public interface IModelNamespaceOperations {
     Result<String> removeNamespace(ModelNamespaceParams params);
     Result<String> clearAll(ModelNamespaceParams params);
     Result<String> refreshNamespace(ModelNamespaceParams params);
-    Result<String> viewUrl(ModelNamespaceParams params);
-    Result<String> clearUrl(ModelNamespaceParams params);
 }

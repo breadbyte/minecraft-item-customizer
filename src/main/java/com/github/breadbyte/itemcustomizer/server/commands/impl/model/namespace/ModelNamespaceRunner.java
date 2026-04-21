@@ -56,24 +56,4 @@ public class ModelNamespaceRunner implements IModelNamespaceRunner {
         }
         return PreOperations.executeOperation(ctx, operations::refreshNamespace, params, StackRequirement.NONE, "", 0);
     }
-
-    @Override
-    public int viewUrl(CommandContext<ServerCommandSource> ctx) {
-        var params = adapter.getParams(ctx);
-        if (params.isErr()) {
-            Postmaster.Hud_SendMessage_No(ctx.getSource(), params.unwrapErr().getMessage());
-            return 0;
-        }
-        return PreOperations.executeOperation(ctx, operations::viewUrl, params, StackRequirement.NONE, "", 0);
-    }
-
-    @Override
-    public int clearUrl(CommandContext<ServerCommandSource> ctx) {
-        var params = adapter.getParams(ctx);
-        if (params.isErr()) {
-            Postmaster.Hud_SendMessage_No(ctx.getSource(), params.unwrapErr().getMessage());
-            return 0;
-        }
-        return PreOperations.executeOperation(ctx, operations::clearUrl, params, StackRequirement.NONE, "", 0);
-    }
 }

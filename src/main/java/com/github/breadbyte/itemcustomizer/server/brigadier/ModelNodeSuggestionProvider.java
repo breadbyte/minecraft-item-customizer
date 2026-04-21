@@ -37,7 +37,6 @@ public class ModelNodeSuggestionProvider implements SuggestionProvider<ServerCom
         }
 
         List<String> previousNodes = new ArrayList<>();
-        int NODES_PARSED_INDEXED_BY_ONE = 0;
 
         // Collect all fully parsed node arguments that precede the current one.
         for (int i = 1; i <= MAX_AUTOCOMPLETE_NODES; i++) {
@@ -46,18 +45,11 @@ public class ModelNodeSuggestionProvider implements SuggestionProvider<ServerCom
                 // Normalize node values to lowercase for consistent lookup
                 String value = context.getArgument(nodeName, String.class).toLowerCase();
                 previousNodes.add(value);
-                NODES_PARSED_INDEXED_BY_ONE++;
+
             } catch (IllegalArgumentException e) {
                 // This means nodeName (or a later node) has not been fully parsed yet.
                 // So, all arguments up to nodeName-1 are in previousNodes.
                 break;
-            }
-        }
-
-        if (NODES_PARSED_INDEXED_BY_ONE == 1) {
-            var firstNode = previousNodes.getFirst();
-            if (firstNode.contains("/")) {
-                // TODO: Parse this as a direct string, and don't use autocomplete
             }
         }
 
@@ -67,7 +59,6 @@ public class ModelNodeSuggestionProvider implements SuggestionProvider<ServerCom
         String findItem = "";
         findItem = namespace + ":" + String.join("/", previousNodes);
         findItem = trimTrailingSlash(findItem);
-
 
         // Manually filter and add to the builder
         for (String suggestion : ModelsIndex.INSTANCE.__internalAutocomplete(findItem)) {

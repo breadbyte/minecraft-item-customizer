@@ -1,6 +1,7 @@
 package com.github.breadbyte.itemcustomizer.server.data;
 
 import com.github.breadbyte.itemcustomizer.server.util.Helper;
+import com.github.breadbyte.itemcustomizer.server.util.Reason;
 import com.github.breadbyte.itemcustomizer.server.util.Result;
 import org.apache.commons.collections4.trie.PatriciaTrie;
 import org.apache.commons.lang3.NotImplementedException;
@@ -275,15 +276,14 @@ public class ModelsIndex {
     }
 
     public Result<String> removeNamespace(String namespace) {
-        throw new NotImplementedException();
 
-//        boolean removedIndex = _index.remove(toNamespaceKey(namespace)) != null;
-//        boolean removedUrl = _namespaceUrls.remove(toNamespaceKey(namespace)) != null;
-//        if (removedIndex || removedUrl) {
-//            save();
-//            return Result.ok("Removed all models for namespace: " + namespace);
-//        }
-//        return Result.err(new Reason.InternalError("No models found for namespace: " + namespace));
+        boolean removedIndex = _index.remove(namespace) != null;
+        boolean removedUrl = _namespaceUrls.remove(namespace) != null;
+        if (removedIndex || removedUrl) {
+            save();
+            return Result.ok("Removed all models for namespace: " + namespace);
+        }
+        return Result.err(new Reason.InternalError("No models found for namespace: " + namespace));
     }
 
     public void clear() {

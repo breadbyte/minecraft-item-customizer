@@ -25,7 +25,7 @@ public class ModelApplyOperations implements IModelApplyOperations {
         var item = params.item();
 
         // Set it to the new model
-        item.set(DataComponentTypes.ITEM_MODEL, Identifier.of(ns.namespace(), ns.getFullPath()));
+        item.set(DataComponentTypes.ITEM_MODEL, Identifier.of(ns.namespace(), ns.getSegments()));
 
         if (applyEquipmentTexture) {
             var category = ns.getCategory();

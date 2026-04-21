@@ -50,7 +50,7 @@ public class ModelApplyAdapter implements Adapter<ModelApplyParams> {
         var item = itemResult.unwrap();
 
         String fullPath = String.join("/", nodes);
-        ModelPath ns = ModelPath.of(fullPath);
+        ModelPath ns = ModelPath.of(String.format("%s:%s", namespace, fullPath));
 
         CustomModelDefinition m = ModelsIndex.getInstance().get(ns).stream().findFirst().orElse(null);
 

@@ -58,7 +58,8 @@ public class ModelNamespaceOperations implements IModelNamespaceOperations {
 
                     // Send the suggestions to the player
                     Postmaster.Hud_SendMessage_Yes(params.source(), "Suggestions updated for " + paramNamespace);
-                } catch (Exception ignored) {
+                } catch (Exception ex) {
+                    Postmaster.Hud_SendMessage_No(params.source(), "Failed to fetch suggestions: " + ex.getMessage());
                 }
             });
         });
@@ -124,27 +125,14 @@ public class ModelNamespaceOperations implements IModelNamespaceOperations {
                         }
                         storeInst.save();
                         Postmaster.Hud_SendMessage_Yes(params.source(), "Namespace " + paramNamespace + " refreshed.");
-                    } catch (Exception ignored) {}
+                    } catch (Exception ex) {
+                        Postmaster.Hud_SendMessage_No(params.source(), "Failed to refresh " + paramNamespace + ": " + ex.getMessage());
+                    }
                 });
             });
             return Result.ok("Refreshing " + paramNamespace + "...");
         } catch (Exception e) {
             return Result.err(new Reason.InternalError("Stored URL is invalid: " + urlStr));
         }
-    }
-
-    public Result<String> viewUrl(ModelNamespaceParams params) {
-        var paramNamespace = params.namespace();
-        var urlStr = ModelsIndex.getInstance().getNamespaceUrl(paramNamespace);
-        if (urlStr == null) {
-            return Result.ok("No URL stored for namespace: " + paramNamespace);
-        }
-        return Result.ok("URL for " + paramNamespace + ": " + urlStr);
-    }
-
-    public Result<String> clearUrl(ModelNamespaceParams params) {
-        var paramNamespace = params.namespace();
-        ModelsIndex.getInstance().clearNamespaceUrl(paramNamespace);
-        return Result.ok("Cleared URL for namespace: " + paramNamespace);
     }
 }

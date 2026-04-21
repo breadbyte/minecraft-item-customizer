@@ -8,6 +8,4 @@ public interface IModelNamespaceRunner {
     int removeNamespace(CommandContext<ServerCommandSource> ctx);
     int clearAll(CommandContext<ServerCommandSource> ctx);
     int refreshNamespace(CommandContext<ServerCommandSource> ctx);
-    int viewUrl(CommandContext<ServerCommandSource> ctx);
-    int clearUrl(CommandContext<ServerCommandSource> ctx);
 }

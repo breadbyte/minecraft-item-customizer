@@ -91,6 +91,10 @@ public record ModelPath(@NotNull String path, @NotNull String namespace, @NotNul
 
         return cleanedPath.substring(lastDelimiter + 1);
     }
+
+    public @NotNull String getSegments() {
+        return String.join("/", segments);
+    }
     
     public @NotNull String getSegmentToDepth(int depthZeroIndex_NotIncludingNamespace) {
         if (segments.isEmpty()) return namespace + ":";

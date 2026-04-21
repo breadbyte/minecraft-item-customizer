@@ -1,5 +1,6 @@
 package com.github.breadbyte.itemcustomizer.server.commands.registry.builder.model;
 
+import com.github.breadbyte.itemcustomizer.server.brigadier.ModelNamespaceSuggestionProvider;
 import com.github.breadbyte.itemcustomizer.server.commands.impl.model.namespace.ModelNamespaceRunner;
 import com.github.breadbyte.itemcustomizer.server.commands.registry.BaseCommand;
 import com.github.breadbyte.itemcustomizer.server.commands.registry.InternalHelper;
@@ -27,7 +28,9 @@ public class ModelNamespaceCommand implements BaseCommand {
         var subCommand = InternalHelper.RequirePermissionFor(literal(subCommandName), permission);
 
         var RegisterNode = literal("register");
-        var NamespaceNode = CommandManager.argument(NAMESPACE_ARGUMENT, StringArgumentType.word());
+        var NamespaceNode = CommandManager.argument(NAMESPACE_ARGUMENT, StringArgumentType.word())
+                .suggests(ModelNamespaceSuggestionProvider.INSTANCE);
+
         var UrlNode = CommandManager.argument(URL_ARGUMENT, StringArgumentType.greedyString());
 
         var ClearNode = literal("clear");
