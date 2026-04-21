@@ -52,7 +52,7 @@ public class ModelApplyAdapter implements Adapter<ModelApplyParams> {
         String fullPath = String.join("/", nodes);
         ModelPath ns = ModelPath.of(fullPath);
 
-        CustomModelDefinition m = ModelsIndex.getInstance().get(ns).getFirst();
+        CustomModelDefinition m = ModelsIndex.getInstance().get(ns).stream().findFirst().orElse(null);
 
         if (m == null) {
             if (!AccessValidator.IsAdmin(player)) {

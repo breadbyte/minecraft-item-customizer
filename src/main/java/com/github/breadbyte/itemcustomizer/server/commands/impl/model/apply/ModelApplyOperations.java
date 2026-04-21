@@ -34,10 +34,10 @@ public class ModelApplyOperations implements IModelApplyOperations {
             }
         }
 
-        var model = ModelsIndex.INSTANCE.get(ns).getFirst();
+        var model = ModelsIndex.INSTANCE.get(ns).stream().findFirst().orElse(null);
 
         if (model == null)
-            return Result.ok("Model " + ns + "applied!");
+            return Result.ok("Model " + ns + " applied!");
 
         if (model.madeBy() == null || model.madeBy().isBlank()) {
             return Result.ok("Model " + model.getName() + " applied!");
