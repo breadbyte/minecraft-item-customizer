@@ -19,6 +19,7 @@ public class PreOperations {
             String successMessage,
             Integer operationCost) {
 
+        // TODO: Validate player and cost before doing anything else
         var ctxSrc = ctx.getSource();
         var playerResult = PreOperations.ValidateStack(ctx, 1);
 
@@ -81,6 +82,10 @@ public class PreOperations {
     private static Result<Void> ValidateCost(PlayerEntity player, int cost) {
         if (player.isCreative())
             return Result.ok();
+
+        if (cost == 0) {
+            return Result.ok();
+        }
 
         if (player.experienceLevel < cost) {
             return Result.err(new Reason.NoExp(player.experienceLevel, cost));

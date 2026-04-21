@@ -28,8 +28,8 @@ public class ModelCategorySuggestionProvider implements SuggestionProvider<Serve
         }
 
         var instance = ModelsIndex.getInstance();
-        
+
         // Suggest only the top-level segments as "categories"
-        return CommandSource.suggestMatching(instance.immediateChildren(paramNamespace, ""), builder);
+        return CommandSource.suggestMatching(instance.getSubcategories(paramNamespace), builder);
     }
 }

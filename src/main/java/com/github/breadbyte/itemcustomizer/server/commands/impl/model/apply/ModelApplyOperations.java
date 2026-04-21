@@ -20,7 +20,6 @@ public class ModelApplyOperations implements IModelApplyOperations {
     @Override
     public Result<String> apply(ModelApplyParams params) {
         var ns = params.identifier();
-        var name = params.identifier().itemName();
 
         // Get the components for the currently held item
         var item = params.item();
@@ -29,13 +28,13 @@ public class ModelApplyOperations implements IModelApplyOperations {
         item.set(DataComponentTypes.ITEM_MODEL, Identifier.of(ns.namespace(), ns.getFullPath()));
 
         if (applyEquipmentTexture) {
-            var category = ns.category();
+            var category = ns.getCategory();
             if (category.equalsIgnoreCase("armor") || category.equalsIgnoreCase("elytra")) {
                 equipmentOperations.toggle(new ModelEquipmentParams(item));
             }
         }
 
-        var model = ModelsIndex.INSTANCE.get(ns, name);
+        var model = ModelsIndex.INSTANCE.get(ns).getFirst();
 
         if (model == null)
             return Result.ok("Model " + ns + "applied!");

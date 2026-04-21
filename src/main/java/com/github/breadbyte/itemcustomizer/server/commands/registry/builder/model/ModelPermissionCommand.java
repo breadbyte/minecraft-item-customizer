@@ -5,7 +5,7 @@ import com.github.breadbyte.itemcustomizer.server.commands.registry.BaseCommand;
 import com.github.breadbyte.itemcustomizer.server.commands.registry.InternalHelper;
 import com.github.breadbyte.itemcustomizer.server.brigadier.ModelCategorySuggestionProvider;
 import com.github.breadbyte.itemcustomizer.server.brigadier.ModelNamespaceSuggestionProvider;
-import com.github.breadbyte.itemcustomizer.server.brigadier.ModelSuggestionProvider;
+//import com.github.breadbyte.itemcustomizer.server.brigadier.ModelSuggestionProvider;
 import com.github.breadbyte.itemcustomizer.server.util.Permission;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -42,8 +42,9 @@ public class ModelPermissionCommand implements BaseCommand {
                 .suggests(ModelCategorySuggestionProvider.INSTANCE);
 
         var ArgNodeItemName =
-                argument(NAME_ARGUMENT, StringArgumentType.string())
-                .suggests(ModelSuggestionProvider.INSTANCE);
+                argument(NAME_ARGUMENT, StringArgumentType.string());
+                // TODO: FIX SUGGESTIONS - I really don't want to use Autocomplete Nodes here, but we can if we need to
+                //.suggests(ModelSuggestionProvider.INSTANCE);
 
         var ArgNodePlayer =
                 argument(PLAYER_ARGUMENT, EntityArgumentType.player());

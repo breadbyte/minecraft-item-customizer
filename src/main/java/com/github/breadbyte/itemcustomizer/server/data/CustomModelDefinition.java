@@ -2,6 +2,7 @@ package com.github.breadbyte.itemcustomizer.server.data;
 
 import com.github.breadbyte.itemcustomizer.server.util.Permission;
 import dev.isxander.yacl3.config.v2.api.SerialEntry;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Objects;
 
@@ -13,16 +14,12 @@ public record CustomModelDefinition(@SerialEntry ModelPath modelPath, @SerialEnt
     }
 
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return modelPath.toString();
     }
 
     public String getNamespace() {
         return modelPath.namespace();
-    }
-
-    public String getCategory() {
-        return modelPath.getFullCategoryPath();
     }
 
     public String getName() {
@@ -32,7 +29,7 @@ public record CustomModelDefinition(@SerialEntry ModelPath modelPath, @SerialEnt
     public ModelPath getModelPath() { return modelPath; }
 
     public String getPermissionNode() {
-        return Permission.CUSTOMIZE.chain(modelPath.getItemPermissionNode()).getPermission();
+        return Permission.CUSTOMIZE.chain(modelPath.getPermissionNode()).getPermission();
     }
 
     @Override

@@ -22,11 +22,11 @@ public class ModelApplyCommand implements BaseCommand {
     public static final String ITEM_CATEGORY_ARGUMENT = "item_category";
     public static final String ITEM_PATH_ARGUMENT = "item_path";
     public static final String NODE_PREFIX = "node";
-    public static final int MAX_AUTOCOMPLETE_NODES = 6;
+    public static final int MAX_AUTOCOMPLETE_NODES = 7;
     public static final String EQUIPMENT_TEXTURE_ARGUMENT = "change_equippable_texture";
     public static final String COLOR_ARGUMENT = "color";
 
-    private static ModelApplyRunner RUNNER;
+    private final ModelApplyRunner RUNNER;
     public ModelApplyCommand(ModelApplyRunner runner) {
         RUNNER = runner;
     }
@@ -38,9 +38,6 @@ public class ModelApplyCommand implements BaseCommand {
 
         var NamespaceNode = CommandManager.argument(NAMESPACE_ARGUMENT, StringArgumentType.string())
                 .suggests(ModelNamespaceSuggestionProvider.INSTANCE);
-
-        var CategoryNode = CommandManager.argument(ITEM_CATEGORY_ARGUMENT, StringArgumentType.string())
-                .suggests(ModelCategorySuggestionProvider.INSTANCE);
 
         var ApplyNode = literal("apply");
         var ResetNode = literal("reset");
@@ -61,9 +58,7 @@ public class ModelApplyCommand implements BaseCommand {
         dispatcher.register(_root
                 .then(ApplyNode
                 .then(NamespaceNode
-                .then(CategoryNode
-                .then(lastNode
-                        .executes(RUNNER::applyModel))))));
+                .then(lastNode))));
 
         // model reset
         dispatcher.register(_root

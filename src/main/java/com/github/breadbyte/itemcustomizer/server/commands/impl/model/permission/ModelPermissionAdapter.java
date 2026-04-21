@@ -18,7 +18,8 @@ public class ModelPermissionAdapter implements Adapter<ModelPermissionParams> {
         var playerArg = ctx.getArgument(ModelPermissionCommand.PLAYER_ARGUMENT, EntitySelector.class);
         var cmdSrc = ctx.getSource();
 
-        ModelPath nc = new ModelPath(namespace, itemType, itemName);
+        // TODO: FIXME
+        ModelPath nc = ModelPath.of(String.format("%s:%s", namespace, itemType));
         return Result.ok(new ModelPermissionParams(nc, cmdSrc, playerArg));
     }
 }

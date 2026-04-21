@@ -21,7 +21,7 @@ public class Storage {
     public static ConfigClassHandler<Storage> HANDLER = ConfigClassHandler.createBuilder(Storage.class)
             .id(Identifier.of(ItemCustomizer.MOD_ID, "item_customizer"))
             .serializer(config -> GsonConfigSerializerBuilder.create(config)
-                    .setPath(FabricLoader.getInstance().getConfigDir().resolve("cache.json5"))
+                    .setPath(FabricLoader.getInstance().getConfigDir().resolve("item_customizer_cache.json5"))
                     .appendGsonBuilder(GsonBuilder::setPrettyPrinting) // not needed, pretty print by default
                     .setJson5(true)
                     .build())

@@ -27,11 +27,9 @@ public class ModelApplyAdapter implements Adapter<ModelApplyParams> {
         var player = playerResult.unwrap();
 
         String namespace;
-        String category;
         List<String> nodes = new ArrayList<>();
         try {
             namespace = ctx.getArgument(NAMESPACE_ARGUMENT, String.class);
-            category = ctx.getArgument(ITEM_CATEGORY_ARGUMENT, String.class);
             for (int i = 1; i <= MAX_AUTOCOMPLETE_NODES; i++) {
                 try {
                     nodes.add(ctx.getArgument(NODE_PREFIX + i, String.class));
@@ -51,10 +49,10 @@ public class ModelApplyAdapter implements Adapter<ModelApplyParams> {
         if (itemResult.isErr()) return Result.err(itemResult.unwrapErr());
         var item = itemResult.unwrap();
 
-        String fullPath = category + "/" + String.join("/", nodes);
-        ModelPath ns = ModelPath.fromNamespaceAndPath(namespace, fullPath);
-        
-        CustomModelDefinition m = ModelsIndex.getInstance().get(ns, ns.itemName());
+        String fullPath = String.join("/", nodes);
+        ModelPath ns = ModelPath.of(fullPath);
+
+        CustomModelDefinition m = ModelsIndex.getInstance().get(ns).getFirst();
 
         if (m == null) {
             if (!AccessValidator.IsAdmin(player)) {
@@ -62,7 +60,7 @@ public class ModelApplyAdapter implements Adapter<ModelApplyParams> {
             }
 
             // Force anyway if we're admin
-            m = new CustomModelDefinition(ns, "");
+            return Result.ok(new ModelApplyParams(item, ns, null));
         }
 
         // Get the actual model path, which may be different

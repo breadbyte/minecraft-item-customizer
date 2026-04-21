@@ -22,11 +22,11 @@ public class ModelPermissionOperations implements IModelPermissionOperations {
 
         ModelPath ns = params.namespace();
         if (Luckperms.IsLuckpermsPresent()) {
-            Luckperms.GrantPermission(targetPlayer, Permission.CUSTOMIZE.chain(ns.withItemNamePermissionNode(ns.itemName())).getPermission());
+            Luckperms.GrantPermission(targetPlayer, Permission.CUSTOMIZE.chain(ns.getPermissionNode()).getPermission());
             return Result.ok();
         }
         else {
-            return Result.err(new Reason.InternalError("LuckPerms not present, grant manually instead: " + Permission.CUSTOMIZE.chain(ns.withItemNamePermissionNode(ns.itemName())).getPermission()));
+            return Result.err(new Reason.InternalError("LuckPerms not present, grant manually instead: " + Permission.CUSTOMIZE.chain(ns.getPermissionNode()).getPermission()));
         }
     }
 
@@ -41,17 +41,17 @@ public class ModelPermissionOperations implements IModelPermissionOperations {
 
         ModelPath ns = params.namespace();
         if (Luckperms.IsLuckpermsPresent()) {
-            Luckperms.RevokePermission(targetPlayer, Permission.CUSTOMIZE.chain(ns.withItemNamePermissionNode(ns.itemName())));
+            Luckperms.RevokePermission(targetPlayer, Permission.CUSTOMIZE.chain(ns.getPermissionNode()));
             return Result.ok();
         }
         else {
-            return Result.err(new Reason.InternalError("LuckPerms not present, revoke manually instead: " + Permission.CUSTOMIZE.chain(ns.withItemNamePermissionNode(ns.itemName())).getPermission()));
+            return Result.err(new Reason.InternalError("LuckPerms not present, revoke manually instead: " + Permission.CUSTOMIZE.chain(ns.getPermissionNode()).getPermission()));
         }
     }
 
     @Override
     public Result<String> getPermissionNode(ModelPermissionParams params) {
         var nsc = params.namespace();
-        return Result.err(new Reason.NotAnError(nsc.withItemNamePermissionNode(params.namespace().itemName())));
+        return Result.err(new Reason.NotAnError(nsc.getPermissionNode()));
     }
 }

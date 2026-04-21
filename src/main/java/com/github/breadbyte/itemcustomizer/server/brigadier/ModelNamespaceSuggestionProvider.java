@@ -1,5 +1,6 @@
 package com.github.breadbyte.itemcustomizer.server.brigadier;
 
+import com.github.breadbyte.itemcustomizer.server.data.ModelPath;
 import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import com.github.breadbyte.itemcustomizer.server.util.AccessValidator;
 import com.github.breadbyte.itemcustomizer.server.util.Permission;
@@ -12,6 +13,7 @@ import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.command.CommandSource;
 import net.minecraft.server.command.ServerCommandSource;
 
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -23,9 +25,9 @@ public class ModelNamespaceSuggestionProvider implements SuggestionProvider<Serv
     public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) throws CommandSyntaxException {
         var player = context.getSource().getPlayer();
         var index = ModelsIndex.getInstance();
-        var allNamespaces = index.namespaces();
+        var allNamespaces = index.getNamespaces();
 
-        Set<String> validNamespaces;
+        List<String> validNamespaces;
 
         if (AccessValidator.IsAdmin(player)) {
             validNamespaces = allNamespaces;
@@ -36,12 +38,20 @@ public class ModelNamespaceSuggestionProvider implements SuggestionProvider<Serv
                     if (Permissions.check(player, Permission.CUSTOMIZE.chain(namespace).getPermission())) {
                         return true;
                     }
-                    // Check if any model in the namespace is accessible
-                    return index.categories(namespace).stream()
-                            .anyMatch(path -> index.getAllRecursive(path).stream()
-                                    .anyMatch(model -> Permissions.check(player, model.getPermissionNode())));
+
+                    // FIXME: debug
+                    return true;
+
+                    // todo: fix bottom up permissions checking
+//                    return index.get(ModelPath.of(namespace)).stream()
+//                            .anyMatch(model -> Permissions.check(player, model.getPermissionNode()));
+//
+//                    // Check if any model in the namespace is accessible
+//                    return index.categories(namespace).stream()
+//                            .anyMatch(path -> index.getAllRecursive(path).stream()
+//                                    .anyMatch(model -> Permissions.check(player, model.getPermissionNode())));
                 })
-                .collect(Collectors.toSet());
+                .toList();
         }
 
         return CommandSource.suggestMatching(validNamespaces, builder);

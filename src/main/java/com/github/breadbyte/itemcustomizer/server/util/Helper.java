@@ -51,10 +51,6 @@ public class Helper {
         }
     }
 
-    public static Identifier NamespaceCategoryToIdentifier(ModelPath nsc, String itemName) {
-        return Identifier.of(nsc.namespace(), nsc.categoryWithItemName(itemName));
-    }
-
     public static void tryLoadStorage() {
         if (!Storage.HANDLER.load()) {
             throw new IllegalStateException("Failed to load storage handler.");
@@ -92,4 +88,7 @@ public class Helper {
         player.getEntityWorld().playSoundClient(player.getX(), player.getY(), player.getZ(), SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, 1.0F, 1.0F, false);
     }
 
+    public static String trimTrailingSlash(String str) {
+        return str.replaceAll("/+$", "");
+    }
 }

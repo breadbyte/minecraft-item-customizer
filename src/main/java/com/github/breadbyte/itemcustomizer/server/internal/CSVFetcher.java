@@ -59,10 +59,10 @@ public class CSVFetcher {
                             continue;
                         }
 
-                        ModelPath nc = ModelPath.fromDestination(namespace, itemCategory, itemName, destination);
+                        ModelPath nc = ModelPath.of(namespace + ":" + destination);
                         suggestions.add(new CustomModelDefinition(nc, madeBy));
                     } else {
-                        ItemCustomizer.LOGGER.warn("CSV line does not contain enough parts: {}", line);
+                        //ItemCustomizer.LOGGER.warn("CSV line does not contain enough parts: {}", line);
                     }
                 }
             }
