@@ -25,7 +25,12 @@ public class ModelCopyAdapter implements Adapter<ModelCopyParams> {
 
         var itemComps = mainHand.getComponents();
         if (itemComps.get(DataComponentTypes.LOCK) != null) {
-            return Result.err(new Reason.InternalError("Item is locked!"));
+            return Result.err(new Reason.InternalError("Main hand item is locked!"));
+        }
+
+        var offHandComps = offHand.getComponents();
+        if (offHandComps.get(DataComponentTypes.LOCK) != null) {
+            return Result.err(new Reason.InternalError("Offhand item is locked!"));
         }
 
         return Result.ok(new ModelCopyParams(mainHand, offHand));
