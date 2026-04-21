@@ -28,8 +28,8 @@ public class ModelApplyOperations implements IModelApplyOperations {
         item.set(DataComponentTypes.ITEM_MODEL, Identifier.of(ns.namespace(), ns.getSegments()));
 
         if (applyEquipmentTexture) {
-            var category = ns.getCategory();
-            if (category.equalsIgnoreCase("armor") || category.equalsIgnoreCase("elytra")) {
+            var eqp = item.getComponents().get(DataComponentTypes.EQUIPPABLE);
+            if (eqp != null) {
                 equipmentOperations.toggle(new ModelEquipmentParams(item));
             }
         }
