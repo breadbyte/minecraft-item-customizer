@@ -13,7 +13,7 @@ public sealed interface Reason {
             case InvalidPlayer p -> "Command can only be called by a player.";
             case NoPermission p -> "You do not have permission to use this command!";
             case NoItem i -> "You are not holding an item!";
-            case NoExp e -> "This command requires at least " + e.required() + "experience level(s)!";
+            case NoExp e -> "This command requires at least " + e.required() + " experience level(s)!";
             case WrongOwnership o -> "You do not own this item!";
             case InvalidInput i -> "Invalid input!";
             case NoInput i -> "No input provided!";

@@ -21,7 +21,7 @@ public class PreOperations {
 
         // TODO: Validate player and cost before doing anything else
         var ctxSrc = ctx.getSource();
-        var playerResult = PreOperations.ValidateStack(ctx, 1);
+        var playerResult = PreOperations.ValidateStack(ctx, operationCost);
 
         if (playerResult.isErr()) {
             Postmaster.Hud_SendMessage_No(ctxSrc, playerResult.unwrapErr().getMessage());
@@ -88,7 +88,7 @@ public class PreOperations {
         }
 
         if (player.experienceLevel < cost) {
-            return Result.err(new Reason.NoExp(player.experienceLevel, cost));
+            return Result.err(new Reason.NoExp(cost, player.experienceLevel));
         }
 
         return Result.ok();
