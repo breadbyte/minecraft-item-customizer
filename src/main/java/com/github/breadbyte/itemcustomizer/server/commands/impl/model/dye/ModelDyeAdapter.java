@@ -11,7 +11,6 @@ import net.minecraft.server.command.ServerCommandSource;
 public class ModelDyeAdapter implements Adapter<ModelDyeParams> {
     @Override
     public Result<ModelDyeParams> getParams(CommandContext<ServerCommandSource> ctx) {
-        var colorClass = ctx.getArgument(ModelDyeCommand.COLOR_ARGUMENT, Integer.class);
 
         var player = PreOperations.TryReturnValidPlayer(ctx);
         if (player.isErr()) return Result.err(player.unwrapErr());
@@ -19,6 +18,11 @@ public class ModelDyeAdapter implements Adapter<ModelDyeParams> {
         var itemStack = PreOperations.TryGetValidPlayerCurrentHand(player.unwrap());
         if (itemStack.isErr()) return Result.err(itemStack.unwrapErr());
 
-        return Result.ok(new ModelDyeParams(itemStack.unwrap(), colorClass));
+        try {
+            var colorClass = ctx.getArgument(ModelDyeCommand.COLOR_ARGUMENT, Integer.class);
+            return Result.ok(new ModelDyeParams(itemStack.unwrap(), colorClass));
+        } catch (Exception ignored) {
+            return Result.ok(new ModelDyeParams(itemStack.unwrap(), null));
+        }
     }
 }
