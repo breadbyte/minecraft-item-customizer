@@ -57,7 +57,9 @@ public class ModelApplyOperations implements IModelApplyOperations {
         var trimComponent = itemComps.get(DataComponentTypes.TRIM);
 
         // Clear components and apply defaults
-        item.applyComponentsFrom(ComponentMap.EMPTY);
+        for (var component : itemComps.getTypes()) {
+            item.remove(component);
+        }
         item.applyComponentsFrom(defaultComponents);
 
         if (trimComponent != null) {
