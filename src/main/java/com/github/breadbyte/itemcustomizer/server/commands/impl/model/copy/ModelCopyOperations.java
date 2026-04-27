@@ -84,6 +84,14 @@ public class ModelCopyOperations implements IModelCopyOperations {
             mainHand.remove(DataComponentTypes.CUSTOM_MODEL_DATA);
         }
 
+        // Dye
+        var dye = offHandComps.get(DataComponentTypes.DYED_COLOR);
+        if (dye != null) {
+            mainHand.set(DataComponentTypes.DYED_COLOR, dye);
+        } else {
+            mainHand.remove(DataComponentTypes.DYED_COLOR);
+        }
+
         return Result.ok();
     }
 }
