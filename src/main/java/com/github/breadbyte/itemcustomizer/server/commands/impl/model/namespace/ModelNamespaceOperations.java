@@ -74,7 +74,13 @@ public class ModelNamespaceOperations implements IModelNamespaceOperations {
         Helper.tryLoadStorage();
 
         var inst = ModelsIndex.getInstance();
-        return inst.removeNamespace(paramNamespace);
+        var rem = inst.removeNamespace(paramNamespace);
+
+        if (rem.isErr())
+            return Result.err(rem.unwrapErr());
+
+        Helper.tryLoadStorage();
+        return rem;
     }
 
     @Override

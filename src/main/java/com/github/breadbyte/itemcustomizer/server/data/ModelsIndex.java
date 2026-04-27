@@ -266,24 +266,24 @@ public class ModelsIndex {
     }
 
     public List<String> getNamespaces() {
-        return new ArrayList<>(_index.keySet().stream()
+        return _index.keySet().stream()
                 .map(key -> {
                     int colonIndex = key.indexOf(':');
                     return (colonIndex != -1) ? key.substring(0, colonIndex) : "";
                 })
-                .filter(ns -> !ns.isEmpty())
-                .collect(Collectors.toSet()));
+                .filter(ns -> !ns.isEmpty()).distinct().collect(Collectors.toList());
     }
 
     public Result<String> removeNamespace(String namespace) {
+        _index.prefixMap(namespace).clear();
+        _namespaceUrls.remove(namespace);
+        save();
 
-        boolean removedIndex = _index.remove(namespace) != null;
-        boolean removedUrl = _namespaceUrls.remove(namespace) != null;
-        if (removedIndex || removedUrl) {
-            save();
-            return Result.ok("Removed all models for namespace: " + namespace);
+        if (!_index.prefixMap(namespace).isEmpty()) {
+            return Result.err(new Reason.InternalError("Failed to remove namespace " + namespace + ", please try again"));
         }
-        return Result.err(new Reason.InternalError("No models found for namespace: " + namespace));
+
+        return Result.ok("Removed all models for namespace: " + namespace);
     }
 
     public void clear() {
