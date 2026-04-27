@@ -4,7 +4,6 @@ import com.github.breadbyte.itemcustomizer.server.util.Helper;
 import com.github.breadbyte.itemcustomizer.server.util.Reason;
 import com.github.breadbyte.itemcustomizer.server.util.Result;
 import org.apache.commons.collections4.trie.PatriciaTrie;
-import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -126,8 +125,7 @@ public class ModelsIndex {
     /**
      * Queries the trie using the combined "category/path/to/item" string.
      */
-
-    public List<CustomModelDefinition> get(ModelPath path) {
+    public Result<CustomModelDefinition> getExact(ModelPath path) {
         String searchKey = path.toString();
 
         // 1. Check or populate the query cache for keys matching this prefix
@@ -140,18 +138,27 @@ public class ModelsIndex {
             queryCache.put(searchKey, matchingKeys);
         }
 
-        List<CustomModelDefinition> results = new ArrayList<>();
-
-        // 2. Iterate through the matching keys and aggregate models
-        for (String key : matchingKeys) {
-            CustomModelDefinition model = _index.get(key);
-            if (model != null) {
-                // Set a breakpoint here to inspect specific lists of models found in the trie
-                results.add(model);
+        // Only check for direct matches
+        String finalMatchingKeys = null;
+        for (var key : matchingKeys) {
+            if (key.equalsIgnoreCase(path.toString())) {
+                finalMatchingKeys = key;
+                break;
             }
         }
 
-        return results;
+        if (finalMatchingKeys == null) return Result.err(new Reason.InternalError("No exact match found"));
+
+        CustomModelDefinition result = null;
+
+        // 2. Iterate through the matching keys and aggregate models
+        CustomModelDefinition model = _index.get(finalMatchingKeys);
+        if (model != null) {
+            result = model;
+            return Result.ok(result);
+        } else {
+            return Result.err(new Reason.InternalError("Internal Error - Please Reload Namespaces"));
+        }
     }
 
     // This method is meant to retrieve entries that are one segment deeper than the given path.

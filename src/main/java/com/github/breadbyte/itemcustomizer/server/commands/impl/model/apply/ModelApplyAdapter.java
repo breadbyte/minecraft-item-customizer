@@ -2,7 +2,6 @@ package com.github.breadbyte.itemcustomizer.server.commands.impl.model.apply;
 
 import com.github.breadbyte.itemcustomizer.server.commands.defs.Adapter;
 import com.github.breadbyte.itemcustomizer.server.commands.defs.model.apply.ModelApplyParams;
-import com.github.breadbyte.itemcustomizer.server.commands.registry.builder.model.ModelApplyCommand;
 import com.github.breadbyte.itemcustomizer.server.commands.runner.PreOperations;
 import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
 import com.github.breadbyte.itemcustomizer.server.data.ModelPath;
@@ -52,9 +51,9 @@ public class ModelApplyAdapter implements Adapter<ModelApplyParams> {
         String fullPath = String.join("/", nodes);
         ModelPath ns = ModelPath.of(String.format("%s:%s", namespace, fullPath));
 
-        CustomModelDefinition m = ModelsIndex.getInstance().get(ns).stream().findFirst().orElse(null);
+        Result<CustomModelDefinition> mResult = ModelsIndex.getInstance().getExact(ns);
 
-        if (m == null) {
+        if (mResult.isErr()) {
             if (!AccessValidator.IsAdmin(player)) {
                 return Result.err(new Reason.InternalError("No custom model definition found for model: " + namespace + ":" + fullPath));
             }
@@ -64,8 +63,8 @@ public class ModelApplyAdapter implements Adapter<ModelApplyParams> {
         }
 
         // Get the actual model path, which may be different
-        ns = m.getModelPath();
+        ns = mResult.unwrap().getModelPath();
 
-        return Result.ok(new ModelApplyParams(item, ns, m));
+        return Result.ok(new ModelApplyParams(item, ns, mResult.unwrap()));
     }
 }

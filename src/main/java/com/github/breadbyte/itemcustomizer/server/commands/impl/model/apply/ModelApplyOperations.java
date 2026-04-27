@@ -5,10 +5,10 @@ import com.github.breadbyte.itemcustomizer.server.commands.defs.model.apply.IMod
 import com.github.breadbyte.itemcustomizer.server.commands.defs.model.apply.ModelApplyParams;
 import com.github.breadbyte.itemcustomizer.server.commands.defs.model.equipment.ModelEquipmentParams;
 import com.github.breadbyte.itemcustomizer.server.commands.impl.model.equipment.ModelEquipmentOperations;
+import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
 import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import com.github.breadbyte.itemcustomizer.server.util.Reason;
 import com.github.breadbyte.itemcustomizer.server.util.Result;
-import net.minecraft.component.ComponentMap;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.util.Identifier;
 
@@ -34,7 +34,10 @@ public class ModelApplyOperations implements IModelApplyOperations {
             }
         }
 
-        var model = ModelsIndex.INSTANCE.get(ns).stream().findFirst().orElse(null);
+        var modelResult = ModelsIndex.INSTANCE.getExact(ns);
+        CustomModelDefinition model = null;
+
+        if (modelResult.isOk()) { model = modelResult.unwrap(); }
 
         if (model == null)
             return Result.ok("Model " + ns + " applied!");
