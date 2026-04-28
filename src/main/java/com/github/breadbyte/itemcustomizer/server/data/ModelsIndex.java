@@ -193,17 +193,21 @@ public class ModelsIndex {
         for (CustomModelDefinition entry : index_entries) {
             String fullPath = entry.toString();
 
+            // Prevents the input from duplicating at the end node
+            if (fullPath.equals(input)) continue;
+
             // We check two potential starting points for suggestions:
             // 1. Completion: From the last separator (e.g., 'blo' -> 'blocks')
             // 2. Peeking: Inside the current input if it's a directory (e.g., 'blocks' -> 'stone')
-            
+
             int[] potentialStarts = { startIdx, input.length() + 1 };
-            
+
             for (int start : potentialStarts) {
                 if (start < 0 || start >= fullPath.length()) continue;
-                
+
                 // If we're peeking inside, ensure the character at the input boundary was a separator
                 if (start == input.length() + 1) {
+                    if (input.length() >= fullPath.length()) continue; // guard the charAt
                     char sep = fullPath.charAt(input.length());
                     if (sep != ':' && sep != '/') continue;
                 }
@@ -219,7 +223,21 @@ public class ModelsIndex {
                 else if (nextSlash != -1) endIdx = nextSlash;
                 else if (nextColon != -1) endIdx = nextColon;
 
-                results.add(endIdx != -1 ? remainder.substring(0, endIdx) : remainder);
+                String rem = (endIdx != -1) ? remainder.substring(0, endIdx) : remainder;
+                String currentSegment = input.substring(startIdx); // what the user is currently typing
+
+                // Split the input itself into its segments
+                List<String> inputSegments = new ArrayList<>();
+                var inputByNamespace = input.split(":");
+                for (var s : inputByNamespace) {
+                    inputSegments.addAll(Arrays.asList(s.split("/")));
+                }
+
+                if (inputSegments.contains(rem) && currentSegment.equals(rem)) {
+                    continue;
+                }
+
+                results.add(rem);
             }
         }
         return new ArrayList<>(results);
