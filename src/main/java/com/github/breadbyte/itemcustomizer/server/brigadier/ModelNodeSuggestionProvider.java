@@ -4,6 +4,7 @@ import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
 import com.github.breadbyte.itemcustomizer.server.data.ModelPath;
 import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import com.github.breadbyte.itemcustomizer.server.util.AccessValidator;
+import com.github.breadbyte.itemcustomizer.server.util.Permission;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
@@ -33,6 +34,11 @@ public class ModelNodeSuggestionProvider implements SuggestionProvider<ServerCom
             // Normalize namespace and category to lowercase for consistent lookup
             namespace = context.getArgument(NAMESPACE_ARGUMENT, String.class).toLowerCase();
         } catch (IllegalArgumentException e) {
+            return builder.buildFuture();
+        }
+
+        if (!context.getSource().isExecutedByPlayer()) return builder.buildFuture();
+        if (!Permissions.check(context.getSource().getPlayer(), Permission.CUSTOMIZE.chain(namespace).getPermission())) {
             return builder.buildFuture();
         }
 

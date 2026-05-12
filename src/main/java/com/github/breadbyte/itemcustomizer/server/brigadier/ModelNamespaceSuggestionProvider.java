@@ -34,19 +34,23 @@ public class ModelNamespaceSuggestionProvider implements SuggestionProvider<Serv
         } else {
             validNamespaces = allNamespaces.stream()
                 .filter(namespace -> {
-                    // Check direct permission for namespace
+                    // Check direct permission for namespace, if we do, skip all other checks
                     if (Permissions.check(player, Permission.CUSTOMIZE.chain(namespace).getPermission())) {
                         return true;
                     }
 
-                    // FIXME: debug
-                    return true;
-
                     // todo: fix bottom up permissions checking
-//                    return index.get(ModelPath.of(namespace)).stream()
-//                            .anyMatch(model -> Permissions.check(player, model.getPermissionNode()));
-//
-//                    // Check if any model in the namespace is accessible
+                    return index.__internalAutocomplete(ModelPath.of(namespace).toString()).stream()
+                            // Check if any model in the namespace is accessible
+                            .anyMatch(model -> {
+                                var mdl = index.getExact(ModelPath.of(model));
+                                if (mdl.isErr()) {
+                                    return false;
+                                }
+
+                                return Permissions.check(player, mdl.unwrap().getPermissionNode());
+                            });
+
 //                    return index.categories(namespace).stream()
 //                            .anyMatch(path -> index.getAllRecursive(path).stream()
 //                                    .anyMatch(model -> Permissions.check(player, model.getPermissionNode())));
