@@ -13,6 +13,7 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextCodecs;
 import net.minecraft.util.Identifier;
+import org.apache.commons.lang3.NotImplementedException;
 
 public class Helper {
 
@@ -32,6 +33,11 @@ public class Helper {
                 .decode(JsonOps.INSTANCE, gson.fromJson(pseudojson, JsonElement.class))
                 .getOrThrow()
                 .getFirst();
+    }
+
+    public static boolean PermissionToNode(String permission) {
+        // todo
+        throw new NotImplementedException();
     }
 
     public static boolean IsValidJson(String input) {

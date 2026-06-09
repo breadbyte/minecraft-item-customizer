@@ -5,7 +5,6 @@ import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.command.ServerCommandSource;
-import com.github.breadbyte.itemcustomizer.server.commands.defs.Adapter;
 
 import java.util.Objects;
 
@@ -21,7 +20,7 @@ public class PreOperations {
 
         // TODO: Validate player and cost before doing anything else
         var ctxSrc = ctx.getSource();
-        var playerResult = PreOperations.ValidateStack(ctx, operationCost);
+        var playerResult = PreOperations.ValidateCostAndPlayer(ctx, operationCost);
 
         if (playerResult.isErr()) {
             Postmaster.Hud_SendMessage_No(ctxSrc, playerResult.unwrapErr().getMessage());
@@ -115,7 +114,7 @@ public class PreOperations {
     }
 
     // TODO: We shouldn't need to validate permission here since we're gated by Brigadier already?
-    public static Result<PlayerEntity> ValidateStack(CommandContext<ServerCommandSource> ctx, int cost) {
+    public static Result<PlayerEntity> ValidateCostAndPlayer(CommandContext<ServerCommandSource> ctx, int cost) {
         var validatePlayer = TryReturnValidPlayer(ctx);
         if (validatePlayer.isErr()) {
             return validatePlayer;

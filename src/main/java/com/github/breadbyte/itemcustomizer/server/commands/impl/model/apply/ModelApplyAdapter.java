@@ -7,9 +7,11 @@ import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
 import com.github.breadbyte.itemcustomizer.server.data.ModelPath;
 import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import com.github.breadbyte.itemcustomizer.server.util.AccessValidator;
+import com.github.breadbyte.itemcustomizer.server.util.Permission;
 import com.github.breadbyte.itemcustomizer.server.util.Reason;
 import com.github.breadbyte.itemcustomizer.server.util.Result;
 import com.mojang.brigadier.context.CommandContext;
+import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.server.command.ServerCommandSource;
 
 import java.util.ArrayList;
@@ -64,6 +66,10 @@ public class ModelApplyAdapter implements Adapter<ModelApplyParams> {
 
         // Get the actual model path, which may be different
         ns = mResult.unwrap().getModelPath();
+
+        if (!Permissions.check(player, Permission.CUSTOMIZE.chain(ns.getPermissionNode()).getPermission())) {
+            return Result.err(new Reason.NoPermission("You do not have permission to apply this model!"));
+        }
 
         return Result.ok(new ModelApplyParams(item, ns, mResult.unwrap()));
     }
