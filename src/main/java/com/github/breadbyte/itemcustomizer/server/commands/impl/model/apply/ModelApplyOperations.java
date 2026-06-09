@@ -59,15 +59,19 @@ public class ModelApplyOperations implements IModelApplyOperations {
         // Save the trim
         var trimComponent = itemComps.get(DataComponentTypes.TRIM);
 
+        // Save the lore and name, since we're only changing the model here
+        var loreComponent = itemComps.get(DataComponentTypes.LORE);
+        var nameComponent = itemComps.get(DataComponentTypes.CUSTOM_NAME);
+
         // Clear components and apply defaults
         for (var component : itemComps.getTypes()) {
             item.remove(component);
         }
         item.applyComponentsFrom(defaultComponents);
 
-        if (trimComponent != null) {
-            item.set(DataComponentTypes.TRIM, trimComponent);
-        }
+        if (trimComponent != null) { item.set(DataComponentTypes.TRIM, trimComponent); }
+        if (loreComponent != null) { item.set(DataComponentTypes.LORE, loreComponent); }
+        if (nameComponent != null) { item.set(DataComponentTypes.CUSTOM_NAME, nameComponent); }
 
         if (item.getComponents().size() != defaultComponents.size()) {
 

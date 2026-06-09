@@ -33,7 +33,7 @@ public class ModelApplyRunner implements IModelApplyRunner {
     }
 
     public int resetModel(CommandContext<ServerCommandSource> ctx) {
-        // HACK HACK: GetParams should handle partial params for commands!!
+        // FIXME HACK HACK: GetParams should handle partial params for commands!!
         var player = PreOperations.TryReturnValidPlayer(ctx);
         if (player.isErr()) {
             Postmaster.Hud_SendMessage_No(ctx.getSource(), player.unwrapErr().getMessage());
