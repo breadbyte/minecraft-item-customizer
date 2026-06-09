@@ -33,14 +33,15 @@ public class ModelLockOperations implements IModelLockOperations {
             }
 
             if (!lock.unwrap().equals(params.uuid())) {
-                // TODO: Figure out how to get the locking player from here
-                return Result.err(new Reason.InternalError("This item is locked by another player and cannot be modified!"));
-//                try {
-//                    //var locker = player.getEntityWorld().getServer().getPlayerManager().getPlayer(lock.unwrap()).getName();
-//                    return Result.err(new Reason.InternalError("This item is locked by + " + locker + " and cannot be modified!"));
-//                } catch (NullPointerException e) {
-//
-//                }
+                try {
+                    // Holder should not be null here
+                    assert params.item().getHolder() != null;
+
+                    var locker = params.item().getHolder().getEntityWorld().getServer().getPlayerManager().getPlayer(lock.unwrap()).getName();
+                    return Result.err(new Reason.InternalError("This item is locked by + " + locker + " and cannot be modified!"));
+                } catch (NullPointerException e) {
+                    return Result.err(new Reason.InternalError("This item is locked by another player and cannot be modified!"));
+                }
             }
         } else {
             // Set it to the new model
