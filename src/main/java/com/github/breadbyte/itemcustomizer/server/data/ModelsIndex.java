@@ -164,7 +164,7 @@ public class ModelsIndex {
     // This method is meant to retrieve entries that are one segment deeper than the given path.
 
     // The depth looks like this:
-    // namespace:path/to/model/subpath/abcd
+    // namespace:1/2/3/4/5
     // 0        :1   /2 /3    /4      /5
     public List<CustomModelDefinition> getEntriesAt(ModelPath path) {
         String currentString = path.toString();
@@ -181,9 +181,13 @@ public class ModelsIndex {
     }
 
     public List<String> __internalAutocomplete(String input) {
+        return __internalAutocomplete(input, _index);
+    }
+
+    public List<String> __internalAutocomplete(String input, PatriciaTrie<CustomModelDefinition> trie) {
         Set<String> results = new TreeSet<>();
 
-        var index_entries = getEntriesAt(ModelPath.of(input));
+        var index_entries = trie.prefixMap(input).values();
 
         // Find the boundary of the current search level (after the last ':' or '/')
         int lastSeparator = Math.max(input.lastIndexOf(':'), input.lastIndexOf('/'));

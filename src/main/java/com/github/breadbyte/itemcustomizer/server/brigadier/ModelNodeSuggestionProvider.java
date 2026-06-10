@@ -1,6 +1,7 @@
 package com.github.breadbyte.itemcustomizer.server.brigadier;
 
 import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
+import com.github.breadbyte.itemcustomizer.server.data.ExplicitPermissionCache;
 import com.github.breadbyte.itemcustomizer.server.data.ModelPath;
 import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import com.github.breadbyte.itemcustomizer.server.util.AccessValidator;
@@ -14,6 +15,7 @@ import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.command.CommandSource;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import org.apache.commons.collections4.trie.PatriciaTrie;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -66,7 +68,12 @@ public class ModelNodeSuggestionProvider implements SuggestionProvider<ServerCom
         findItem = namespace + ":" + String.join("/", previousNodes);
         findItem = trimTrailingSlash(findItem);
 
-        var suggested = ModelsIndex.INSTANCE.__internalAutocomplete(findItem);
+        PatriciaTrie<CustomModelDefinition> trie = new PatriciaTrie<>();
+        for (var model : ExplicitPermissionCache.INSTANCE.GetModelsForUser(context.getSource().getPlayer())) {
+            trie.putIfAbsent(model.toString(), model);
+        }
+
+        var suggested = ModelsIndex.INSTANCE.__internalAutocomplete(findItem, trie);
 
         // Manually filter and add to the builder
         for (String suggestion : suggested) {
