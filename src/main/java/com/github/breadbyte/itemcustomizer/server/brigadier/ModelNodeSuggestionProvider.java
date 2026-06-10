@@ -5,6 +5,7 @@ import com.github.breadbyte.itemcustomizer.server.data.ExplicitPermissionCache;
 import com.github.breadbyte.itemcustomizer.server.data.ModelPath;
 import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import com.github.breadbyte.itemcustomizer.server.util.AccessValidator;
+import com.github.breadbyte.itemcustomizer.server.util.Helper;
 import com.github.breadbyte.itemcustomizer.server.util.Permission;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -69,6 +70,14 @@ public class ModelNodeSuggestionProvider implements SuggestionProvider<ServerCom
         findItem = trimTrailingSlash(findItem);
 
         PatriciaTrie<CustomModelDefinition> trie = new PatriciaTrie<>();
+
+        // FIXME: lmao
+        for (var model : ModelsIndex.INSTANCE.getIndex()) {
+            if (Permissions.check(context.getSource().getPlayer(), model.getPermissionNode())) {
+                trie.putIfAbsent(model.toString(), model);
+            }
+        }
+
         for (var model : ExplicitPermissionCache.INSTANCE.GetModelsForUser(context.getSource().getPlayer())) {
             trie.putIfAbsent(model.toString(), model);
         }

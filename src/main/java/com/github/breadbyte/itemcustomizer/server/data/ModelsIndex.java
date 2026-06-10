@@ -29,6 +29,10 @@ public class ModelsIndex {
         return new ModelsIndex();
     }
 
+    public List<CustomModelDefinition> getIndex() {
+        return _index.values().stream().toList();
+    }
+
     public static synchronized ModelsIndex getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new ModelsIndex();
