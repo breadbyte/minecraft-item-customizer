@@ -89,10 +89,16 @@ public class ExplicitPermissionCache {
 
 
     public List<CustomModelDefinition> GetModelsForUser(PlayerEntity player) {
+        if (modelUsers.get(player.getUuidAsString()) == null)
+            return Collections.emptyList();
+
         return modelUsers.get(player.getUuidAsString());
     }
 
     public List<String> GetNamespacesForUser(PlayerEntity player) {
+        if (namespaceUsers.get(player.getUuidAsString()) == null)
+            return Collections.emptyList();
+
         return namespaceUsers.get(player.getUuidAsString());
     }
 }

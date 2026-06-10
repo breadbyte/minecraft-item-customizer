@@ -27,8 +27,6 @@ public class ModelPermissionCommand implements BaseCommand {
     }
 
     public static final String NAMESPACE_ARGUMENT = "namespace";
-    public static final String CATEGORY_ARGUMENT = "item_category";
-    public static final String NAME_ARGUMENT = "item_name";
     public static final String PLAYER_ARGUMENT = "player";
 
     public void register(Permission grant, String subCommandName, CommandDispatcher<ServerCommandSource> dispatcher, LiteralArgumentBuilder<ServerCommandSource> root) {
@@ -36,7 +34,7 @@ public class ModelPermissionCommand implements BaseCommand {
 
         var NodeGrant = literal("grant");
         var NodeRevoke = literal("revoke");
-        var NodeGet = literal("get");
+        var NodeGet =  ("get");
 
         var ArgNodeItemNamespace =
                 argument(NAMESPACE_ARGUMENT, StringArgumentType.word())
@@ -45,7 +43,8 @@ public class ModelPermissionCommand implements BaseCommand {
         RequiredArgumentBuilder<ServerCommandSource, String> lastNode = null;
         for (int i = MAX_AUTOCOMPLETE_NODES; i >= 1; i--) {
             var node = CommandManager.argument(NODE_PREFIX + i, StringArgumentType.string())
-                    .suggests(ModelNodeSuggestionProvider.INSTANCE);
+                    .suggests(ModelNodeSuggestionProvider.INSTANCE)
+                    .executes(RUNNER::grantPermission);
             if (lastNode != null) {
                 node.then(lastNode);
             }
@@ -64,7 +63,7 @@ public class ModelPermissionCommand implements BaseCommand {
                 .then(NodeGrant
                 .then(ArgNodePlayer
                 .then(ArgNodeItemNamespace
-                .then(lastNode).executes(RUNNER::grantPermission))))));
+                .then(lastNode))))));
 
         // model permission revoke player ...
         dispatcher.register(root
@@ -72,7 +71,7 @@ public class ModelPermissionCommand implements BaseCommand {
                 .then(NodeRevoke
                 .then(ArgNodePlayer
                 .then(ArgNodeItemNamespace
-                .then(lastNode).executes(RUNNER::revokePermission))))));
+                .then(lastNode))))));
 
         // model permission get namespace category name
         // fixme: remove the explicit permission cache, then we talk

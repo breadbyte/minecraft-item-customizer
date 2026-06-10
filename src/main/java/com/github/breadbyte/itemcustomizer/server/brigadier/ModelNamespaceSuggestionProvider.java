@@ -37,6 +37,10 @@ public class ModelNamespaceSuggestionProvider implements SuggestionProvider<Serv
                 .filter(namespace -> {
                     // Check direct permission for namespace, if we do, skip all other checks
                     if (Permissions.check(player, Permission.CUSTOMIZE.chain(namespace).getPermission())) {
+                        // If permission is denied for *, then don't
+                        if (!(Permissions.check(player, Permission.CUSTOMIZE.chain(namespace).chain("*").getPermission())))
+                            return false;
+
                         return true;
                     }
 
