@@ -32,4 +32,10 @@ public class Storage {
 
     @SerialEntry
     public Map<String, String> NamespaceUrls = new HashMap<>();
+
+    @SerialEntry
+    public Map<String, List<String>> PlayersWithExplicitNamespacePermission = new HashMap<>();
+
+    @SerialEntry
+    public Map<String, List<CustomModelDefinition>> PlayersWithExplicitModelPermission = new HashMap<>();
 }
