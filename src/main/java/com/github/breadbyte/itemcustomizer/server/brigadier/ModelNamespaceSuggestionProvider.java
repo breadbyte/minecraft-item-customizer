@@ -1,5 +1,6 @@
 package com.github.breadbyte.itemcustomizer.server.brigadier;
 
+import com.github.breadbyte.itemcustomizer.server.data.ExplicitPermissionCache;
 import com.github.breadbyte.itemcustomizer.server.data.ModelPath;
 import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import com.github.breadbyte.itemcustomizer.server.util.AccessValidator;
@@ -39,17 +40,22 @@ public class ModelNamespaceSuggestionProvider implements SuggestionProvider<Serv
                         return true;
                     }
 
-                    // todo: fix bottom up permissions checking
-                    return index.__internalAutocomplete(ModelPath.of(namespace).toString()).stream()
-                            // Check if any model in the namespace is accessible
-                            .anyMatch(model -> {
-                                var mdl = index.getExact(ModelPath.of(model));
-                                if (mdl.isErr()) {
-                                    return false;
-                                }
+                    // todo: hack
+                    var namespacesAllowed = ExplicitPermissionCache.INSTANCE.GetNamespacesForUser(player);
+                    if (namespacesAllowed == null) return false;
+                    return namespacesAllowed.contains(namespace);
 
-                                return Permissions.check(player, mdl.unwrap().getPermissionNode());
-                            });
+                    // todo: fix bottom up permissions checking
+//                    return index.__internalAutocomplete(ModelPath.of(namespace).toString()).stream()
+//                            // Check if any model in the namespace is accessible
+//                            .anyMatch(model -> {
+//                                var mdl = index.getExact(ModelPath.of(model));
+//                                if (mdl.isErr()) {
+//                                    return false;
+//                                }
+//
+//                                return Permissions.check(player, mdl.unwrap().getPermissionNode());
+//                            });
 
 //                    return index.categories(namespace).stream()
 //                            .anyMatch(path -> index.getAllRecursive(path).stream()

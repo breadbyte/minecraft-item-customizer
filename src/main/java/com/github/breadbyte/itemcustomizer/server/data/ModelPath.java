@@ -92,6 +92,11 @@ public record ModelPath(@NotNull String path, @NotNull String namespace, @NotNul
         return cleanedPath.substring(lastDelimiter + 1);
     }
 
+    // todo: hack
+    public @NotNull String[] getSegmented() {
+        return getFullPath().split("[:/]");
+    }
+
     public @NotNull String getSegments() {
         return String.join("/", segments);
     }

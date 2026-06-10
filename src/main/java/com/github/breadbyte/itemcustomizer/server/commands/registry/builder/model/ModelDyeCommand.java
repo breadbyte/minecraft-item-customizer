@@ -23,23 +23,24 @@ public class ModelDyeCommand implements BaseCommand {
 
     @Override
     public void register(Permission permission, String subCommandName, CommandDispatcher<ServerCommandSource> dispatcher, LiteralArgumentBuilder<ServerCommandSource> root) {
-        var _root = InternalHelper.RequirePermissionFor(root, permission);
+        // The 'root' here is already the 'model' command.
+        // We need to apply the permission to the 'dye' and 'reset' subcommands.
 
-        var DyeNode = literal("dye");
+        var DyeNode = InternalHelper.RequirePermissionFor(literal("dye"), permission);
         var DyeColorNode = CommandManager.argument(COLOR_ARGUMENT, HexColorArgumentType.hexColor());
-        var DyeResetNode = literal("reset");
+        var DyeResetNode = InternalHelper.RequirePermissionFor(literal("reset"), permission);
 
 
         // Current valid commands:
         //  dye [index] [number]
         //  dye reset
-        dispatcher.register(_root
+        dispatcher.register(root
                 .then(DyeNode
                         .then(DyeColorNode
                                 .then(DyeColorNode
                                         .executes(RUNNER::applyDye)))));
 
-        dispatcher.register(_root
+        dispatcher.register(root
                 .then(DyeNode
                         .then(DyeResetNode
                                 .executes(RUNNER::resetDye))));

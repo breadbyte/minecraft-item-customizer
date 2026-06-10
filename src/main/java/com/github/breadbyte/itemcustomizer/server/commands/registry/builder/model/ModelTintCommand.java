@@ -25,24 +25,25 @@ public class ModelTintCommand implements BaseCommand {
 
     @Override
     public void register(Permission permission, String subCommandName, CommandDispatcher<ServerCommandSource> dispatcher, LiteralArgumentBuilder<ServerCommandSource> root) {
-        var _root = InternalHelper.RequirePermissionFor(root, permission);
+        // The 'root' here is already the 'model' command.
+        // We need to apply the permission to the 'tint' and 'reset' subcommands.
 
-        var TintNode = literal("tint");
+        var TintNode = InternalHelper.RequirePermissionFor(literal("tint"), permission);
         var TintIndexNode = CommandManager.argument(TINT_INDEX_ARGUMENT, IntegerArgumentType.integer(0));
         var TintColorNode = CommandManager.argument(TINT_COLOR_ARGUMENT, HexColorArgumentType.hexColor());
-        var TintResetNode = literal("reset");
+        var TintResetNode = InternalHelper.RequirePermissionFor(literal("reset"), permission);
 
 
         // Current valid commands:
         //  tint [index] [number]
         //  tint reset
-        dispatcher.register(_root
+        dispatcher.register(root
                 .then(TintNode
                 .then(TintIndexNode
                 .then(TintColorNode
                 .executes(RUNNER::applyTint)))));
 
-        dispatcher.register(_root
+        dispatcher.register(root
                 .then(TintNode
                 .then(TintResetNode
                 .executes(RUNNER::resetTint))));

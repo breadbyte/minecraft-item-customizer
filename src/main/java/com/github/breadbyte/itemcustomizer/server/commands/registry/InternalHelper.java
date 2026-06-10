@@ -15,8 +15,7 @@ public class InternalHelper {
 
             // The command builder runs the requires check before the command is fully registered,
             // so it doesn't have a player context yet.
-            // If so, return true.
-            if (Objects.isNull(scs.getPlayer())) return true;
+            if (Objects.isNull(scs.getPlayer())) return false;
 
             return AccessValidator.HasPermissionFor(permission, scs.getPlayer());
         });

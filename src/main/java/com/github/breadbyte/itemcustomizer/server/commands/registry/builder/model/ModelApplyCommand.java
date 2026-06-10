@@ -34,13 +34,16 @@ public class ModelApplyCommand implements BaseCommand {
 
     @Override
     public void register(Permission permission, String subCommandName, CommandDispatcher<ServerCommandSource> dispatcher, LiteralArgumentBuilder<ServerCommandSource> root) {
-        var _root = InternalHelper.RequirePermissionFor(root, permission);
+        // The 'root' here is already the 'model' command.
+        // We need to apply the permission to the 'apply' and 'reset' subcommands.
 
         var NamespaceNode = CommandManager.argument(NAMESPACE_ARGUMENT, StringArgumentType.string())
                 .suggests(ModelNamespaceSuggestionProvider.INSTANCE);
 
-        var ApplyNode = literal("apply");
-        var ResetNode = literal("reset");
+        // Apply permission to the 'apply' subcommand
+        var ApplyNode = InternalHelper.RequirePermissionFor(literal("apply"), permission);
+        // Apply permission to the 'reset' subcommand
+        var ResetNode = InternalHelper.RequirePermissionFor(literal("reset"), permission);
 
         // Build the dynamic node chain
         RequiredArgumentBuilder<ServerCommandSource, String> lastNode = null;
@@ -55,13 +58,13 @@ public class ModelApplyCommand implements BaseCommand {
         }
 
         // model apply itemNamespace itemCategory node1 [node2] ... [node6]
-        dispatcher.register(_root
+        dispatcher.register(root
                 .then(ApplyNode
                 .then(NamespaceNode
                 .then(lastNode))));
 
         // model reset
-        dispatcher.register(_root
+        dispatcher.register(root
                 .then(ResetNode
                 .executes(RUNNER::resetModel)));
     }

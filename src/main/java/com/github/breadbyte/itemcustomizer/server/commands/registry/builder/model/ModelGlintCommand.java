@@ -19,11 +19,12 @@ public class ModelGlintCommand implements BaseCommand {
 
     @Override
     public void register(Permission permission, String subCommandName, CommandDispatcher<ServerCommandSource> dispatcher, LiteralArgumentBuilder<ServerCommandSource> root) {
-        var _root = InternalHelper.RequirePermissionFor(root, permission);
+        // The 'root' here is already the 'model' command.
+        // We need to apply the permission to the 'glint' subcommand.
 
-        var GlintNode = literal("glint");
+        var GlintNode = InternalHelper.RequirePermissionFor(literal("glint"), permission);
 
-        dispatcher.register(_root
+        dispatcher.register(root
                 .then(GlintNode
                 .executes(RUNNER::toggleGlint)));
     }

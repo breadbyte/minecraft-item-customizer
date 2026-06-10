@@ -19,15 +19,16 @@ public class ModelEquipmentCommand implements BaseCommand {
 
     @Override
     public void register(Permission permission, String subCommandName, CommandDispatcher<ServerCommandSource> dispatcher, LiteralArgumentBuilder<ServerCommandSource> root) {
-        var _root = InternalHelper.RequirePermissionFor(root, permission);
+        // The 'root' here is already the 'model' command.
+        // We need to apply the permission to the 'equipment' and 'reset' subcommands.
 
-        var EquipmentNode = literal("equipment");
-        var ResetNode = literal("reset");
+        var EquipmentNode = InternalHelper.RequirePermissionFor(literal("equipment"), permission);
+        var ResetNode = InternalHelper.RequirePermissionFor(literal("reset"), permission);
 
-        dispatcher.register(_root
+        dispatcher.register(root
                 .then(EquipmentNode
                         .executes(RUNNER::setEquipmentTexture)));
-        dispatcher.register(_root
+        dispatcher.register(root
                 .then(EquipmentNode
                 .then(ResetNode
                         .executes(RUNNER::resetEquipmentTexture))));

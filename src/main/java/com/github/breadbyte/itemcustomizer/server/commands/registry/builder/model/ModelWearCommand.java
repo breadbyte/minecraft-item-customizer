@@ -24,9 +24,10 @@ public class ModelWearCommand implements BaseCommand {
 
     @Override
     public void register(Permission permission, String subCommandName, CommandDispatcher<ServerCommandSource> dispatcher, LiteralArgumentBuilder<ServerCommandSource> root) {
-        var _root = InternalHelper.RequirePermissionFor(root, permission);
+        // The 'root' here is already the 'model' command.
+        // We need to apply the permission to the 'wear' subcommand.
 
-        var WearNode = literal("wear");
+        var WearNode = InternalHelper.RequirePermissionFor(literal("wear"), permission);
         var SlotNode = CommandManager.argument(SLOT_ARGUMENT, StringArgumentType.word()).suggests((ctx, builder) -> {
             builder.suggest("head", new LiteralMessage("Head"));
             builder.suggest("chest", new LiteralMessage("Chestplate"));
@@ -35,12 +36,12 @@ public class ModelWearCommand implements BaseCommand {
             return builder.buildFuture();
         });
 
-        dispatcher.register(_root
+        dispatcher.register(root
                 .then(WearNode
                 .then(SlotNode
                 .executes(RUNNER::toggleWearable))));
 
-        dispatcher.register(_root
+        dispatcher.register(root
                 .then(WearNode
                 .executes(RUNNER::toggleWearable)));
     }

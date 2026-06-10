@@ -66,8 +66,10 @@ public class ModelNodeSuggestionProvider implements SuggestionProvider<ServerCom
         findItem = namespace + ":" + String.join("/", previousNodes);
         findItem = trimTrailingSlash(findItem);
 
+        var suggested = ModelsIndex.INSTANCE.__internalAutocomplete(findItem);
+
         // Manually filter and add to the builder
-        for (String suggestion : ModelsIndex.INSTANCE.__internalAutocomplete(findItem)) {
+        for (String suggestion : suggested) {
             builder.suggest(suggestion);
         }
 

@@ -2,7 +2,9 @@ package com.github.breadbyte.itemcustomizer.server.commands.impl.model.permissio
 
 import com.github.breadbyte.itemcustomizer.server.commands.defs.model.permission.IModelPermissionOperations;
 import com.github.breadbyte.itemcustomizer.server.commands.defs.model.permission.ModelPermissionParams;
+import com.github.breadbyte.itemcustomizer.server.data.ExplicitPermissionCache;
 import com.github.breadbyte.itemcustomizer.server.data.ModelPath;
+import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import com.github.breadbyte.itemcustomizer.server.util.Luckperms;
 import com.github.breadbyte.itemcustomizer.server.util.Permission;
 import com.github.breadbyte.itemcustomizer.server.util.Reason;
@@ -23,6 +25,12 @@ public class ModelPermissionOperations implements IModelPermissionOperations {
         ModelPath ns = params.namespace();
         if (Luckperms.IsLuckpermsPresent()) {
             Luckperms.GrantPermission(targetPlayer, Permission.CUSTOMIZE.chain(ns.getPermissionNode()).getPermission());
+
+            // Does this model exist?
+            var model = ModelsIndex.INSTANCE.getExact(params.namespace());
+            if (model.isErr()) return Result.err(new Reason.InternalError("Invalid model, please check your command or send an error report!"));
+
+            ExplicitPermissionCache.INSTANCE.AddUserToModel(targetPlayer, model.unwrap());
             return Result.ok();
         }
         else {
@@ -42,6 +50,12 @@ public class ModelPermissionOperations implements IModelPermissionOperations {
         ModelPath ns = params.namespace();
         if (Luckperms.IsLuckpermsPresent()) {
             Luckperms.RevokePermission(targetPlayer, Permission.CUSTOMIZE.chain(ns.getPermissionNode()));
+
+            // Does this model exist?
+            var model = ModelsIndex.INSTANCE.getExact(params.namespace());
+            if (model.isErr()) return Result.err(new Reason.InternalError("Invalid model, please check your command or send an error report!"));
+
+            ExplicitPermissionCache.INSTANCE.RemoveUserFromModel(targetPlayer, model.unwrap());
             return Result.ok();
         }
         else {

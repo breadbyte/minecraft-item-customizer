@@ -61,7 +61,7 @@ public class CommandRegistrar {
     ModelEquipmentCommand modelEquipmentCommand = new ModelEquipmentCommand(new ModelEquipmentRunner(new ModelEquipmentAdapter(), new ModelEquipmentOperations()));
     ModelCopyCommand modelCopyCommand = new ModelCopyCommand(new ModelCopyRunner(new ModelCopyAdapter(), new ModelCopyOperations()));
 
-    Permission modelsPermission = Permission.CUSTOMIZE;
+    Permission customizePermission = Permission.CUSTOMIZE;
 
     // Register to Brigadier
     public void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher, LiteralArgumentBuilder<ServerCommandSource> root) {
@@ -72,13 +72,14 @@ public class CommandRegistrar {
         modelNamespaceCommand.register(Permission.ADMIN, "namespace", dispatcher, root);
 
         // internally, model _is_ the root command, so we don't use the subCommandName
-        modelApplyCommand.register(modelsPermission, "", dispatcher, root);
-        modelGlintCommand.register(modelsPermission, "", dispatcher, root);
-        modelTintCommand.register(modelsPermission, "", dispatcher, root);
-        modelWearCommand.register(modelsPermission, "", dispatcher, root);
-        modelDyeCommand.register(modelsPermission, "", dispatcher, root);
-        modelLockCommand.register(modelsPermission, "", dispatcher, root);
-        modelEquipmentCommand.register(modelsPermission, "", dispatcher, root);
-        modelCopyCommand.register(modelsPermission, "", dispatcher, root);
+        // todo: figure out why these sets of permissions don't work, but the ones above do
+        modelApplyCommand.register(customizePermission, "apply", dispatcher, root);
+        modelGlintCommand.register(customizePermission, "glint", dispatcher, root);
+        modelTintCommand.register(customizePermission, "tint", dispatcher, root);
+        modelWearCommand.register(customizePermission, "wear", dispatcher, root);
+        modelDyeCommand.register(customizePermission, "dye", dispatcher, root);
+        modelLockCommand.register(customizePermission, "lock", dispatcher, root);
+        modelEquipmentCommand.register(customizePermission, "equipment", dispatcher, root);
+        modelCopyCommand.register(customizePermission, "copy", dispatcher, root);
     }
 }

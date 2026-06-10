@@ -19,16 +19,17 @@ public class ModelLockCommand implements BaseCommand {
 
     @Override
     public void register(Permission permission, String subCommandName, CommandDispatcher<ServerCommandSource> dispatcher, LiteralArgumentBuilder<ServerCommandSource> root) {
-        var _root = InternalHelper.RequirePermissionFor(root, permission);
+        // The 'root' here is already the 'model' command.
+        // We need to apply the permission to the 'lock' and 'unlock' subcommands.
 
-        var LockNode = literal("lock");
-        var UnlockNode = literal("unlock");
+        var LockNode = InternalHelper.RequirePermissionFor(literal("lock"), permission);
+        var UnlockNode = InternalHelper.RequirePermissionFor(literal("unlock"), permission);
 
-        dispatcher.register(_root
+        dispatcher.register(root
                 .then(LockNode
                         .executes(RUNNER::lockModel)));
 
-        dispatcher.register(_root
+        dispatcher.register(root
                 .then(UnlockNode
                         .executes(RUNNER::unlockModel)));
     }

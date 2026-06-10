@@ -19,15 +19,16 @@ public class ModelCopyCommand implements BaseCommand {
 
     @Override
     public void register(Permission permission, String subCommandName, CommandDispatcher<ServerCommandSource> dispatcher, LiteralArgumentBuilder<ServerCommandSource> root) {
-        var _root = InternalHelper.RequirePermissionFor(root, permission);
+        // The 'root' here is already the 'model' command.
+        // We need to apply the permission to the 'copy' subcommand.
 
-        var CopyNode = literal("copy");
+        var CopyNode = InternalHelper.RequirePermissionFor(literal("copy"), permission);
         var NameNode = literal("name");
         var LoreNode = literal("lore");
         var ModelNode = literal("model");
 
         // model copy
-        dispatcher.register(_root
+        dispatcher.register(root
                 .then(CopyNode
                 .executes(RUNNER::copyAll)
                 .then(NameNode.executes(RUNNER::copyName))
