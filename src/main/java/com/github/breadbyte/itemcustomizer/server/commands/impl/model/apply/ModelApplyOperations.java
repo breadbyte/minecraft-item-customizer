@@ -9,6 +9,7 @@ import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
 import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import com.github.breadbyte.itemcustomizer.server.util.Reason;
 import com.github.breadbyte.itemcustomizer.server.util.Result;
+import net.minecraft.component.ComponentChanges;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.util.Identifier;
 
@@ -56,22 +57,16 @@ public class ModelApplyOperations implements IModelApplyOperations {
         var itemComps = item.getComponents();
         var defaultComponents = item.getItem().getDefaultStack().getComponents();
 
-        // Save the trim
-        var trimComponent = itemComps.get(DataComponentTypes.TRIM);
+        item.remove(DataComponentTypes.ITEM_MODEL);
+        item.remove(DataComponentTypes.CUSTOM_MODEL_DATA);
 
-        // Save the lore and name, since we're only changing the model here
-        var loreComponent = itemComps.get(DataComponentTypes.LORE);
-        var nameComponent = itemComps.get(DataComponentTypes.CUSTOM_NAME);
+        item.set(DataComponentTypes.ITEM_MODEL, defaultComponents.get(DataComponentTypes.ITEM_MODEL));
+        item.remove(DataComponentTypes.CUSTOM_MODEL_DATA);
 
-        // Clear components and apply defaults
-        for (var component : itemComps.getTypes()) {
-            item.remove(component);
+        var eqp = item.getComponents().get(DataComponentTypes.EQUIPPABLE);
+        if (eqp != null) {
+            equipmentOperations.reset(new ModelEquipmentParams(item));
         }
-        item.applyComponentsFrom(defaultComponents);
-
-        if (trimComponent != null) { item.set(DataComponentTypes.TRIM, trimComponent); }
-        if (loreComponent != null) { item.set(DataComponentTypes.LORE, loreComponent); }
-        if (nameComponent != null) { item.set(DataComponentTypes.CUSTOM_NAME, nameComponent); }
 
         if (item.getComponents().size() != defaultComponents.size()) {
 
