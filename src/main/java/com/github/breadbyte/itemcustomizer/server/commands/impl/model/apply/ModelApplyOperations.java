@@ -16,7 +16,6 @@ import net.minecraft.util.Identifier;
 public class ModelApplyOperations implements IModelApplyOperations {
 
     private final ModelEquipmentOperations equipmentOperations = new ModelEquipmentOperations();
-    private boolean applyEquipmentTexture = true;
 
     @Override
     public Result<String> apply(ModelApplyParams params) {
@@ -28,7 +27,9 @@ public class ModelApplyOperations implements IModelApplyOperations {
         // Set it to the new model
         item.set(DataComponentTypes.ITEM_MODEL, Identifier.of(ns.namespace(), ns.getSegments()));
 
-        if (applyEquipmentTexture) {
+        var isEquippable = item.getComponents().contains(DataComponentTypes.EQUIPPABLE);
+
+        if (isEquippable) {
             var eqp = item.getComponents().get(DataComponentTypes.EQUIPPABLE);
             if (eqp != null) {
                 equipmentOperations.toggle(new ModelEquipmentParams(item));
