@@ -6,7 +6,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.Objects;
 
-public record CustomModelDefinition(@SerialEntry ModelPath modelPath, @SerialEntry String madeBy) {
+public record CustomModelDefinition(@SerialEntry ModelPath modelPath, @SerialEntry String madeBy, @SerialEntry boolean _internalIsEquipment) {
 
     public CustomModelDefinition {
         Objects.requireNonNull(modelPath, "modelPath cannot be null");

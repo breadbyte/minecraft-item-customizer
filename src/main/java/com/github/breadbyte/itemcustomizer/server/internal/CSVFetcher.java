@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 
 public class CSVFetcher {
@@ -59,8 +60,10 @@ public class CSVFetcher {
                             continue;
                         }
 
+                        var isInternalEquipment = itemType.toLowerCase(Locale.ROOT).equals("equipment");
+
                         ModelPath nc = ModelPath.of(namespace + ":" + destination);
-                        suggestions.add(new CustomModelDefinition(nc, madeBy));
+                        suggestions.add(new CustomModelDefinition(nc, madeBy, isInternalEquipment));
                     } else {
                         //ItemCustomizer.LOGGER.warn("CSV line does not contain enough parts: {}", line);
                     }
