@@ -38,6 +38,9 @@ public class ModelCopyAdapter implements Adapter<ModelCopyParams> {
             var copyWhat = ctx.getArgument(ModelCopyCommand.COPY_WHAT_ARGUMENT, String.class);
             var copyTo = ctx.getArgument(ModelCopyCommand.COPY_TO_ARGUMENT, String.class);
 
+            if (copyWhat == null || copyTo == null)
+                return Result.ok(new ModelCopyParams(player, mainHand, offHand, null, null));
+
             var copyWhatEnum = COPY_WHAT_ARGUMENT.valueOf(copyWhat);
             var copyToEnum = COPY_TO_ARGUMENT.valueOf(copyTo);
 
