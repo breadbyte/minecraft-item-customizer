@@ -3,6 +3,7 @@ package com.github.breadbyte.itemcustomizer.server.commands.registry.builder.mod
 import com.github.breadbyte.itemcustomizer.server.commands.impl.model.wear.ModelWearRunner;
 import com.github.breadbyte.itemcustomizer.server.commands.registry.BaseCommand;
 import com.github.breadbyte.itemcustomizer.server.commands.registry.InternalHelper;
+import com.github.breadbyte.itemcustomizer.server.util.AccessValidator;
 import com.github.breadbyte.itemcustomizer.server.util.Permission;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.LiteralMessage;
@@ -10,6 +11,8 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
+
+import java.util.Objects;
 
 import static net.minecraft.server.command.CommandManager.literal;
 
@@ -34,6 +37,14 @@ public class ModelWearCommand implements BaseCommand {
             builder.suggest("legs", new LiteralMessage("Leggings"));
             builder.suggest("feet", new LiteralMessage("Boots"));
             return builder.buildFuture();
+        }).requires(scs -> {
+            if (Objects.isNull(scs)) return false;
+
+            // The command builder runs the requires check before the command is fully registered,
+            // so it doesn't have a player context yet.
+            if (Objects.isNull(scs.getPlayer())) return false;
+
+            return AccessValidator.HasPermissionFor(new Permission("itemcustomizer.wear.anywhere"), scs.getPlayer());
         });
 
         dispatcher.register(root
