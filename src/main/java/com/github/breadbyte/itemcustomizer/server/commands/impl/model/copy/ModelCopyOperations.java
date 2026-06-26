@@ -49,6 +49,7 @@ public class ModelCopyOperations implements IModelCopyOperations {
         return Result.ok();
     }
 
+    @Override
     public Result<String> copyAll(ModelCopyParams params) {
         var mainHand = params.mainHand();
         var offHandComps = params.offHand().getComponents();

@@ -22,4 +22,9 @@ public class ModelCopyRunner implements IModelCopyRunner {
         var params = adapter.getParams(ctx);
         return PreOperations.executeOperation(ctx, operations::copy, params, StackRequirement.REQUIRED_MAINHAND, "Copied all properties!", 1);
     }
+
+    public int copySingular(CommandContext<ServerCommandSource> ctx) {
+        var params = adapter.getParams(ctx);
+        return PreOperations.executeOperation(ctx, operations::copyAll, params, StackRequirement.REQUIRED_MAINHAND, "Copied all properties!", 1);
+    }
 }

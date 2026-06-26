@@ -4,4 +4,6 @@ import com.github.breadbyte.itemcustomizer.server.util.Result;
 
 public interface IModelCopyOperations {
     Result<String> copy(ModelCopyParams params);
+
+    Result<String> copyAll(ModelCopyParams params);
 }

@@ -47,7 +47,7 @@ public class ModelCopyCommand implements BaseCommand {
 
         // model copy
         dispatcher.register(root
-                .then(CopyNode
+                .then(CopyNode.executes(RUNNER::copySingular)
                 .then(what
                 .then(to
                 .executes(RUNNER::copy)))));
