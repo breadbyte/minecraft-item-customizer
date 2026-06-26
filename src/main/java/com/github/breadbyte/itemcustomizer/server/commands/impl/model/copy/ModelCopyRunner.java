@@ -18,26 +18,8 @@ public class ModelCopyRunner implements IModelCopyRunner {
     }
 
     @Override
-    public int copyAll(CommandContext<ServerCommandSource> ctx) {
+    public int copy(CommandContext<ServerCommandSource> ctx) {
         var params = adapter.getParams(ctx);
-        return PreOperations.executeOperation(ctx, operations::copyAll, params, StackRequirement.REQUIRED_MAINHAND, "Copied all properties!", 1);
-    }
-
-    @Override
-    public int copyName(CommandContext<ServerCommandSource> ctx) {
-        var params = adapter.getParams(ctx);
-        return PreOperations.executeOperation(ctx, operations::copyName, params, StackRequirement.REQUIRED_MAINHAND, "Copied name!", 1);
-    }
-
-    @Override
-    public int copyLore(CommandContext<ServerCommandSource> ctx) {
-        var params = adapter.getParams(ctx);
-        return PreOperations.executeOperation(ctx, operations::copyLore, params, StackRequirement.REQUIRED_MAINHAND, "Copied lore!", 1);
-    }
-
-    @Override
-    public int copyModel(CommandContext<ServerCommandSource> ctx) {
-        var params = adapter.getParams(ctx);
-        return PreOperations.executeOperation(ctx, operations::copyModel, params, StackRequirement.REQUIRED_MAINHAND, "Copied model properties!", 1);
+        return PreOperations.executeOperation(ctx, operations::copy, params, StackRequirement.REQUIRED_MAINHAND, "Copied all properties!", 1);
     }
 }
