@@ -60,6 +60,8 @@ public class ModelCopyOperations implements IModelCopyOperations {
                 DataComponentTypes.EQUIPPABLE,
                 DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE,
                 DataComponentTypes.CUSTOM_MODEL_DATA,
+                DataComponentTypes.CUSTOM_NAME,
+                DataComponentTypes.LORE,
                 DataComponentTypes.DYED_COLOR
         );
 
