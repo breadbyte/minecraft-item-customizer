@@ -19,14 +19,14 @@ public class ModelCopyOperations implements IModelCopyOperations {
         switch (params.copyTo()) {
             case mainhand -> targets.add(params.mainHand());
             case hotbar -> {
-                for (int i = 36; i < 45; i++) {
+                for (int i = 0; i < 9; i++) {
                     targets.add(params.player().getInventory().getStack(i));
                 }
             }
             case inventory -> {
                 for (int i = 9; i < 36; i++) {
                     var slot = params.player().getInventory().getStack(i);
-                    if (slot.getItem().getDefaultStack() == offHand.getItem().getDefaultStack()) {
+                    if (slot.getItem().getDefaultStack().getItemName().equals(offHand.getItem().getDefaultStack().getItemName())) {
                         targets.add(slot);
                     }
                 }
