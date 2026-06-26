@@ -64,9 +64,10 @@ public class ModelApplyOperations implements IModelApplyOperations {
         item.set(DataComponentTypes.ITEM_MODEL, defaultComponents.get(DataComponentTypes.ITEM_MODEL));
         item.remove(DataComponentTypes.CUSTOM_MODEL_DATA);
 
-        var eqp = item.getComponents().get(DataComponentTypes.EQUIPPABLE);
-        if (eqp != null) {
-            equipmentOperations.reset(new ModelEquipmentParams(item));
+        if (defaultComponents.get(DataComponentTypes.EQUIPPABLE) != null)        {
+            item.set(DataComponentTypes.EQUIPPABLE, defaultComponents.get(DataComponentTypes.EQUIPPABLE));
+        } else {
+            item.remove(DataComponentTypes.EQUIPPABLE);
         }
 
         if (item.getComponents().size() != defaultComponents.size()) {
