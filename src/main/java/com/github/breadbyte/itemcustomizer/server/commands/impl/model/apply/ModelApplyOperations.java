@@ -27,9 +27,8 @@ public class ModelApplyOperations implements IModelApplyOperations {
         // Set it to the new model
         item.set(DataComponentTypes.ITEM_MODEL, Identifier.of(ns.namespace(), ns.getSegments()));
 
-        var isEquippable = item.getComponents().contains(DataComponentTypes.EQUIPPABLE);
-
-        if (isEquippable) {
+        // HACK HACK
+        if (params.identifier().getFullPath().contains("equipment")) {
             var eqp = item.getComponents().get(DataComponentTypes.EQUIPPABLE);
             if (eqp != null) {
                 equipmentOperations.toggle(new ModelEquipmentParams(item));
