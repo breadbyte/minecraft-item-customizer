@@ -10,6 +10,8 @@ import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.server.command.ServerCommandSource;
 
+import java.util.Objects;
+
 public class ModelCopyAdapter implements Adapter<ModelCopyParams> {
     @Override
     public Result<ModelCopyParams> getParams(CommandContext<ServerCommandSource> ctx) {
@@ -38,7 +40,7 @@ public class ModelCopyAdapter implements Adapter<ModelCopyParams> {
             var copyWhat = ctx.getArgument(ModelCopyCommand.COPY_WHAT_ARGUMENT, String.class);
             var copyTo = ctx.getArgument(ModelCopyCommand.COPY_TO_ARGUMENT, String.class);
 
-            if (copyWhat == null || copyTo == null)
+            if (Objects.equals(copyWhat, "") || Objects.equals(copyTo, ""))
                 return Result.ok(new ModelCopyParams(player, mainHand, offHand, null, null));
 
             var copyWhatEnum = COPY_WHAT_ARGUMENT.valueOf(copyWhat);
