@@ -1,6 +1,5 @@
 package com.github.breadbyte.itemcustomizer.server.util;
 
-import com.github.breadbyte.itemcustomizer.server.data.ModelPath;
 import com.github.breadbyte.itemcustomizer.server.data.Storage;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -12,8 +11,6 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextCodecs;
-import net.minecraft.util.Identifier;
-import org.apache.commons.lang3.NotImplementedException;
 
 public class Helper {
 
@@ -35,9 +32,8 @@ public class Helper {
                 .getFirst();
     }
 
-    public static boolean PermissionToNode(String permission) {
-        // todo
-        throw new NotImplementedException();
+    public static Permission PermissionToNode(String permission) {
+        return new Permission(permission);
     }
 
     public static boolean IsValidJson(String input) {

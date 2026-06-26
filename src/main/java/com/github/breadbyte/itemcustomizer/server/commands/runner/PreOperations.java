@@ -34,6 +34,7 @@ public class PreOperations {
         }
         var params = paramsResult.unwrap();
 
+        // TODO: SPECIAL_UNLOCK is a HACK. fix this.
         switch (orientation) {
             case NONE:
                 break;
@@ -79,10 +80,15 @@ public class PreOperations {
     }
 
     private static Result<Void> ValidateCost(PlayerEntity player, int cost) {
+        // TODO: way too many places where we validate and apply cost, unify this to a single area of responsiblity
         if (player.isCreative())
             return Result.ok();
 
         if (cost == 0) {
+            return Result.ok();
+        }
+
+        if (Luckperms.CheckPermission(player, Helper.PermissionToNode("itemcustomizer.cost.bypass"))) {
             return Result.ok();
         }
 
