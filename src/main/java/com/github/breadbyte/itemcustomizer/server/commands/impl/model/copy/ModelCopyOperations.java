@@ -24,7 +24,7 @@ public class ModelCopyOperations implements IModelCopyOperations {
                 }
             }
             case inventory -> {
-                for (int i = 9; i < 36; i++) {
+                for (int i = 0; i < 36; i++) {
                     var slot = params.player().getInventory().getStack(i);
                     if (slot.getItem().getDefaultStack().getItemName().equals(offHand.getItem().getDefaultStack().getItemName())) {
                         targets.add(slot);
