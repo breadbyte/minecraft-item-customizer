@@ -2,6 +2,7 @@ package com.github.breadbyte.itemcustomizer.server.commands.impl.model.copy;
 
 import com.github.breadbyte.itemcustomizer.server.commands.defs.model.copy.IModelCopyOperations;
 import com.github.breadbyte.itemcustomizer.server.commands.defs.model.copy.ModelCopyParams;
+import com.github.breadbyte.itemcustomizer.server.util.Reason;
 import com.github.breadbyte.itemcustomizer.server.util.Result;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
@@ -17,15 +18,20 @@ public class ModelCopyOperations implements IModelCopyOperations {
         java.util.List<ItemStack> targets = new java.util.ArrayList<>();
 
         switch (params.copyTo()) {
-            case mainhand -> targets.add(params.mainHand());
+            case mainhand -> {
+                if (params.mainHand().contains(DataComponentTypes.LOCK)) break;
+                targets.add(params.mainHand());
+            }
             case hotbar -> {
                 for (int i = 0; i < 9; i++) {
+                    if (params.player().getInventory().getStack(i).contains(DataComponentTypes.LOCK)) continue;
                     targets.add(params.player().getInventory().getStack(i));
                 }
             }
             case inventory -> {
                 for (int i = 0; i < 36; i++) {
                     var slot = params.player().getInventory().getStack(i);
+                    if (slot.contains(DataComponentTypes.LOCK)) continue;
                     if (slot.getItem().getDefaultStack().getItemName().equals(offHand.getItem().getDefaultStack().getItemName())) {
                         targets.add(slot);
                     }
@@ -53,6 +59,9 @@ public class ModelCopyOperations implements IModelCopyOperations {
     public Result<String> copyAll(ModelCopyParams params) {
         var mainHand = params.mainHand();
         var offHandComps = params.offHand().getComponents();
+
+        if (mainHand.contains(DataComponentTypes.LOCK)) return Result.err(new Reason.InternalError("Item is locked!"));
+        if (offHandComps.contains(DataComponentTypes.LOCK)) return Result.err(new Reason.InternalError("Offhand item is locked!"));
 
         // List of all component types you want to synchronize
         var componentsToCopy = java.util.List.of(
