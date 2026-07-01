@@ -9,6 +9,7 @@ public record Permission(String permission) {
     public static final Permission RENAME = BASE.chain("rename");
     public static final Permission LORE = BASE.chain("lore");
     public static final Permission ADMIN = BASE.chain("admin");
+    public static final Permission GROUP = BASE.chain("groups");
 
 
     public String getPermission() {

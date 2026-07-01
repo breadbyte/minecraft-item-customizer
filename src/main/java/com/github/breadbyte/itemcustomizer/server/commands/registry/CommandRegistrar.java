@@ -15,6 +15,9 @@ import com.github.breadbyte.itemcustomizer.server.commands.impl.model.equipment.
 import com.github.breadbyte.itemcustomizer.server.commands.impl.model.glint.ModelGlintAdapter;
 import com.github.breadbyte.itemcustomizer.server.commands.impl.model.glint.ModelGlintOperations;
 import com.github.breadbyte.itemcustomizer.server.commands.impl.model.glint.ModelGlintRunner;
+import com.github.breadbyte.itemcustomizer.server.commands.impl.model.group.ModelGroupAdapter;
+import com.github.breadbyte.itemcustomizer.server.commands.impl.model.group.ModelGroupOperations;
+import com.github.breadbyte.itemcustomizer.server.commands.impl.model.group.ModelGroupRunner;
 import com.github.breadbyte.itemcustomizer.server.commands.impl.model.lock.ModelLockAdapter;
 import com.github.breadbyte.itemcustomizer.server.commands.impl.model.lock.ModelLockOperations;
 import com.github.breadbyte.itemcustomizer.server.commands.impl.model.lock.ModelLockRunner;
@@ -61,6 +64,8 @@ public class CommandRegistrar {
     ModelEquipmentCommand modelEquipmentCommand = new ModelEquipmentCommand(new ModelEquipmentRunner(new ModelEquipmentAdapter(), new ModelEquipmentOperations()));
     ModelCopyCommand modelCopyCommand = new ModelCopyCommand(new ModelCopyRunner(new ModelCopyAdapter(), new ModelCopyOperations()));
 
+    ModelGroupCommand modelGroupCommand = new ModelGroupCommand(new ModelGroupRunner(new ModelGroupAdapter(), new ModelGroupOperations()));
+
     Permission customizePermission = Permission.CUSTOMIZE;
 
     // Register to Brigadier
@@ -70,6 +75,8 @@ public class CommandRegistrar {
 
         modelPermissionCommand.register(Permission.GRANT, "permission", dispatcher, root);
         modelNamespaceCommand.register(Permission.ADMIN, "namespace", dispatcher, root);
+        modelGroupCommand.register(Permission.GROUP, "group", dispatcher, root);
+
 
         // internally, model _is_ the root command, so we don't use the subCommandName
         // todo: figure out why these sets of permissions don't work, but the ones above do
@@ -81,5 +88,6 @@ public class CommandRegistrar {
         modelLockCommand.register(customizePermission, "lock", dispatcher, root);
         modelEquipmentCommand.register(customizePermission, "equipment", dispatcher, root);
         modelCopyCommand.register(customizePermission, "copy", dispatcher, root);
+
     }
 }

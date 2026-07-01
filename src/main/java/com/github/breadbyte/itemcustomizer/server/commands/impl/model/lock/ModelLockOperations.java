@@ -3,8 +3,13 @@ package com.github.breadbyte.itemcustomizer.server.commands.impl.model.lock;
 import com.github.breadbyte.itemcustomizer.server.commands.defs.model.lock.IModelLockOperations;
 import com.github.breadbyte.itemcustomizer.server.commands.defs.model.lock.ModelLockParams;
 import com.github.breadbyte.itemcustomizer.server.commands.runner.PreOperations;
+import com.github.breadbyte.itemcustomizer.server.commands.runner.StackRequirement;
+import com.github.breadbyte.itemcustomizer.server.util.AccessValidator;
+import com.github.breadbyte.itemcustomizer.server.util.Permission;
 import com.github.breadbyte.itemcustomizer.server.util.Reason;
 import com.github.breadbyte.itemcustomizer.server.util.Result;
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.LuckPermsProvider;
 import net.minecraft.component.ComponentChanges;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.player.PlayerEntity;
@@ -47,7 +52,7 @@ public class ModelLockOperations implements IModelLockOperations {
             // Set it to the new model
             playerItem.set(DataComponentTypes.LOCK, new ContainerLock(new ItemPredicate.Builder()
                     .components(ComponentsPredicate.Builder.create()
-                            .exact(ComponentMapPredicate.of(DataComponentTypes.CUSTOM_NAME, playerUuid))
+                            .exact(ComponentMapPredicate.of(DataComponentTypes.ITEM_NAME, playerUuid))
                             .build())
                     .build()));
         }
@@ -65,6 +70,9 @@ public class ModelLockOperations implements IModelLockOperations {
         }
 
         if (!readLock.unwrap().equals(params.uuid())) {
+            if (!readLock.unwrap().contains("-"))
+                return Result.err(new Reason.InternalError("This item is locked to a group and cannot be modified!"));
+
             return Result.err(new Reason.InternalError("This item is locked by another player and cannot be modified!"));
         }
 
@@ -72,8 +80,7 @@ public class ModelLockOperations implements IModelLockOperations {
         return Result.ok();
     }
 
-
-    static Result<String> ReadLockComponent(ItemStack item) {
+    public static Result<String> ReadLockComponent(ItemStack item) {
         var itemComps = item.getComponents();
 
         if (itemComps.get(DataComponentTypes.LOCK) == null) {
