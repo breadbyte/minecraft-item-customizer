@@ -32,6 +32,21 @@ public class ModelGroupOperations implements IModelGroupOperations {
             return Result.ok("Group " + params.groupName() + " does not exist");
         }
         else {
+            try {
+                var held = LuckPermsProvider.get().getUserManager().getWithPermission(Permission.GROUP.chain("admin", params.groupName()).toString());
+                var list = held.get();
+
+                for (var i : list) {
+                    LuckPermsProvider.get().getUserManager().modifyUser(i.getHolder(), user -> {
+                        InheritanceNode node = InheritanceNode.builder(params.groupName()).build();
+                        user.data().remove(node);
+                    });
+                }
+            }
+            catch (Exception e) {
+                return Result.err(new Reason.InternalError("An unexpected error has occurred in LuckPerms. Please retry the command in a bit."));
+            }
+
             LuckPermsProvider.get().getGroupManager().deleteGroup(LuckPermsProvider.get().getGroupManager().getGroup(params.groupName()));
             return Result.ok("Group " + params.groupName() + " successfully removed!");
         }
