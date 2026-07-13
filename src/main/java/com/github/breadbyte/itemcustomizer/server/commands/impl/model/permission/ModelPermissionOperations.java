@@ -4,12 +4,11 @@ import com.github.breadbyte.itemcustomizer.server.commands.defs.model.permission
 import com.github.breadbyte.itemcustomizer.server.commands.defs.model.permission.ModelPermissionParams;
 import com.github.breadbyte.itemcustomizer.server.data.ModelPath;
 import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
-import com.github.breadbyte.itemcustomizer.server.util.Luckperms;
-import com.github.breadbyte.itemcustomizer.server.util.Permission;
-import com.github.breadbyte.itemcustomizer.server.util.Reason;
-import com.github.breadbyte.itemcustomizer.server.util.Result;
+import com.github.breadbyte.itemcustomizer.server.util.*;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.server.network.ServerPlayerEntity;
+
+import java.util.Objects;
 
 public class ModelPermissionOperations implements IModelPermissionOperations {
     @Override
@@ -23,12 +22,14 @@ public class ModelPermissionOperations implements IModelPermissionOperations {
 
         ModelPath ns = params.namespace();
         if (Luckperms.IsLuckpermsPresent()) {
+            // Grant anyway if we're admin, otherwise don't
+            if (!AccessValidator.IsAdmin(Objects.requireNonNull(params.cmdSrc().getPlayer()))) {
+                // Does this model exist? Check if we aren't admin
+                var model = ModelsIndex.INSTANCE.getExact(params.namespace());
+                if (model.isErr()) return Result.err(new Reason.InternalError("Invalid model, please check your command or send an error report!"));
+            }
+
             Luckperms.GrantPermission(targetPlayer, Permission.CUSTOMIZE.chain(ns.getPermissionNode()).getPermission());
-
-            // Does this model exist?
-            var model = ModelsIndex.INSTANCE.getExact(params.namespace());
-            if (model.isErr()) return Result.err(new Reason.InternalError("Invalid model, please check your command or send an error report!"));
-
             return Result.ok();
         }
         else {
@@ -47,12 +48,14 @@ public class ModelPermissionOperations implements IModelPermissionOperations {
 
         ModelPath ns = params.namespace();
         if (Luckperms.IsLuckpermsPresent()) {
+            // Grant anyway if we're admin, otherwise don't
+            if (!AccessValidator.IsAdmin(Objects.requireNonNull(params.cmdSrc().getPlayer()))) {
+                // Does this model exist? Check if we aren't admin
+                var model = ModelsIndex.INSTANCE.getExact(params.namespace());
+                if (model.isErr()) return Result.err(new Reason.InternalError("Invalid model, please check your command or send an error report!"));
+            }
+
             Luckperms.RevokePermission(targetPlayer, Permission.CUSTOMIZE.chain(ns.getPermissionNode()));
-
-            // Does this model exist?
-            var model = ModelsIndex.INSTANCE.getExact(params.namespace());
-            if (model.isErr()) return Result.err(new Reason.InternalError("Invalid model, please check your command or send an error report!"));
-
             return Result.ok();
         }
         else {

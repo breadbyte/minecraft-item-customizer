@@ -19,6 +19,7 @@ import net.minecraft.server.command.ServerCommandSource;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.github.breadbyte.itemcustomizer.server.commands.registry.builder.model.ModelApplyCommand.*;
 
@@ -57,7 +58,8 @@ public class ModelPermissionAdapter implements Adapter<ModelPermissionParams> {
 
         if (mResult.isErr()) {
             if (!AccessValidator.IsAdmin(player)) {
-                return Result.err(new Reason.InternalError("No custom model definition found for model: " + namespace + ":" + fullPath));
+                if (!AccessValidator.IsAdmin(Objects.requireNonNull(cmdSrc.getPlayer())))
+                    return Result.err(new Reason.InternalError("No custom model definition found for model: " + namespace + ":" + fullPath));
             }
 
             return Result.err(new Reason.InternalError(mResult.getMessage()));
