@@ -1,7 +1,5 @@
 package com.github.breadbyte.itemcustomizer.server.brigadier;
 
-import com.github.breadbyte.itemcustomizer.server.data.ExplicitPermissionCache;
-import com.github.breadbyte.itemcustomizer.server.data.ModelPath;
 import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import com.github.breadbyte.itemcustomizer.server.util.AccessValidator;
 import com.github.breadbyte.itemcustomizer.server.util.Permission;
@@ -15,9 +13,7 @@ import net.minecraft.command.CommandSource;
 import net.minecraft.server.command.ServerCommandSource;
 
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 public class ModelNamespaceSuggestionProvider implements SuggestionProvider<ServerCommandSource>  {
     public static final ModelNamespaceSuggestionProvider INSTANCE = new ModelNamespaceSuggestionProvider();
@@ -35,14 +31,7 @@ public class ModelNamespaceSuggestionProvider implements SuggestionProvider<Serv
         } else {
             validNamespaces = allNamespaces.stream()
                 .filter(namespace -> {
-                    if (!(Permissions.check(player, Permission.CUSTOMIZE.chain(namespace).getPermission())))
-                        return false;
-
-                    // todo: hack
-                    var namespacesAllowed = ExplicitPermissionCache.INSTANCE.GetNamespacesForUser(player);
-                    if (namespacesAllowed == null) return false;
-                    return namespacesAllowed.contains(namespace);
-
+                    return Permissions.check(player, Permission.CUSTOMIZE.chain(namespace).getPermission());
                 })
                 .toList();
         }
