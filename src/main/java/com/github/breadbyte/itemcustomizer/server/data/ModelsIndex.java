@@ -1,11 +1,19 @@
 package com.github.breadbyte.itemcustomizer.server.data;
 
+import com.github.breadbyte.itemcustomizer.main.ItemCustomizer;
+import com.github.breadbyte.itemcustomizer.server.ItemCustomizerServer;
 import com.github.breadbyte.itemcustomizer.server.util.Helper;
 import com.github.breadbyte.itemcustomizer.server.util.Reason;
 import com.github.breadbyte.itemcustomizer.server.util.Result;
+import net.luckperms.api.LuckPermsProvider;
+import net.luckperms.api.model.data.DataType;
+import net.luckperms.api.node.Node;
+import net.luckperms.api.node.NodeEqualityPredicate;
+import net.luckperms.api.node.types.PermissionNode;
 import org.apache.commons.collections4.trie.PatriciaTrie;
 
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("deprecation")
@@ -61,6 +69,18 @@ public class ModelsIndex {
         for (var model : inst.CustomModels) {
             add(model);
             categoryCache.computeIfAbsent(model.getNamespace(), k -> new HashSet<>()).add(model.getModelPath().getCategory());
+        }
+
+        // fixme: find a better way
+        // pass through all permission nodes to a temp group
+
+        // fail fast- if this doesn't work, then don't
+        var lp = LuckPermsProvider.get().getGroupManager().getLoadedGroups().stream().findFirst().orElse(null);
+        if (lp == null) return;
+
+        // we don't really care about the result- we just need LP to 'know' about the permission node
+        for (var model : inst.CustomModels) {
+            lp.getData(DataType.NORMAL).contains(PermissionNode.builder(model.getPermissionNode()).build(), NodeEqualityPredicate.ONLY_KEY);
         }
     }
 
