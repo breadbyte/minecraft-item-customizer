@@ -2,7 +2,6 @@ package com.github.breadbyte.itemcustomizer.server.data;
 
 import com.github.breadbyte.itemcustomizer.server.util.Helper;
 import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +32,7 @@ public record ModelPath(@NotNull String path, @NotNull String namespace, @NotNul
         return new ModelPath(cleanedPath, namespace, segments);
     }
 
-    private static @NonNull List<String> getStrings(int firstColon, String cleanedPath) {
+    private static @NotNull List<String> getStrings(int firstColon, String cleanedPath) {
         List<String> segments = new ArrayList<>();
         int start = (firstColon != -1) ? firstColon + 1 : 0;
         for (int i = start; i < cleanedPath.length(); i++) {

@@ -2,7 +2,7 @@ package com.github.breadbyte.itemcustomizer.server.data;
 
 import com.github.breadbyte.itemcustomizer.server.util.Permission;
 import dev.isxander.yacl3.config.v2.api.SerialEntry;
-import org.jspecify.annotations.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -14,7 +14,7 @@ public record CustomModelDefinition(@SerialEntry ModelPath modelPath, @SerialEnt
     }
 
     @Override
-    public @NonNull String toString() {
+    public @NotNull String toString() {
         return modelPath.toString();
     }
 
