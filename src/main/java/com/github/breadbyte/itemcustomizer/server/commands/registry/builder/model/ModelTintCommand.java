@@ -7,7 +7,7 @@ import com.github.breadbyte.itemcustomizer.server.util.Permission;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import net.minecraft.command.argument.HexColorArgumentType;
+import net.minecraft.command.argument.ColorArgumentType;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 
@@ -30,7 +30,9 @@ public class ModelTintCommand implements BaseCommand {
 
         var TintNode = InternalHelper.RequirePermissionFor(literal("tint"), permission);
         var TintIndexNode = CommandManager.argument(TINT_INDEX_ARGUMENT, IntegerArgumentType.integer(0));
-        var TintColorNode = CommandManager.argument(TINT_COLOR_ARGUMENT, HexColorArgumentType.hexColor());
+
+        // todo proper color args
+        var TintColorNode = CommandManager.argument(TINT_COLOR_ARGUMENT, ColorArgumentType.color());
         var TintResetNode = InternalHelper.RequirePermissionFor(literal("reset"), permission);
 
 

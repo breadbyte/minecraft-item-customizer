@@ -45,7 +45,7 @@ public class ModelApplyRunner implements IModelApplyRunner {
             return 0;
         }
 
-        var params1 = Result.ok(new ModelApplyParams(params.unwrap(), null, null));
-        return PreOperations.executeOperation(ctx, operations::reset, params1, StackRequirement.REQUIRED_MAINHAND, "", 1);
+        var params1 = Result.ok(new ModelApplyParams(params.unwrap(), 0, null, null));
+        return PreOperations.executeOperation(ctx, operations::reset, params1, StackRequirement.REQUIRED_MAINHAND, "", 0);
     }
 }

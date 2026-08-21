@@ -4,55 +4,45 @@ import com.github.breadbyte.itemcustomizer.server.commands.defs.model.wear.IMode
 import com.github.breadbyte.itemcustomizer.server.commands.defs.model.wear.ModelWearParams;
 import com.github.breadbyte.itemcustomizer.server.util.Reason;
 import com.github.breadbyte.itemcustomizer.server.util.Result;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.EquippableComponent;
 import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.item.ItemStack;
+
+import static com.github.breadbyte.itemcustomizer.server.commands.defs.model.wear.ModelWearSlot.*;
 
 public class ModelWearOperations implements IModelWearOperations {
     @Override
     public Result<String> apply(ModelWearParams params) {
         var playerItem = params.item();
-        var paramSlot = params.slot();
+        var player = params.player();
 
-        // Get the components for the currently held item
-        var itemComps = playerItem.getComponents();
-        var equippableComponent = itemComps.get(DataComponentTypes.EQUIPPABLE);
+        ItemStack mainHandStack = player.getEquippedStack(EquipmentSlot.MAINHAND);
 
-        // If the component doesn't exist, add it, otherwise, remove it
-        if (equippableComponent == null) {
-            if (paramSlot != null) {
-                switch (paramSlot) {
-                    case CHEST -> {
-                        playerItem.set(DataComponentTypes.EQUIPPABLE, EquippableComponent.builder(EquipmentSlot.CHEST).build());
-                        return Result.ok("You can now equip this item as a chestplate");
-                    }
-                    case LEGS -> {
-                        playerItem.set(DataComponentTypes.EQUIPPABLE, EquippableComponent.builder(EquipmentSlot.LEGS).build());
-                        return Result.ok("You can now equip this item as leggings");
-                    }
-                    case FEET -> {
-                        playerItem.set(DataComponentTypes.EQUIPPABLE, EquippableComponent.builder(EquipmentSlot.FEET).build());
-                        return Result.ok("You can now equip this item as boots");
-                    }
-
-                    default -> {
-                        playerItem.set(DataComponentTypes.EQUIPPABLE, EquippableComponent.builder(EquipmentSlot.HEAD).build());
-                        return Result.ok("You can now equip this item as headgear");
-                    }
-                }
+        switch (params.slot()) {
+            case CHEST -> {
+                ItemStack current = player.getEquippedStack(EquipmentSlot.CHEST);
+                player.equipStack(EquipmentSlot.CHEST, params.item().copy());
+                player.equipStack(EquipmentSlot.MAINHAND, current.copy());
+                return Result.ok("Equipped as a chestplate");
             }
-        } else {
-            // If the default item did not have the component, and we have it right now, remove it
-            if (playerItem.getDefaultComponents().get(DataComponentTypes.EQUIPPABLE) == null) {
-                playerItem.remove(DataComponentTypes.EQUIPPABLE);
-            } else {
-                playerItem.set(DataComponentTypes.EQUIPPABLE, playerItem.getDefaultComponents().get(DataComponentTypes.EQUIPPABLE));
+            case LEGS -> {
+                ItemStack current = player.getEquippedStack(EquipmentSlot.LEGS);
+                player.equipStack(EquipmentSlot.LEGS, params.item());
+                player.equipStack(EquipmentSlot.MAINHAND, current.copy());
+                return Result.ok("Equipped as leggings");
             }
-            return Result.ok("Item is no longer equippable");
+            case FEET -> {
+                ItemStack current = player.getEquippedStack(EquipmentSlot.FEET);
+                player.equipStack(EquipmentSlot.FEET, params.item());
+                player.equipStack(EquipmentSlot.MAINHAND, current.copy());
+                return Result.ok("Equipped as boots");
+            }
+
+            default -> {
+                ItemStack current = player.getEquippedStack(EquipmentSlot.HEAD);
+                player.equipStack(EquipmentSlot.HEAD, params.item());
+                player.equipStack(EquipmentSlot.MAINHAND, current.copy());
+                return Result.ok("Equipped as headgear");
+            }
         }
-
-        // Failsafe. I don't know how it could fail here, though
-        playerItem.set(DataComponentTypes.EQUIPPABLE, EquippableComponent.builder(EquipmentSlot.HEAD).build());
-        return Result.ok("Item is now equippable");
     }
 }

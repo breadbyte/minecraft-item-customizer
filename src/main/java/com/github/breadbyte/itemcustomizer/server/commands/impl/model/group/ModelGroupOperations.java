@@ -7,14 +7,12 @@ import com.github.breadbyte.itemcustomizer.server.commands.registry.InternalHelp
 import com.github.breadbyte.itemcustomizer.server.util.*;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.node.types.InheritanceNode;
-import net.minecraft.component.DataComponentTypes;
 import net.minecraft.inventory.ContainerLock;
-import net.minecraft.predicate.component.ComponentMapPredicate;
-import net.minecraft.predicate.component.ComponentsPredicate;
 import net.minecraft.predicate.item.ItemPredicate;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import org.apache.commons.lang3.NotImplementedException;
 
 public class ModelGroupOperations implements IModelGroupOperations {
     @Override
@@ -113,53 +111,55 @@ public class ModelGroupOperations implements IModelGroupOperations {
 
     @Override
     public Result<String> lockToGroup(ModelGroupParams params) {
-        var mhs = params.sourcePlayer().getMainHandStack();
-        if (!Luckperms.CheckPermission(params.targetPlayer(), Permission.GROUP.chain("admin", params.groupName()))) {
-            if (!AccessValidator.IsAdmin(params.sourcePlayer())) {
-                return Result.ok("You do not have permission to lock items to this group!");
-            }
-        }
-
-        if (LuckPermsProvider.get().getGroupManager().getGroup(params.groupName()) == null) {
-            return Result.ok("This group does not exist!");
-        }
-
-        if (mhs.get(DataComponentTypes.LOCK) != null) {
-            return Result.ok("This item is already locked!");
-        }
-
-        mhs.set(DataComponentTypes.LOCK, new ContainerLock(new ItemPredicate.Builder()
-                .components(ComponentsPredicate.Builder.create()
-                        .exact(ComponentMapPredicate.of(DataComponentTypes.ITEM_NAME, Text.literal(params.groupName())))
-                        .build())
-                .build()));
-
-        return Result.ok("Locked item to group " + params.groupName());
+        throw new NotImplementedException();
+//        var mhs = params.sourcePlayer().getMainHandStack();
+//        if (!Luckperms.CheckPermission(params.targetPlayer(), Permission.GROUP.chain("admin", params.groupName()))) {
+//            if (!AccessValidator.IsAdmin(params.sourcePlayer())) {
+//                return Result.ok("You do not have permission to lock items to this group!");
+//            }
+//        }
+//
+//        if (LuckPermsProvider.get().getGroupManager().getGroup(params.groupName()) == null) {
+//            return Result.ok("This group does not exist!");
+//        }
+//
+//        if (mhs.get(DataComponentTypes.LOCK) != null) {
+//            return Result.ok("This item is already locked!");
+//        }
+//
+//        mhs.set(DataComponentTypes.LOCK, new ContainerLock(new ItemPredicate.Builder()
+//                .components(ComponentsPredicate.Builder.create()
+//                        .exact(ComponentMapPredicate.of(DataComponentTypes.ITEM_NAME, Text.literal(params.groupName())))
+//                        .build())
+//                .build()));
+//
+//        return Result.ok("Locked item to group " + params.groupName());
     }
 
     @Override
     public Result<String> unlockFromGroup(ModelGroupParams params) {
-        var mhs = params.sourcePlayer().getMainHandStack();
-        var lock = mhs.get(DataComponentTypes.LOCK);
-        var component = ModelLockOperations.ReadLockComponent(mhs);
-
-        if (!Luckperms.CheckPermission(params.targetPlayer(), Permission.GROUP.chain("admin", params.groupName()))) {
-            if (!AccessValidator.IsAdmin(params.sourcePlayer())) {
-                return Result.ok("You do not have permission to unlock items from this group!");
-            }
-        }
-
-        if (LuckPermsProvider.get().getGroupManager().getGroup(params.groupName()) == null) {
-            return Result.ok("This group does not exist!");
-        }
-
-        if (lock != null) {
-            if (component.isErr()) return Result.err(component.unwrapErr());
-            if (component.unwrap().contains("-")) return Result.ok("This item is locked!");
-            if (!component.unwrap().equalsIgnoreCase(params.groupName())) return Result.ok("This item is not locked to this group!");
-        }
-
-        mhs.remove(DataComponentTypes.LOCK);
-        return Result.ok("Unlocked item from group " + params.groupName());
+        throw new NotImplementedException();
+//        var mhs = params.sourcePlayer().getMainHandStack();
+//        var lock = mhs.get(DataComponentTypes.LOCK);
+//        var component = ModelLockOperations.ReadLockComponent(mhs);
+//
+//        if (!Luckperms.CheckPermission(params.targetPlayer(), Permission.GROUP.chain("admin", params.groupName()))) {
+//            if (!AccessValidator.IsAdmin(params.sourcePlayer())) {
+//                return Result.ok("You do not have permission to unlock items from this group!");
+//            }
+//        }
+//
+//        if (LuckPermsProvider.get().getGroupManager().getGroup(params.groupName()) == null) {
+//            return Result.ok("This group does not exist!");
+//        }
+//
+//        if (lock != null) {
+//            if (component.isErr()) return Result.err(component.unwrapErr());
+//            if (component.unwrap().contains("-")) return Result.ok("This item is locked!");
+//            if (!component.unwrap().equalsIgnoreCase(params.groupName())) return Result.ok("This item is not locked to this group!");
+//        }
+//
+//        mhs.remove(DataComponentTypes.LOCK);
+//        return Result.ok("Unlocked item from group " + params.groupName());
     }
 }

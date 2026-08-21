@@ -8,6 +8,7 @@ import com.github.breadbyte.itemcustomizer.server.brigadier.ModelCategorySuggest
 import com.github.breadbyte.itemcustomizer.server.brigadier.ModelNodeSuggestionProvider;
 import com.github.breadbyte.itemcustomizer.server.util.Permission;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
@@ -58,10 +59,11 @@ public class ModelApplyCommand implements BaseCommand {
         }
 
         // model apply itemNamespace itemCategory node1 [node2] ... [node6]
-        dispatcher.register(root
-                .then(ApplyNode
-                .then(NamespaceNode
-                .then(lastNode))));
+        dispatcher.register(root.then(CommandManager.argument(COLOR_ARGUMENT, IntegerArgumentType.integer()).executes(RUNNER::applyModel)));
+//        dispatcher.register(root
+//                .then(ApplyNode
+//                .then(NamespaceNode
+//                .then(lastNode))));
 
         // model reset
         dispatcher.register(root

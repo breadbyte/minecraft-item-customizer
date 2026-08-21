@@ -17,11 +17,11 @@ public class Postmaster {
     static final SoundEvent SOUND_NO = SoundEvents.ENTITY_VILLAGER_NO;
     static void PlaySoundYes(PlayerEntity player) {
         if (player == null) return;
-        player.getEntityWorld().playSoundClient(player.getX(), player.getY(), player.getZ(), SOUND_YES, SoundCategory.MASTER, 1.0F, 1.0F, false);
+        player.getEntityWorld().playSound(player.getX(), player.getY(), player.getZ(), SOUND_YES, SoundCategory.MASTER, 1.0F, 1.0F, false);
     }
     static void PlaySoundNo(PlayerEntity player) {
         if (player == null) return;
-        player.getEntityWorld().playSoundClient(player.getX(), player.getY(), player.getZ(), SOUND_NO, SoundCategory.MASTER, 1.0F, 1.0F, false);
+        player.getEntityWorld().playSound(player.getX(), player.getY(), player.getZ(), SOUND_NO, SoundCategory.MASTER, 1.0F, 1.0F, false);
     }
 
     public static void Hud_SendMessage_Yes(ServerCommandSource src, String message) {

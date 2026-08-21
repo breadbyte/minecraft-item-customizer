@@ -10,7 +10,6 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
-import net.minecraft.text.TextCodecs;
 
 public class Helper {
 
@@ -24,12 +23,8 @@ public class Helper {
     }
 
     public static Text JsonString2Text(String input) {
-        Gson gson = new Gson();
         String pseudojson = ToSomewhatValidJson(input);
-        return TextCodecs.CODEC
-                .decode(JsonOps.INSTANCE, gson.fromJson(pseudojson, JsonElement.class))
-                .getOrThrow()
-                .getFirst();
+        return Text.Serializer.fromJson(pseudojson);
     }
 
     public static Permission PermissionToNode(String permission) {
@@ -63,7 +58,7 @@ public class Helper {
     public static void SendMessage(PlayerEntity player, String message, net.minecraft.sound.SoundEvent sound) {
         player.sendMessage(Text.of(message), true);
         if (sound != null) {
-            player.getEntityWorld().playSoundClient(player.getX(), player.getY(), player.getZ(), sound, SoundCategory.MASTER, 1.0F, 1.0F, false);
+            player.getEntityWorld().playSound(player.getX(), player.getY(), player.getZ(), sound, SoundCategory.MASTER, 1.0F, 1.0F, false);
         }
     }
 
@@ -71,7 +66,7 @@ public class Helper {
     public static void SendMessage(PlayerEntity player, Text message, net.minecraft.sound.SoundEvent sound) {
         player.sendMessage(message, true);
         if (sound != null) {
-            player.getEntityWorld().playSoundClient(player.getX(), player.getY(), player.getZ(), sound, SoundCategory.MASTER, 1.0F, 1.0F, false);
+            player.getEntityWorld().playSound(player.getX(), player.getY(), player.getZ(), sound, SoundCategory.MASTER, 1.0F, 1.0F, false);
         }
     }
 
@@ -79,7 +74,7 @@ public class Helper {
     @Deprecated
     public static void SendMessage(PlayerEntity player, String suggestionsUpdated, RegistryEntry.Reference<SoundEvent> soundEventReference) {
         player.sendMessage(Text.of(suggestionsUpdated), true);
-        player.getEntityWorld().playSoundClient(player.getX(), player.getY(), player.getZ(), soundEventReference.value(), SoundCategory.MASTER, 1.0F, 1.0F, false);
+        player.getEntityWorld().playSound(player.getX(), player.getY(), player.getZ(), soundEventReference.value(), SoundCategory.MASTER, 1.0F, 1.0F, false);
     }
 
 
@@ -87,7 +82,7 @@ public class Helper {
     @Deprecated
     public static void SendMessageYes(PlayerEntity player, String message) {
         player.sendMessage(Text.of(message), true);
-        player.getEntityWorld().playSoundClient(player.getX(), player.getY(), player.getZ(), SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, 1.0F, 1.0F, false);
+        player.getEntityWorld().playSound(player.getX(), player.getY(), player.getZ(), SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, 1.0F, 1.0F, false);
     }
 
     public static String trimTrailingSlash(String str) {

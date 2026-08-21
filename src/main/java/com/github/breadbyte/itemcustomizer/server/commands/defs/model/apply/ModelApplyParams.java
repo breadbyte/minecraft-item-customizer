@@ -4,4 +4,4 @@ import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
 import com.github.breadbyte.itemcustomizer.server.data.ModelPath;
 import net.minecraft.item.ItemStack;
 
-public record ModelApplyParams(ItemStack item, ModelPath identifier, CustomModelDefinition model) {}
+public record ModelApplyParams(ItemStack item, int number, ModelPath identifier, CustomModelDefinition model) {}

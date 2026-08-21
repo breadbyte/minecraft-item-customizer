@@ -1,7 +1,8 @@
 package com.github.breadbyte.itemcustomizer.server.commands.defs.model.wear;
 
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 
-public record ModelWearParams(ItemStack item, ModelWearSlot slot) {
+public record ModelWearParams(ItemStack item, ModelWearSlot slot, PlayerEntity player) {
 }
 

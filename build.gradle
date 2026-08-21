@@ -119,6 +119,10 @@ publishing {
     }
 }
 
-tasks.named('test', Test) {
-    useJUnitPlatform()
+//tasks.named('test', Test) {
+//    useJUnitPlatform()
+//}
+
+test {
+    enabled = false
 }

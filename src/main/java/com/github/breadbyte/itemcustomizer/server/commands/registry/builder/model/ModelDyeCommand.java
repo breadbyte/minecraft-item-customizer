@@ -6,7 +6,7 @@ import com.github.breadbyte.itemcustomizer.server.commands.registry.InternalHelp
 import com.github.breadbyte.itemcustomizer.server.util.Permission;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import net.minecraft.command.argument.HexColorArgumentType;
+import net.minecraft.command.argument.ColorArgumentType;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 
@@ -27,7 +27,9 @@ public class ModelDyeCommand implements BaseCommand {
         // We need to apply the permission to the 'dye' and 'reset' subcommands.
 
         var DyeNode = InternalHelper.RequirePermissionFor(literal("dye"), permission);
-        var DyeColorNode = CommandManager.argument(COLOR_ARGUMENT, HexColorArgumentType.hexColor());
+
+        // todo proper color args
+        var DyeColorNode = CommandManager.argument(COLOR_ARGUMENT, ColorArgumentType.color());
         var DyeResetNode = InternalHelper.RequirePermissionFor(literal("reset"), permission);
 
 

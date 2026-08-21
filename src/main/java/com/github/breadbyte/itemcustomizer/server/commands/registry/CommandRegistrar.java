@@ -73,21 +73,21 @@ public class CommandRegistrar {
         renameCommand.register(Permission.RENAME, "name", dispatcher, root);
         loreCommand.register(Permission.LORE,"lore", dispatcher, root);
 
-        modelPermissionCommand.register(Permission.GRANT, "permission", dispatcher, root);
-        modelNamespaceCommand.register(Permission.ADMIN, "namespace", dispatcher, root);
-        modelGroupCommand.register(Permission.GROUP, "group", dispatcher, root);
+        //modelPermissionCommand.register(Permission.GRANT, "permission", dispatcher, root);
+        //modelNamespaceCommand.register(Permission.ADMIN, "namespace", dispatcher, root);
+        //modelGroupCommand.register(Permission.GROUP, "group", dispatcher, root);
 
 
         // internally, model _is_ the root command, so we don't use the subCommandName
         // todo: figure out why these sets of permissions don't work, but the ones above do
         modelApplyCommand.register(customizePermission, "apply", dispatcher, root);
-        modelGlintCommand.register(customizePermission, "glint", dispatcher, root);
-        modelTintCommand.register(customizePermission, "tint", dispatcher, root);
+        //modelGlintCommand.register(customizePermission, "glint", dispatcher, root);
+        //modelTintCommand.register(customizePermission, "tint", dispatcher, root);
         modelWearCommand.register(customizePermission, "wear", dispatcher, root);
-        modelDyeCommand.register(customizePermission, "dye", dispatcher, root);
-        modelLockCommand.register(customizePermission, "lock", dispatcher, root);
-        modelEquipmentCommand.register(customizePermission, "equipment", dispatcher, root);
-        modelCopyCommand.register(customizePermission, "copy", dispatcher, root);
+        //modelDyeCommand.register(customizePermission, "dye", dispatcher, root);
+        //modelLockCommand.register(customizePermission, "lock", dispatcher, root);
+        //modelEquipmentCommand.register(customizePermission, "equipment", dispatcher, root);
+        //modelCopyCommand.register(customizePermission, "copy", dispatcher, root);
 
     }
 }

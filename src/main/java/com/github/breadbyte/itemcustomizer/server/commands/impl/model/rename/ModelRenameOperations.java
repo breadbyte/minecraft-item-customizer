@@ -5,7 +5,6 @@ import com.github.breadbyte.itemcustomizer.server.commands.defs.model.rename.Mod
 import com.github.breadbyte.itemcustomizer.server.commands.registry.builder.RenameCommand;
 import com.github.breadbyte.itemcustomizer.server.commands.runner.PreOperations;
 import com.github.breadbyte.itemcustomizer.server.util.Result;
-import net.minecraft.component.DataComponentTypes;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 
@@ -31,15 +30,14 @@ public class ModelRenameOperations implements IModelRenameOperations {
             outputText = Text.literal(input).setStyle(Style.EMPTY.withItalic(false));
         }
 
-        playerItem.set(DataComponentTypes.CUSTOM_NAME, outputText);
-
+        playerItem.setCustomName(outputText);
         return Result.ok();
     }
 
     @Override
     public Result<String> reset(ModelRenameParams params) {
         var playerItem = params.item();
-        playerItem.remove(DataComponentTypes.CUSTOM_NAME);
+        playerItem.removeCustomName();
         return Result.ok();
     }
 }

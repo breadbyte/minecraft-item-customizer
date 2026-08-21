@@ -9,8 +9,7 @@ import com.github.breadbyte.itemcustomizer.server.data.CustomModelDefinition;
 import com.github.breadbyte.itemcustomizer.server.data.ModelsIndex;
 import com.github.breadbyte.itemcustomizer.server.util.Reason;
 import com.github.breadbyte.itemcustomizer.server.util.Result;
-import net.minecraft.component.ComponentChanges;
-import net.minecraft.component.DataComponentTypes;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Identifier;
 
 public class ModelApplyOperations implements IModelApplyOperations {
@@ -25,68 +24,39 @@ public class ModelApplyOperations implements IModelApplyOperations {
         var item = params.item();
 
         // Set it to the new model
-        item.set(DataComponentTypes.ITEM_MODEL, Identifier.of(ns.namespace(), ns.getSegments()));
+        NbtCompound nbt = item.getOrCreateNbt();
+        nbt.putInt("CustomModelData", params.number());
 
-        // HACK HACK
-        if (params.model() != null) {
-            if (params.model()._internalIsEquipment()) {
-                var eqp = item.getComponents().get(DataComponentTypes.EQUIPPABLE);
-                if (eqp != null) {
-                    equipmentOperations.toggle(new ModelEquipmentParams(item));
-                }
-            }
-        }
+//        // HACK HACK
+//        if (params.model() != null) {
+//            if (params.model()._internalIsEquipment()) {
+//                var eqp = item.getComponents().get(DataComponentTypes.EQUIPPABLE);
+//                if (eqp != null) {
+//                    equipmentOperations.toggle(new ModelEquipmentParams(item));
+//                }
+//            }
+//        }
+//
+//        var modelResult = ModelsIndex.INSTANCE.getExact(ns);
+//        CustomModelDefinition model = null;
+//
+//        if (modelResult.isOk()) { model = modelResult.unwrap(); }
+//
+//        if (model == null)
+//            return Result.ok("Model " + ns + " applied!");
+//
+//        if (model.madeBy() == null || model.madeBy().isBlank()) {
+//            return Result.ok("Model " + model.getName() + " applied!");
+//        }
+//        return Result.ok("Model " + model.getName() + " made by " + model.madeBy() + " applied!");
 
-        var modelResult = ModelsIndex.INSTANCE.getExact(ns);
-        CustomModelDefinition model = null;
-
-        if (modelResult.isOk()) { model = modelResult.unwrap(); }
-
-        if (model == null)
-            return Result.ok("Model " + ns + " applied!");
-
-        if (model.madeBy() == null || model.madeBy().isBlank()) {
-            return Result.ok("Model " + model.getName() + " applied!");
-        }
-        return Result.ok("Model " + model.getName() + " made by " + model.madeBy() + " applied!");
+        return Result.ok("Applied custom model "+ params.number() + " to item!");
     }
 
     @Override
     public Result<String> reset(ModelApplyParams params) {
-
-        // Get its components
-        var item = params.item();
-        var itemComps = item.getComponents();
-        var defaultComponents = item.getItem().getDefaultStack().getComponents();
-
-        item.remove(DataComponentTypes.ITEM_MODEL);
-        item.remove(DataComponentTypes.CUSTOM_MODEL_DATA);
-
-        item.set(DataComponentTypes.ITEM_MODEL, defaultComponents.get(DataComponentTypes.ITEM_MODEL));
-        item.remove(DataComponentTypes.CUSTOM_MODEL_DATA);
-
-        if (defaultComponents.get(DataComponentTypes.EQUIPPABLE) != null)        {
-            item.set(DataComponentTypes.EQUIPPABLE, defaultComponents.get(DataComponentTypes.EQUIPPABLE));
-        } else {
-            item.remove(DataComponentTypes.EQUIPPABLE);
-        }
-
-        if (item.getComponents().size() != defaultComponents.size()) {
-
-            // If we have a trim, check if the component size matches if we exclude the trim
-            if (item.getComponents().contains(DataComponentTypes.TRIM)) {
-                if ((item.getComponents().size() - 1) != defaultComponents.size()) {
-
-                    // If we still don't match, something's wrong
-                    ItemCustomizer.LOGGER.info("Item components out of sync after reset! Current:");
-                    ItemCustomizer.LOGGER.info(item.getComponents().toString());
-                    ItemCustomizer.LOGGER.info("Item components out of sync after reset! Default:");
-                    ItemCustomizer.LOGGER.info(defaultComponents.toString());
-
-                    return Result.err(new Reason.InternalError("Warning: Item components out of sync. Check logs for details."));
-                }
-            }
-        }
+        NbtCompound nbt = params.item().getOrCreateNbt();
+        nbt.remove("CustomModelData");
 
         return Result.ok("Model reset!");
     }

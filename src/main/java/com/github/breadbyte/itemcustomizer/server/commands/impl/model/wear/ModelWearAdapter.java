@@ -31,6 +31,6 @@ public class ModelWearAdapter implements Adapter<ModelWearParams> {
         } catch (IllegalArgumentException ignored) {
         }
 
-        return Result.ok(new ModelWearParams(playerItem.unwrap(), paramSlot));
+        return Result.ok(new ModelWearParams(playerItem.unwrap(), paramSlot, player.unwrap()));
     }
 }

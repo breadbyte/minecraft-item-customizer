@@ -8,12 +8,14 @@ import com.github.breadbyte.itemcustomizer.server.commands.runner.PreOperations;
 import com.github.breadbyte.itemcustomizer.server.util.Helper;
 import com.github.breadbyte.itemcustomizer.server.util.Reason;
 import com.github.breadbyte.itemcustomizer.server.util.Result;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.LoreComponent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtString;
+import net.minecraft.text.LiteralTextContent;
 import net.minecraft.text.MutableText;
-import net.minecraft.text.PlainTextContent;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 
@@ -56,47 +58,99 @@ public class ModelLoreOperations implements IModelLoreOperations {
         var playerItem = params.item();
 
         // Get the default lore for the item
-        var defaultItem = playerItem.getItem().getDefaultStack().getComponents();
-        var defaultLore = defaultItem.get(DataComponentTypes.LORE);
+        NbtCompound defaultTag = playerItem.getItem().getDefaultStack().getNbt();
 
         // If the default item has default lore, set it to that
         // Otherwise, I don't think there are many items in-game that have lore by default
-        if (defaultItem.contains(DataComponentTypes.LORE))
-            playerItem.set(DataComponentTypes.LORE, defaultLore);
-        else
-            playerItem.remove(DataComponentTypes.LORE);
+        if (defaultTag != null
+                && defaultTag.contains("display", NbtElement.COMPOUND_TYPE)
+                && defaultTag.getCompound("display").contains("Lore", NbtElement.LIST_TYPE)) {
+            // 1. Get or create the main item tag compound
+            NbtCompound playerTag = playerItem.getOrCreateNbt();
+
+            // 2. Get or create the "display" compound sub-tag
+            NbtCompound display;
+            if (playerTag.contains("display", NbtElement.COMPOUND_TYPE)) {
+                display = playerTag.getCompound("display");
+            } else {
+                display = new NbtCompound();
+                playerTag.put("display", display);
+            }
+
+            // 3. Copy the default "Lore" list into the item
+            NbtList defaultLore = defaultTag.getCompound("display").getList("Lore", NbtElement.STRING_TYPE);
+            display.put("Lore", defaultLore.copy());
+        } else {
+            // Remove the lore (and the "display" tag if it becomes empty)
+            NbtCompound playerTag = playerItem.getNbt();
+            if (playerTag != null && playerTag.contains("display", NbtElement.COMPOUND_TYPE)) {
+                NbtCompound display = playerTag.getCompound("display");
+                display.remove("Lore");
+                if (display.isEmpty())
+                    playerTag.remove("display");
+            }
+        }
 
         return Result.ok();
     }
 
     private static Result<String> addLoreSingleLine(ItemStack item, String input) {
-        Text text = Helper.JsonString2Text(input);
+        // 1. Get or create the main item tag compound
+        NbtCompound tag = item.getOrCreateNbt();
 
-        var currentLore = item.get(DataComponentTypes.LORE);
-
-        if (currentLore == null) {
-            item.set(DataComponentTypes.LORE, new LoreComponent(new ArrayList<>(List.of(text))));
-            return Result.ok();
+        // 2. Get or create the "display" compound sub-tag
+        NbtCompound display;
+        if (tag.contains("display", NbtElement.COMPOUND_TYPE)) {
+            display = tag.getCompound("display");
+        } else {
+            display = new NbtCompound();
+            tag.put("display", display);
         }
 
-        var newLines = new ArrayList<>(currentLore.lines());
-        newLines.add(text);
-        item.set(DataComponentTypes.LORE, new LoreComponent(newLines));
+        // 3. Get or create the "Lore" list
+        NbtList loreList;
+        if (display.contains("Lore", NbtElement.LIST_TYPE)) {
+            loreList = display.getList("Lore", NbtElement.STRING_TYPE);
+        } else {
+            loreList = new NbtList();
+            display.put("Lore", loreList);
+        }
+
+        // 4. Serialize your Text object into Minecraft's mandatory 1.20.1 JSON string format
+        String jsonString = Text.Serializer.toJson(Text.of(input));
+
+        // 5. Append the line to the list
+        loreList.add(NbtString.of(jsonString));
 
         return Result.ok();
     }
 
     private static Result<String> applySplitStyledChars(ItemStack item, List<List<StyledChar>> input) {
-        var currentLore = item.get(DataComponentTypes.LORE);
+        // 1. Get or create the main item tag compound
+        NbtCompound tag = item.getOrCreateNbt();
 
-        if (currentLore == null) {
-            item.set(DataComponentTypes.LORE, new LoreComponent(styledCharsToTextLines(input)));
-            return Result.ok();
+        // 2. Get or create the "display" compound sub-tag
+        NbtCompound display;
+        if (tag.contains("display", NbtElement.COMPOUND_TYPE)) {
+            display = tag.getCompound("display");
+        } else {
+            display = new NbtCompound();
+            tag.put("display", display);
         }
 
-        var newLines = new ArrayList<>(currentLore.lines());
-        newLines.addAll(styledCharsToTextLines(input));
-        item.set(DataComponentTypes.LORE, new LoreComponent(newLines));
+        // 3. Get or create the "Lore" list
+        NbtList loreList;
+        if (display.contains("Lore", NbtElement.LIST_TYPE)) {
+            loreList = display.getList("Lore", NbtElement.STRING_TYPE);
+        } else {
+            loreList = new NbtList();
+            display.put("Lore", loreList);
+        }
+
+        // 4. Serialize each styled line into Minecraft's mandatory 1.20.1 JSON string format and append
+        for (Text line : styledCharsToTextLines(input)) {
+            loreList.add(NbtString.of(Text.Serializer.toJson(line)));
+        }
 
         return Result.ok();
     }
@@ -149,8 +203,8 @@ public class ModelLoreOperations implements IModelLoreOperations {
 
     private static void collectChars(Text text, List<StyledChar> out) {
         Style style = text.getStyle();
-        String raw = text.getContent() instanceof PlainTextContent plain
-                ? plain.string()
+        String raw = text.getContent() instanceof LiteralTextContent literal
+                ? literal.string()
                 : text.getString(); // fallback for TranslatableTextContent etc.
 
         for (char c : raw.toCharArray()) {
