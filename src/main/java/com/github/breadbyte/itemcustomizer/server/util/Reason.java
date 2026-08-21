@@ -9,18 +9,27 @@ public sealed interface Reason {
             return message();
         }
 
-        return switch (this) {
-            case InvalidPlayer p -> "Command can only be called by a player.";
-            case NoPermission p -> "You do not have permission to use this command!";
-            case NoItem i -> "You are not holding an item!";
-            case NoExp e -> "This command requires at least " + e.required() + " experience level(s)!";
-            case WrongOwnership o -> "You do not own this item!";
-            case InvalidInput i -> "Invalid input!";
-            case NoInput i -> "No input provided!";
-            case InternalError i -> "An internal error occurred while executing this command!";
-            case ItemLockedOwner i -> "Unlock the item before modifying it!";
-            default -> throw new IllegalStateException("Unexpected value: " + this);
-        };
+        if (this instanceof NoExp e) {
+            return "This command requires at least " + e.required() + " experience level(s)!";
+        } else if (this instanceof InvalidPlayer) {
+            return "Command can only be called by a player.";
+        } else if (this instanceof NoPermission) {
+            return "You do not have permission to use this command!";
+        } else if (this instanceof NoItem) {
+            return "You are not holding an item!";
+        } else if (this instanceof WrongOwnership) {
+            return "You do not own this item!";
+        } else if (this instanceof InvalidInput) {
+            return "Invalid input!";
+        } else if (this instanceof NoInput) {
+            return "No input provided!";
+        } else if (this instanceof InternalError) {
+            return "An internal error occurred while executing this command!";
+        } else if (this instanceof ItemLockedOwner) {
+            return "Unlock the item before modifying it!";
+        }
+
+        throw new IllegalStateException("Unexpected value: " + this);
     }
 
     record InvalidPlayer(String message)                    implements Reason { public InvalidPlayer() { this(null); } }
